@@ -430,21 +430,26 @@ Then we...
 
 - [Added getenv](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
 
+- [Added String Functions](https://github.com/lupyuen/tcc-riscv32-wasm/commit/4ea06f7602471a65539c65c746bfa65c6d1d4184)
+
 When we run it...
 
 ```text
 + node zig/test.js
 compile_program
-wasm://wasm/006296ae:1
+wasm://wasm/006267b2:1
 RuntimeError: unreachable
-    at signature_mismatch:strchr (wasm://wasm/006296ae:wasm-function[31]:0x61c)
-    at tcc_add_file (wasm://wasm/006296ae:wasm-function[114]:0x24760)
-    at main (wasm://wasm/006296ae:wasm-function[135]:0x2959c)
-    at compile_program (wasm://wasm/006296ae:wasm-function[266]:0x4e3f6)
+    at signature_mismatch:open (wasm://wasm/006267b2:wasm-function[28]:0x609)
+    at tcc_add_file_internal (wasm://wasm/006267b2:wasm-function[110]:0x23974)
+    at tcc_add_file (wasm://wasm/006267b2:wasm-function[111]:0x24820)
+    at main (wasm://wasm/006267b2:wasm-function[132]:0x29589)
+    at compile_program (wasm://wasm/006267b2:wasm-function[263]:0x4e3e3)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
+
+TODO: Implement open()
 
 # Analysis of Missing Functions
 
