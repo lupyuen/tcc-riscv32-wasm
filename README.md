@@ -424,11 +424,15 @@ When we run it...
 
 ```text
 + node zig/test.js
-wasm://wasm/006102ea:1
+wasm://wasm/00610af2:1
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/006102ea:wasm-function[269]:0x4e666)
-    at compile_program (wasm://wasm/006102ea:wasm-function[267]:0x4e1e4)
+    at builtin.default_panic (wasm://wasm/00610af2:wasm-function[272]:0x4e9dc)
+    at malloc (wasm://wasm/00610af2:wasm-function[294]:0x4f08d)
+    at tcc_new (wasm://wasm/00610af2:wasm-function[110]:0x226cf)
+    at main (wasm://wasm/00610af2:wasm-function[136]:0x2862c)
+    at compile_program (wasm://wasm/00610af2:wasm-function[267]:0x4e333)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:10:15
 ```
 
-TODO: How to see the Panic Stack Trace?
+TODO: Fix the malloc
+

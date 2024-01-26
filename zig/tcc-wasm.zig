@@ -10,6 +10,7 @@ pub export fn compile_program() u32 {
     var args: [max_args][max_arg_size:0]u8 = undefined;
     var args_ptrs: [max_args:null]?[*:0]u8 = undefined;
 
+    // Prepare the TCC args
     const argv = [_][]const u8{
         "tcc",
         "-c",
@@ -17,14 +18,13 @@ pub export fn compile_program() u32 {
     };
     const argc = argv.len;
     for (argv, 0..) |s, i| {
-        @memcpy(&args[i], s);
+        std.mem.copyForwards(u8, &args[i], s);
         args[i][s.len] = 0;
         args_ptrs[i] = &args[i];
     }
     args_ptrs[argc] = null;
 
-    // TODO: Calling main() will fail the build...
-    // error: wasm-ld: tcc.o: undefined symbol: realloc
+    // Call the TCC Compiler
     _ = main(argc, &args_ptrs);
 
     return 123;
