@@ -460,7 +460,7 @@ RuntimeError: unreachable
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement sscanf()
+TODO: Implement sscanf() in C?
 
 # Analysis of Missing Functions
 
