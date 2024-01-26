@@ -318,7 +318,7 @@ TODO: How to fix these missing POSIX Functions for WebAssembly (Web Browser)
 
 TODO: Do we need all of them? Maybe we run in a Web Browser and see what crashes? [Similar to this](https://lupyuen.github.io/articles/lvgl3)
 
-# Test TCC in a Web Browser
+# Test the TCC WebAssembly with NodeJS
 
 We link our Compiled WebAssembly `tcc.o` with our Zig App: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
 
@@ -360,3 +360,32 @@ WebAssembly.instantiate(typedArray, {
   console.log(`ret=${ret}`);
 });
 ```
+
+# Test the TCC WebAssembly in a Web Browser
+
+We test the TCC WebAssembly in a Web Browser with [docs/index.html](docs/index.html) and [docs/tcc.js](docs/tcc.js)...
+
+```bash
+## Start the Web Server
+cargo install simple-http-server
+simple-http-server ./docs &
+
+## Copy the Linked TCC WebAssembly
+cp tcc-wasm.wasm docs/
+```
+
+Browse to...
+
+```text
+http://localhost:8000/index.html
+```
+
+Open the JavaScript Console. Yep our TCC WebAssembly runs OK in a Web Browser!
+
+```text
+main: start
+ret=123
+main: end
+```
+
+TODO: Start the TCC Compiler
