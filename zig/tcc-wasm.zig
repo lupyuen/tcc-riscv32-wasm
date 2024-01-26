@@ -51,6 +51,21 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     return ret;
 }
 
+export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
+    debug("read: fd={}, nbyte={}", .{ fd0, nbyte });
+    const s =
+        \\int main(int argc, char *argv[]) {
+        \\  printf("Hello, World!!\n");
+        \\  return 0;
+        \\}
+    ;
+    // TODO: Check overflow
+    _ = memcpy(buf, s, strlen(s));
+    buf[strlen(s)] = 0;
+    debug("read: return buf={s}", .{buf});
+    return @intCast(strlen(s));
+}
+
 var fd: c_int = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -364,9 +379,6 @@ pub export fn printf(_: c_int) c_int {
 }
 pub export fn qsort(_: c_int) c_int {
     @panic("TODO: qsort");
-}
-pub export fn read(_: c_int) c_int {
-    @panic("TODO: read");
 }
 pub export fn remove(_: c_int) c_int {
     @panic("TODO: remove");
