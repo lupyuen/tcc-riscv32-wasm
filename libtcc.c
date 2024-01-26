@@ -66,6 +66,18 @@
 
 #include "tcc.h"
 
+////TODO
+void longjmp(int jmp_buf, int ret) {
+    puts("TODO: longjmp");
+    exit(1);
+}
+
+///TODO
+int setjmp(int jmp_buf) {
+    puts("TODO: setjmp");
+    return 0;
+}
+
 /********************************************************/
 /* global variables */
 
@@ -156,6 +168,7 @@ ST_FUNC void wait_sem(TCCSem *p)
 {
     if (!p->init)
         sem_init(&p->sem, 0, 1), p->init = 1;
+    #define EINTR 4 ////TODO
     while (sem_wait(&p->sem) < 0 && errno == EINTR);
 }
 ST_FUNC void post_sem(TCCSem *p)

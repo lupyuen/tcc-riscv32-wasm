@@ -36,7 +36,7 @@
 #include <errno.h>
 #include <math.h>
 #include <fcntl.h>
-#include <setjmp.h>
+////TODO: #include <setjmp.h>
 #include <time.h>
 
 #ifndef _WIN32
@@ -884,7 +884,8 @@ struct TCCState {
     void *error_opaque;
     void (*error_func)(void *opaque, const char *msg);
     int error_set_jmp_enabled;
-    jmp_buf error_jmp_buf;
+    ////TODO: jmp_buf error_jmp_buf;
+    int error_jmp_buf; ////TODO
     int nb_errors;
 
     /* output file for preprocessing (-E) */
