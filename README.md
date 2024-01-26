@@ -438,29 +438,33 @@ Then we...
 
 - [Increase malloc buffer](https://github.com/lupyuen/tcc-riscv32-wasm/commit/765bc8b1313d579f9e8975ec57e949408385ae6e)
 
+- [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
+
 When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107188, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107188
+sem_init: sem=tcc-wasm.sem_t@1071a8, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@1071a8
 TODO: setjmp
-wasm://wasm/0064c856:1
+sscanf: str=0.9.27, format=%d.%d.%d
+wasm://wasm/0064e216:1
 RuntimeError: unreachable
-    at signature_mismatch:sscanf (wasm://wasm/0064c856:wasm-function[23]:0x621)
-    at tcc_compile (wasm://wasm/0064c856:wasm-function[68]:0xe9df)
-    at tcc_add_file_internal (wasm://wasm/0064c856:wasm-function[108]:0x23ecb)
-    at tcc_add_file (wasm://wasm/0064c856:wasm-function[109]:0x24844)
-    at main (wasm://wasm/0064c856:wasm-function[130]:0x295ad)
-    at compile_program (wasm://wasm/0064c856:wasm-function[261]:0x4e407)
+    at signature_mismatch:vsnprintf (wasm://wasm/0064e216:wasm-function[13]:0x5fb)
+    at cstr_printf (wasm://wasm/0064e216:wasm-function[66]:0xe1fd)
+    at tcc_compile (wasm://wasm/0064e216:wasm-function[67]:0xea19)
+    at tcc_add_file_internal (wasm://wasm/0064e216:wasm-function[107]:0x23ec9)
+    at tcc_add_file (wasm://wasm/0064e216:wasm-function[108]:0x24842)
+    at main (wasm://wasm/0064e216:wasm-function[129]:0x295ab)
+    at compile_program (wasm://wasm/0064e216:wasm-function[260]:0x4e405)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement sscanf() in C?
+TODO: Implement vsnprintf() in C?
 
 # Analysis of Missing Functions
 
