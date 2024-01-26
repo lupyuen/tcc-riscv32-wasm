@@ -426,11 +426,13 @@ Then we...
 
 - Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc) and [ziglibc](https://github.com/marler8997/ziglibc)
 
-- [Fixed the malloc](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
+- [Fixed malloc()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
 
-- [Added getenv](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
+- [Added getenv()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
 
 - [Added String Functions](https://github.com/lupyuen/tcc-riscv32-wasm/commit/4ea06f7602471a65539c65c746bfa65c6d1d4184)
+
+- [Added open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/ddbe64d6e3a5821c4dc48b99096fb4cf85402e9c)
 
 When we run it...
 
@@ -451,7 +453,7 @@ RuntimeError: unreachable
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement open()
+TODO: open() tries to open `hello.c` yay! Implement open()
 
 # Analysis of Missing Functions
 
