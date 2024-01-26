@@ -434,7 +434,7 @@ Then we...
 
 - [Added open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c0095568c3595c09345936b74616b528c99b364e)
 
-- [Added sem_init()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7d72267aaf31d53c6af709acf1d6df099069f0c0)
+- [Add sem_init, sem_wait, puts](https://github.com/lupyuen/tcc-riscv32-wasm/commit/99d1d4a19a2530d1972222d0cdea1c52771f537c)
 
 When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 
@@ -443,21 +443,23 @@ When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 compile_program
 open: path=hello.c, oflag=0, return fd=3
 sem_init: sem=tcc-wasm.sem_t@107108, pshared=0, value=1
-wasm://wasm/0064611a:1
+sem_wait: sem=tcc-wasm.sem_t@107108
+TODO: setjmp
+wasm://wasm/00648c0a:1
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/0064611a:wasm-function[270]:0x4ed98)
-    at sem_init (wasm://wasm/0064611a:wasm-function[274]:0x4f061)
-    at tcc_compile (wasm://wasm/0064611a:wasm-function[68]:0xe268)
-    at tcc_add_file_internal (wasm://wasm/0064611a:wasm-function[108]:0x23ebb)
-    at tcc_add_file (wasm://wasm/0064611a:wasm-function[109]:0x24834)
-    at main (wasm://wasm/0064611a:wasm-function[130]:0x2959d)
-    at compile_program (wasm://wasm/0064611a:wasm-function[261]:0x4e3f7)
+    at builtin.default_panic (wasm://wasm/00648c0a:wasm-function[270]:0x4ed9e)
+    at malloc (wasm://wasm/00648c0a:wasm-function[280]:0x4f4ad)
+    at tcc_compile (wasm://wasm/00648c0a:wasm-function[68]:0xe5ea)
+    at tcc_add_file_internal (wasm://wasm/00648c0a:wasm-function[108]:0x23ec1)
+    at tcc_add_file (wasm://wasm/00648c0a:wasm-function[109]:0x2483a)
+    at main (wasm://wasm/00648c0a:wasm-function[130]:0x295a3)
+    at compile_program (wasm://wasm/00648c0a:wasm-function[261]:0x4e3fd)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement sem_init()
+TODO: Why did our malloc() fail?
 
 # Analysis of Missing Functions
 
