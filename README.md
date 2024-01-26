@@ -388,6 +388,8 @@ ret=123
 main: end
 ```
 
+Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
+
 # Fix the Missing Functions
 
 When we call `main()` in our Zig App: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
@@ -439,6 +441,8 @@ RuntimeError: unreachable
     at compile_program (wasm://wasm/006296ae:wasm-function[266]:0x4e3f6)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
+
+Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
 
 TODO: Implement strchr(). Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc)
 
