@@ -42,6 +42,14 @@ pub export fn compile_program() u32 {
 extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 
 ///////////////////////////////////////////////////////////////////////////////
+//  File Functions
+
+export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
+    debug("open: path={s}, oflag={}", .{ path, oflag });
+    @panic("TODO: open");
+}
+
+///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
 
 /// Zig replacement for malloc
@@ -293,9 +301,6 @@ pub export fn localtime(_: c_int) c_int {
 }
 pub export fn lseek(_: c_int) c_int {
     @panic("TODO: lseek");
-}
-pub export fn open(_: c_int) c_int {
-    @panic("TODO: open");
 }
 pub export fn printf(_: c_int) c_int {
     @panic("TODO: printf");

@@ -388,7 +388,7 @@ ret=123
 main: end
 ```
 
-Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
+Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
 # Fix the Missing Functions
 
@@ -437,17 +437,19 @@ When we run it...
 ```text
 + node zig/test.js
 compile_program
-wasm://wasm/006267b2:1
+open: path=hello.c, oflag=0
+wasm://wasm/0063a2c6:1
 RuntimeError: unreachable
-    at signature_mismatch:open (wasm://wasm/006267b2:wasm-function[28]:0x609)
-    at tcc_add_file_internal (wasm://wasm/006267b2:wasm-function[110]:0x23974)
-    at tcc_add_file (wasm://wasm/006267b2:wasm-function[111]:0x24820)
-    at main (wasm://wasm/006267b2:wasm-function[132]:0x29589)
-    at compile_program (wasm://wasm/006267b2:wasm-function[263]:0x4e3e3)
+    at builtin.default_panic (wasm://wasm/0063a2c6:wasm-function[271]:0x4ed93)
+    at open (wasm://wasm/0063a2c6:wasm-function[272]:0x4ee0a)
+    at tcc_add_file_internal (wasm://wasm/0063a2c6:wasm-function[109]:0x23983)
+    at tcc_add_file (wasm://wasm/0063a2c6:wasm-function[110]:0x2482f)
+    at main (wasm://wasm/0063a2c6:wasm-function[131]:0x29598)
+    at compile_program (wasm://wasm/0063a2c6:wasm-function[262]:0x4e3f2)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
-Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
+Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
 TODO: Implement open()
 
