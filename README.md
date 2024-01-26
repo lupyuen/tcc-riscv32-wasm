@@ -1,4 +1,4 @@
-# TCC RISC-V Compiler compiled to WebAssembly with Zig Compiler
+# TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
 _TCC is a simple C Compiler for 64-bit RISC-V... Can we run TCC in a Web Browser?_
 
