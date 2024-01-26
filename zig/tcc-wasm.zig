@@ -144,6 +144,10 @@ export fn strlen(s: [*:0]const u8) callconv(.C) usize {
     return std.mem.len(s);
 }
 
+pub export fn getenv(_: c_int) ?[*]u8 {
+    return null;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 /// Fix the Missing Variables
 pub export var errno: c_int = 0;
@@ -195,9 +199,6 @@ pub export fn fwrite(_: c_int) c_int {
 }
 pub export fn getcwd(_: c_int) c_int {
     @panic("TODO: getcwd");
-}
-pub export fn getenv(_: c_int) c_int {
-    @panic("TODO: getenv");
 }
 pub export fn gettimeofday(_: c_int) c_int {
     @panic("TODO: gettimeofday");
