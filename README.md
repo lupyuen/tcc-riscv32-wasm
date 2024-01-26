@@ -424,6 +424,8 @@ pub export fn close(_: c_int) c_int {
 
 Then we...
 
+- Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc) and [ziglibc](https://github.com/marler8997/ziglibc)
+
 - [Fixed the malloc](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
 
 - [Added getenv](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
@@ -443,8 +445,6 @@ RuntimeError: unreachable
 ```
 
 Also published publicly here: https://lupyuen.github.io/tcc-riscv32-wasm/
-
-TODO: Implement strchr(). Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc)
 
 # Analysis of Missing Functions
 
@@ -503,7 +503,7 @@ Will mock up these functions for WebAssembly. We will read only 1 simple C Sourc
 
 ## String Functions
 
-Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc)
+Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc) and [ziglibc](https://github.com/marler8997/ziglibc)
 
 - atoi
 - strcat, strchr, strcmp

@@ -179,6 +179,58 @@ pub export fn getenv(_: c_int) ?[*]u8 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// From foundation-libc
+
+// String Functions:
+// https://github.com/ZigEmbeddedGroup/foundation-libc/blob/main/src/modules/string.zig
+
+/// https://en.cppreference.com/w/c/string/byte/strchr
+export fn strchr(str: ?[*:0]const c_char, ch: c_int) ?[*:0]c_char {
+    const s = str orelse return null;
+
+    const searched: c_char = @bitCast(@as(u8, @truncate(@as(c_uint, @bitCast(ch)))));
+
+    var i: usize = 0;
+    while (true) {
+        const actual = s[i];
+        if (actual == searched)
+            return @constCast(s + i);
+        if (actual == 0)
+            return null;
+        i += 1;
+    }
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// From ziglibc
+
+// String Functions:
+// https://github.com/marler8997/ziglibc/blob/main/src/cstd.zig
+
+export fn strrchr(s: [*:0]const u8, char: c_int) callconv(.C) ?[*:0]const u8 {
+    // trace.log("strrchr {} c='{}'", .{ trace.fmtStr(s), char });
+    var next = s + strlen(s);
+    while (true) {
+        if (next[0] == char) return next;
+        if (next == s) return null;
+        next = next - 1;
+    }
+}
+
+export fn strcmp(a: [*:0]const u8, b: [*:0]const u8) callconv(.C) c_int {
+    // trace.log("strcmp {} {}", .{ trace.fmtStr(a), trace.fmtStr(b) });
+    var a_next = a;
+    var b_next = b;
+    while (a_next[0] == b_next[0] and a_next[0] != 0) {
+        a_next += 1;
+        b_next += 1;
+    }
+    const result = @as(c_int, @intCast(a_next[0])) -| @as(c_int, @intCast(b_next[0]));
+    // trace.log("strcmp return {}", .{result});
+    return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// Fix the Missing Variables
 pub export var errno: c_int = 0;
 pub export var stdout: c_int = 1;
@@ -281,12 +333,6 @@ pub export fn sscanf(_: c_int) c_int {
 pub export fn strcat(_: c_int) c_int {
     @panic("TODO: strcat");
 }
-pub export fn strchr(_: c_int) c_int {
-    @panic("TODO: strchr");
-}
-pub export fn strcmp(_: c_int) c_int {
-    @panic("TODO: strcmp");
-}
 pub export fn strerror(_: c_int) c_int {
     @panic("TODO: strerror");
 }
@@ -295,9 +341,6 @@ pub export fn strncmp(_: c_int) c_int {
 }
 pub export fn strncpy(_: c_int) c_int {
     @panic("TODO: strncpy");
-}
-pub export fn strrchr(_: c_int) c_int {
-    @panic("TODO: strrchr");
 }
 pub export fn strstr(_: c_int) c_int {
     @panic("TODO: strstr");
