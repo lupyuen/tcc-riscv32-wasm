@@ -516,8 +516,8 @@ Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-lib
 
 - atoi
 - strcat, strchr, strcmp
-- strerror
 - strncmp, strncpy, strrchr
 - strstr, strtod, strtof
 - strtol, strtold, strtoll
 - strtoul, strtoull
+- strerror

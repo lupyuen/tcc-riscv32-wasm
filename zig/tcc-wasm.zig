@@ -54,6 +54,16 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
 var fd: c_int = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
+//  Semaphore Functions
+
+export fn sem_init(sem: *sem_t, pshared: c_int, value: c_uint) c_int {
+    debug("sem_init: sem={*}, pshared={}, value={}", .{ sem, pshared, value });
+    @panic("TODO: sem_init");
+}
+
+const sem_t = opaque {};
+
+///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
 
 /// Zig replacement for malloc
@@ -320,9 +330,6 @@ pub export fn read(_: c_int) c_int {
 }
 pub export fn remove(_: c_int) c_int {
     @panic("TODO: remove");
-}
-pub export fn sem_init(_: c_int) c_int {
-    @panic("TODO: sem_init");
 }
 pub export fn sem_post(_: c_int) c_int {
     @panic("TODO: sem_post");
