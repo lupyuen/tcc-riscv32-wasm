@@ -388,9 +388,11 @@ ret=123
 main: end
 ```
 
-TODO: Start the TCC Compiler
+# Fix the Missing Functions
 
-TODO: Fix the undefined symbols when we call `_ = main(argc, &args_ptrs);`
+When we call `main()` in our Zig App: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
+
+We see many many Undefined Symbols...
 
 ```text
 + zig build-exe --verbose-cimport -target wasm32-freestanding -rdynamic -lc -fno-entry --export=compile_program zig/tcc-wasm.zig tcc.o
@@ -399,3 +401,5 @@ error: wasm-ld: tcc.o: undefined symbol: free
 error: wasm-ld: tcc.o: undefined symbol: snprintf
 [...many many more...]
 ```
+
+TODO: Fix the undefined symbols 
