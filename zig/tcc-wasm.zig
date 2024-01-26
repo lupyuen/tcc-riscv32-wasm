@@ -69,12 +69,19 @@ export fn sem_wait(sem: *sem_t) c_int {
 const sem_t = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
-//  sscanf
+//  sscanf, vsnprintf
 
 export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
     debug("TODO: sscanf: str={s}, format={s}", .{ str, format });
     return 0;
 }
+
+export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+    debug("TODO: vsnprintf: str={s}, size={}, format={s}", .{ str, size, format });
+    @panic("TODO: vsnprintf");
+}
+
+const size_t = c_ulong;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
@@ -399,7 +406,4 @@ pub export fn time(_: c_int) c_int {
 }
 pub export fn unlink(_: c_int) c_int {
     @panic("TODO: unlink");
-}
-pub export fn vsnprintf(_: c_int) c_int {
-    @panic("TODO: vsnprintf");
 }
