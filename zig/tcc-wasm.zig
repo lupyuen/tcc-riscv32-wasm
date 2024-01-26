@@ -3,8 +3,16 @@
 /// Import the Zig Standard Library
 const std = @import("std");
 
+/// Import the WebAssembly Logger
+const wasmlog = @import("wasmlog.zig");
+
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program() u32 {
+    wasmlog.Console.log("{s}", .{"compile_program"});
+
+    // Create the Memory Allocator for malloc
+    memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
+
     const max_args = 64;
     const max_arg_size = 64;
     var args: [max_args][max_arg_size:0]u8 = undefined;
@@ -33,6 +41,110 @@ pub export fn compile_program() u32 {
 /// Main Function from tcc.c
 extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 
+///////////////////////////////////////////////////////////////////////////////
+//  Memory Allocator for malloc
+
+/// Zig replacement for malloc
+export fn malloc(size: usize) ?*anyopaque {
+    // TODO: Save the slice length
+    const mem = memory_allocator.allocator().alloc(u8, size) catch {
+        @panic("*** malloc error: out of memory");
+    };
+    return mem.ptr;
+}
+
+/// Zig replacement for realloc
+export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
+    // TODO: Call realloc instead
+    // const mem = memory_allocator.allocator().realloc(old_mem[0..???], size) catch {
+    //     @panic("*** realloc error: out of memory");
+    // };
+    const mem = memory_allocator.allocator().alloc(u8, size) catch {
+        @panic("*** realloc error: out of memory");
+    };
+    _ = memcpy(mem.ptr, old_mem, size);
+    if (old_mem != null) {
+        // TODO: How to free without the slice length?
+        // memory_allocator.allocator().free(old_mem[0..???]);
+    }
+    return mem.ptr;
+}
+
+/// Zig replacement for free
+export fn free(mem: [*c]u8) void {
+    _ = mem; // autofix
+    // TODO: if (mem == null) {
+    //     @panic("*** free error: pointer is null");
+    // }
+    // TODO: How to free without the slice length?
+    // memory_allocator.allocator().free(mem[0..???]);
+}
+
+/// Memory Allocator for malloc
+var memory_allocator: std.heap.FixedBufferAllocator = undefined;
+
+/// Memory Buffer for malloc
+var memory_buffer = std.mem.zeroes([1024 * 1024]u8);
+
+///////////////////////////////////////////////////////////////////////////////
+//  C Standard Library
+//  From zig-macos-x86_64-0.10.0-dev.2351+b64a1d5ab/lib/zig/c.zig
+
+export fn memset(dest: ?[*]u8, c2: u8, len: usize) callconv(.C) ?[*]u8 {
+    @setRuntimeSafety(false);
+
+    if (len != 0) {
+        var d = dest.?;
+        var n = len;
+        while (true) {
+            d[0] = c2;
+            n -= 1;
+            if (n == 0) break;
+            d += 1;
+        }
+    }
+
+    return dest;
+}
+
+export fn memcpy(noalias dest: ?[*]u8, noalias src: ?[*]const u8, len: usize) callconv(.C) ?[*]u8 {
+    @setRuntimeSafety(false);
+
+    if (len != 0) {
+        var d = dest.?;
+        var s = src.?;
+        var n = len;
+        while (true) {
+            d[0] = s[0];
+            n -= 1;
+            if (n == 0) break;
+            d += 1;
+            s += 1;
+        }
+    }
+
+    return dest;
+}
+
+export fn strcpy(dest: [*:0]u8, src: [*:0]const u8) callconv(.C) [*:0]u8 {
+    var i: usize = 0;
+    while (src[i] != 0) : (i += 1) {
+        dest[i] = src[i];
+    }
+    dest[i] = 0;
+
+    return dest;
+}
+
+// export fn strcmp(s1: [*:0]const u8, s2: [*:0]const u8) callconv(.C) c_int {
+//     return std.cstr.cmp(s1, s2);
+// }
+
+export fn strlen(s: [*:0]const u8) callconv(.C) usize {
+    return std.mem.len(s);
+}
+
+///////////////////////////////////////////////////////////////////////////////
 /// Fix the Missing Variables
 pub export var errno: c_int = 0;
 pub export var stdout: c_int = 1;
@@ -72,9 +184,6 @@ pub export fn fputs(_: c_int) c_int {
 pub export fn fread(_: c_int) c_int {
     @panic("TODO: fread");
 }
-pub export fn free(_: c_int) c_int {
-    @panic("TODO: free");
-}
 pub export fn fseek(_: c_int) c_int {
     @panic("TODO: fseek");
 }
@@ -102,9 +211,6 @@ pub export fn localtime(_: c_int) c_int {
 pub export fn lseek(_: c_int) c_int {
     @panic("TODO: lseek");
 }
-pub export fn malloc(_: c_int) c_int {
-    @panic("TODO: malloc");
-}
 pub export fn open(_: c_int) c_int {
     @panic("TODO: open");
 }
@@ -119,9 +225,6 @@ pub export fn qsort(_: c_int) c_int {
 }
 pub export fn read(_: c_int) c_int {
     @panic("TODO: read");
-}
-pub export fn realloc(_: c_int) c_int {
-    @panic("TODO: realloc");
 }
 pub export fn remove(_: c_int) c_int {
     @panic("TODO: remove");
@@ -153,14 +256,8 @@ pub export fn strchr(_: c_int) c_int {
 pub export fn strcmp(_: c_int) c_int {
     @panic("TODO: strcmp");
 }
-pub export fn strcpy(_: c_int) c_int {
-    @panic("TODO: strcpy");
-}
 pub export fn strerror(_: c_int) c_int {
     @panic("TODO: strerror");
-}
-pub export fn strlen(_: c_int) c_int {
-    @panic("TODO: strlen");
 }
 pub export fn strncmp(_: c_int) c_int {
     @panic("TODO: strncmp");
