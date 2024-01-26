@@ -440,7 +440,7 @@ Then we...
 
 - [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
 
-- [Add vsnprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/bccc9d6ea6e18135e94e9b757f93637f42f6cd87)
+- [Add vsnprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/5bc7d6b4c002a3ee16161d819d1c3300b55a91d3)
 
 When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 
@@ -448,27 +448,76 @@ When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107208, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107208
+sem_init: sem=tcc-wasm.sem_t@107228, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@107228
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
-TODO: vsnprintf: str=, size=128, format=#define __TINYC__ %d
-wasm://wasm/00656952:1
+TODO: vsnprintf: size=128, format=#define __TINYC__ %d
+TODO: vsnprintf: return str=#define __TINYC__ %d
+TODO: vsnprintf: size=107, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=94, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=81, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=196, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=183, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=170, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=157, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=144, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=131, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=118, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=105, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=92, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=335, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=322, format=#define __SIZEOF_POINTER__ %d
+TODO: vsnprintf: return str=#define __SIZEOF_POINTER__ %d
+TODO: vsnprintf: size=292, format=#define __SIZEOF_LONG__ %d
+TODO: vsnprintf: return str=#define __SIZEOF_LONG__ %d
+TODO: vsnprintf: size=265, format=#define %s%s
+TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: size=252, format=#define __STDC_VERSION__ %dL
+TODO: vsnprintf: return str=#define __STDC_VERSION__ %dL
+TODO: vsnprintf: size=497, format=#define __BASE_FILE__ "%s"
+TODO: vsnprintf: return str=#define __BASE_FILE__ "%s"
+TODO: vsnprintf: size=128, format=In file included from %s:%d:
+TODO: vsnprintf: return str=In file included from %s:%d:
+TODO: vsnprintf: size=99, format=%s:%d: 
+TODO: vsnprintf: return str=%s:%d: 
+TODO: vsnprintf: size=92, format=error: 
+TODO: vsnprintf: return str=error: 
+TODO: vsnprintf: size=85, format=invalid macro name '%s'
+TODO: vsnprintf: return str=invalid macro name '%s'
+wasm://wasm/00657dfe:1
+
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/00656952:wasm-function[268]:0x4edac)
-    at vsnprintf (wasm://wasm/00656952:wasm-function[281]:0x4f588)
-    at cstr_printf (wasm://wasm/00656952:wasm-function[65]:0xe203)
-    at tcc_compile (wasm://wasm/00656952:wasm-function[66]:0xea1f)
-    at tcc_add_file_internal (wasm://wasm/00656952:wasm-function[106]:0x23ecf)
-    at tcc_add_file (wasm://wasm/00656952:wasm-function[107]:0x24848)
-    at main (wasm://wasm/00656952:wasm-function[128]:0x295b1)
-    at compile_program (wasm://wasm/00656952:wasm-function[259]:0x4e40b)
-    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
+    at builtin.default_panic (wasm://wasm/00657dfe:wasm-function[268]:0x4edaf)
+    at fflush (wasm://wasm/00657dfe:wasm-function[314]:0x51554)
+    at error1 (wasm://wasm/00657dfe:wasm-function[85]:0x1751d)
+    at _tcc_error (wasm://wasm/00657dfe:wasm-function[38]:0x5a6c)
+    at parse_define (wasm://wasm/00657dfe:wasm-function[178]:0x364e4)
+    at next_nomacro1 (wasm://wasm/00657dfe:wasm-function[164]:0x301e9)
+    at next (wasm://wasm/00657dfe:wasm-function[91]:0x17da7)
+    at tcc_compile (wasm://wasm/00657dfe:wasm-function[66]:0xfadd)
+    at tcc_add_file_internal (wasm://wasm/00657dfe:wasm-function[106]:0x23ed2)
+    at tcc_add_file (wasm://wasm/00657dfe:wasm-function[107]:0x2484b)
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
 TODO: Implement vsnprintf() in C?
+
+TODO: `invalid macro name` is probably caused by `#define %s%s`. We should mock up a valid name for `%s%s`
 
 # Analysis of Missing Functions
 
