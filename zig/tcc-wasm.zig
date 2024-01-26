@@ -89,6 +89,7 @@ var memory_buffer = std.mem.zeroes([1024 * 1024]u8);
 ///////////////////////////////////////////////////////////////////////////////
 //  Logging
 
+/// TODO: Doesn't work, missing references in Standard Library
 /// Called by Zig for `std.log.debug`, `std.log.info`, `std.log.err`, ...
 /// https://gist.github.com/leecannon/d6f5d7e5af5881c466161270347ce84d
 // pub fn log(

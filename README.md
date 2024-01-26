@@ -440,4 +440,71 @@ RuntimeError: unreachable
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
-TODO: Implement strchr()
+TODO: Implement strchr(). Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc)
+
+# Analysis of Missing Functions
+
+TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
+
+## Semaphore Functions
+
+TODO: Borrow from where?
+
+- sem_init, sem_post, sem_wait
+
+## Standard Library
+
+TODO: Borrow qsort from where?
+
+- exit, qsort
+
+## Time Functions
+
+TODO: Borrow from where?
+
+- time, gettimeofday, localtime
+
+## Math Functions
+
+TODO: Borrow from where?
+
+- ldexp
+
+## Varargs Functions
+
+Will be tricky to implement in Zig
+
+- printf, snprintf, sprintf, vsnprintf
+- sscanf
+
+## Filesystem Functions
+
+Will mock up these functions for WebAssembly
+
+- getcwd
+- remove, unlink
+
+## File I/O Functions
+
+Will mock up these functions for WebAssembly. We will read only 1 simple C Source File, and produce only 1 Object File. No header files, no libraries. (Should be mockable)
+
+- open, fopen, fdopen, 
+- close, fclose
+- fprintf, fputc, fputs
+- read, fread
+- fwrite
+- fflush
+- fseek, ftell, lseek
+- puts
+
+## String Functions
+
+Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc)
+
+- atoi
+- strcat, strchr, strcmp
+- strerror
+- strncmp, strncpy, strrchr
+- strstr, strtod, strtof
+- strtol, strtold, strtoll
+- strtoul, strtoull
