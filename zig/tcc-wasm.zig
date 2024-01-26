@@ -77,8 +77,12 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
 }
 
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
-    debug("TODO: vsnprintf: str={s}, size={}, format={s}", .{ str, size, format });
-    @panic("TODO: vsnprintf");
+    debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
+    // TODO: Catch overflow
+    _ = memcpy(str, format, strlen(format));
+    str[strlen(format)] = 0;
+    debug("TODO: vsnprintf: return str={s}", .{str});
+    return @intCast(strlen(format));
 }
 
 const size_t = c_ulong;
