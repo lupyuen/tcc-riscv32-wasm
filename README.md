@@ -420,19 +420,21 @@ pub export fn close(_: c_int) c_int {
 [...many many more...]
 ```
 
+And we [fixed the malloc](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
+
 When we run it...
 
 ```text
 + node zig/test.js
-wasm://wasm/00610af2:1
+compile_program
+wasm://wasm/00629742:1
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/00610af2:wasm-function[272]:0x4e9dc)
-    at malloc (wasm://wasm/00610af2:wasm-function[294]:0x4f08d)
-    at tcc_new (wasm://wasm/00610af2:wasm-function[110]:0x226cf)
-    at main (wasm://wasm/00610af2:wasm-function[136]:0x2862c)
-    at compile_program (wasm://wasm/00610af2:wasm-function[267]:0x4e333)
-    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:10:15
+    at builtin.default_panic (wasm://wasm/00629742:wasm-function[275]:0x4ed97)
+    at getenv (wasm://wasm/00629742:wasm-function[303]:0x50371)
+    at set_environment (wasm://wasm/00629742:wasm-function[136]:0x29c74)
+    at main (wasm://wasm/00629742:wasm-function[135]:0x29480)
+    at compile_program (wasm://wasm/00629742:wasm-function[266]:0x4e3f6)
+    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
-TODO: Fix the malloc
-
+TODO: Implement getenv()
