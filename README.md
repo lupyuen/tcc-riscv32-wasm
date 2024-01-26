@@ -420,21 +420,24 @@ pub export fn close(_: c_int) c_int {
 [...many many more...]
 ```
 
-And we [fixed the malloc](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
+Then we...
+
+- [Fixed the malloc](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
+
+- [Added getenv](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
 
 When we run it...
 
 ```text
 + node zig/test.js
 compile_program
-wasm://wasm/00629742:1
+wasm://wasm/006296ae:1
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/00629742:wasm-function[275]:0x4ed97)
-    at getenv (wasm://wasm/00629742:wasm-function[303]:0x50371)
-    at set_environment (wasm://wasm/00629742:wasm-function[136]:0x29c74)
-    at main (wasm://wasm/00629742:wasm-function[135]:0x29480)
-    at compile_program (wasm://wasm/00629742:wasm-function[266]:0x4e3f6)
+    at signature_mismatch:strchr (wasm://wasm/006296ae:wasm-function[31]:0x61c)
+    at tcc_add_file (wasm://wasm/006296ae:wasm-function[114]:0x24760)
+    at main (wasm://wasm/006296ae:wasm-function[135]:0x2959c)
+    at compile_program (wasm://wasm/006296ae:wasm-function[266]:0x4e3f6)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
-TODO: Implement getenv()
+TODO: Implement strchr()
