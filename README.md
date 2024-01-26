@@ -440,25 +440,29 @@ Then we...
 
 - [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
 
+- [Add vsnprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/bccc9d6ea6e18135e94e9b757f93637f42f6cd87)
+
 When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@1071a8, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@1071a8
+sem_init: sem=tcc-wasm.sem_t@107208, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@107208
 TODO: setjmp
-sscanf: str=0.9.27, format=%d.%d.%d
-wasm://wasm/0064e216:1
+TODO: sscanf: str=0.9.27, format=%d.%d.%d
+TODO: vsnprintf: str=, size=128, format=#define __TINYC__ %d
+wasm://wasm/00656952:1
 RuntimeError: unreachable
-    at signature_mismatch:vsnprintf (wasm://wasm/0064e216:wasm-function[13]:0x5fb)
-    at cstr_printf (wasm://wasm/0064e216:wasm-function[66]:0xe1fd)
-    at tcc_compile (wasm://wasm/0064e216:wasm-function[67]:0xea19)
-    at tcc_add_file_internal (wasm://wasm/0064e216:wasm-function[107]:0x23ec9)
-    at tcc_add_file (wasm://wasm/0064e216:wasm-function[108]:0x24842)
-    at main (wasm://wasm/0064e216:wasm-function[129]:0x295ab)
-    at compile_program (wasm://wasm/0064e216:wasm-function[260]:0x4e405)
+    at builtin.default_panic (wasm://wasm/00656952:wasm-function[268]:0x4edac)
+    at vsnprintf (wasm://wasm/00656952:wasm-function[281]:0x4f588)
+    at cstr_printf (wasm://wasm/00656952:wasm-function[65]:0xe203)
+    at tcc_compile (wasm://wasm/00656952:wasm-function[66]:0xea1f)
+    at tcc_add_file_internal (wasm://wasm/00656952:wasm-function[106]:0x23ecf)
+    at tcc_add_file (wasm://wasm/00656952:wasm-function[107]:0x24848)
+    at main (wasm://wasm/00656952:wasm-function[128]:0x295b1)
+    at compile_program (wasm://wasm/00656952:wasm-function[259]:0x4e40b)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
