@@ -432,28 +432,28 @@ Then we...
 
 - [Added String Functions](https://github.com/lupyuen/tcc-riscv32-wasm/commit/4ea06f7602471a65539c65c746bfa65c6d1d4184)
 
-- [Added open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/ddbe64d6e3a5821c4dc48b99096fb4cf85402e9c)
+- [Added open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c0095568c3595c09345936b74616b528c99b364e)
 
-When we run it...
+When we run it, open() tries to open `hello.c` yay!
 
 ```text
 + node zig/test.js
 compile_program
-open: path=hello.c, oflag=0
-wasm://wasm/0063a2c6:1
+open: path=hello.c, oflag=0, return fd=3
+wasm://wasm/0064055a:1
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/0063a2c6:wasm-function[271]:0x4ed93)
-    at open (wasm://wasm/0063a2c6:wasm-function[272]:0x4ee0a)
-    at tcc_add_file_internal (wasm://wasm/0063a2c6:wasm-function[109]:0x23983)
-    at tcc_add_file (wasm://wasm/0063a2c6:wasm-function[110]:0x2482f)
-    at main (wasm://wasm/0063a2c6:wasm-function[131]:0x29598)
-    at compile_program (wasm://wasm/0063a2c6:wasm-function[262]:0x4e3f2)
+    at signature_mismatch:sem_init (wasm://wasm/0064055a:wasm-function[27]:0x61c)
+    at tcc_compile (wasm://wasm/0064055a:wasm-function[69]:0xe267)
+    at tcc_add_file_internal (wasm://wasm/0064055a:wasm-function[109]:0x23eba)
+    at tcc_add_file (wasm://wasm/0064055a:wasm-function[110]:0x24833)
+    at main (wasm://wasm/0064055a:wasm-function[131]:0x2959c)
+    at compile_program (wasm://wasm/0064055a:wasm-function[262]:0x4e3f6)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: open() tries to open `hello.c` yay! Implement open()
+TODO: Implement sem_init()
 
 # Analysis of Missing Functions
 
