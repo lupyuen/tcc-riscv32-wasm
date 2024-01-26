@@ -14,7 +14,11 @@ riscv-none-elf-objdump \
   hello_main.o \
   >hello_main.S \
   2>&1
+```
 
+TODO
+
+```bash
 gcc
   -o riscv64-tcc.o
   -c tcc.c
@@ -47,7 +51,11 @@ gcc
 ../riscv64-tcc -c atomic.S -o riscv64-atomic.o -B.. -I..
 ../riscv64-tcc -c dsohandle.c -o riscv64-dsohandle.o -B.. -I..
 ../riscv64-tcc -ar rcs ../riscv64-libtcc1.a riscv64-lib-arm64.o riscv64-stdatomic.o riscv64-atomic.o riscv64-dsohandle.o
+```
 
+TODO
+
+```bash
 export PATH=/workspaces/bookworm/zig-linux-x86_64-0.12.0-dev.2341+92211135f:$PATH
 
 zig cc \
@@ -77,7 +85,11 @@ riscv-none-elf-objdump \
   hello_main.o \
   >hello_main.S \
   2>&1
+```
 
+TODO
+
+```bash
 ## Compile TCC from C to WebAssembly
 zig cc \
   -c \
@@ -106,4 +118,3 @@ sudo apt install wabt
 wasm-objdump -h tcc.o
 wasm-objdump -x tcc.o >/tmp/tcc.txt
 ```
-
