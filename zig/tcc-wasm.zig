@@ -8,7 +8,7 @@ const wasmlog = @import("wasmlog.zig");
 
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program() u32 {
-    wasmlog.Console.log("{s}", .{"compile_program"});
+    debug("compile_program", .{});
 
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
@@ -85,6 +85,35 @@ var memory_allocator: std.heap.FixedBufferAllocator = undefined;
 
 /// Memory Buffer for malloc
 var memory_buffer = std.mem.zeroes([1024 * 1024]u8);
+
+///////////////////////////////////////////////////////////////////////////////
+//  Logging
+
+/// Called by Zig for `std.log.debug`, `std.log.info`, `std.log.err`, ...
+/// https://gist.github.com/leecannon/d6f5d7e5af5881c466161270347ce84d
+// pub fn log(
+//     comptime _message_level: std.log.Level,
+//     comptime _scope: @Type(.EnumLiteral),
+//     comptime format: []const u8,
+//     args: anytype,
+// ) void {
+//     _ = _message_level;
+//     _ = _scope;
+
+//     // Format the message
+//     var buf: [100]u8 = undefined; // Limit to 100 chars
+//     const slice = std.fmt.bufPrint(&buf, format, args) catch {
+//         wasmlog.Console.log("*** log error: buf too small", .{});
+//         return;
+//     };
+
+//     // Print the formatted message
+//     wasmlog.Console.log("{s}", .{slice});
+// }
+
+/// Aliases for Zig Standard Library
+const assert = std.debug.assert;
+const debug = wasmlog.Console.log;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  C Standard Library
