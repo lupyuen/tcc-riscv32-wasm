@@ -45,9 +45,13 @@ extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 //  File Functions
 
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
-    debug("open: path={s}, oflag={}", .{ path, oflag });
-    @panic("TODO: open");
+    debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, fd });
+    const ret = fd;
+    fd += 1;
+    return ret;
 }
+
+var fd: c_int = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
