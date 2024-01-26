@@ -440,7 +440,7 @@ Then we...
 
 - [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
 
-- [Add vsnprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/5bc7d6b4c002a3ee16161d819d1c3300b55a91d3)
+- [Add vsnprintf and fflush](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c76b671e771d6ba4bb62230e1546aeb3e8637850)
 
 When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 

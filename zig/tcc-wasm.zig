@@ -69,7 +69,7 @@ export fn sem_wait(sem: *sem_t) c_int {
 const sem_t = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
-//  sscanf, vsnprintf
+//  Varargs Functions
 
 export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
     debug("TODO: sscanf: str={s}, format={s}", .{ str, format });
@@ -92,7 +92,13 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     return @intCast(strlen(format));
 }
 
+export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
+    debug("fprintf: stream={*}, format={s}", .{ stream, format });
+    return @intCast(strlen(format));
+}
+
 const size_t = c_ulong;
+const FILE = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
@@ -319,9 +325,6 @@ pub export fn fdopen(_: c_int) c_int {
 }
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
-}
-pub export fn fprintf(_: c_int) c_int {
-    @panic("TODO: fprintf");
 }
 pub export fn fputc(_: c_int) c_int {
     @panic("TODO: fputc");
