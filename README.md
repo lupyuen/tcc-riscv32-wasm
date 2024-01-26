@@ -1,28 +1,67 @@
 # TCC RISC-V Compiler compiled to WebAssembly with Zig Compiler
 
-TODO
+_TCC is a simple C Compiler for 64-bit RISC-V... Can we run TCC in a Web Browser?_
+
+Let's find out! We'll compile TCC to WebAssembly with Zig Compiler.
+
+(We'll emulate the POSIX File Access with some WebAssembly Mockups)
+
+_Why are we doing this?_
+
+Today we can run [Apache NuttX RTOS in a Web Browser](https://lupyuen.github.io/articles/tinyemu2) (with WebAssembly + Emscripten + 64-bit RISC-V).
+
+What if we could allow NuttX Apps to be compiled and tested in the Web Browser?
+
+1.  We type a C Program into a HTML Textbox...
+
+    ```c
+    int main(int argc, char *argv[]) {
+      printf("Hello, World!!\n");
+      return 0;
+    }
+    ```
+
+1.  Run TCC in the Web Browser to compile the C Program into an ELF Executable (64-bit RISC-V)
+
+1.  Copy the ELF Executable to the NuttX Filesystem (via WebAssembly)
+
+1.  NuttX runs our ELF Executable inside the Web Browser
+
+Let's verify that TCC will generate 64-bit RISC-V code...
+
+# TCC generates 64-bit RISC-V code
+
+We build TCC to support 64-bit RISC-V Target...
 
 ```bash
+## Build TCC for 64-bit RISC-V Target
+git clone https://github.com/lupyuen/tcc-riscv32-wasm
+cd tcc-riscv32-wasm
 ./configure
 make help
 make --trace cross-riscv64
 ./riscv64-tcc -v
 ```
 
-TODO
+We compile this C program...
 
 ```c
+## Simple C Program
 int main(int argc, char *argv[]) {
   printf("Hello, World!!\n");
   return 0;
 }
 ```
 
+Like this...
+
 ```bash
+## Compile C to 64-bit RISC-V
 /workspaces/bookworm/tcc-riscv32/riscv64-tcc \
     -c \
     /workspaces/bookworm/apps/examples/hello/hello_main.c
 
+## Dump the 64-bit RISC-V Disassembly
 riscv-none-elf-objdump \
   --syms --source --reloc --demangle --line-numbers --wide \
   --debugging \
@@ -31,7 +70,7 @@ riscv-none-elf-objdump \
   2>&1
 ```
 
-TODO
+The RISC-V Disassembly looks valid, very similar to a [NuttX App](https://lupyuen.github.io/articles/app#inside-a-nuttx-app) (so it will probably run on NuttX)...
 
 ```text
 hello_main.o:     file format elf64-littleriscv
@@ -63,36 +102,41 @@ main():
   3c:   00008067                ret
 ```
 
-TODO
+# Compile TCC with Zig Compiler
+
+We compile TCC Compiler with the Zig Compiler. First we figure out the GCC Options...
 
 ```bash
-gcc
-  -o riscv64-tcc.o
-  -c tcc.c
-  -DTCC_TARGET_RISCV64
-  -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\"" 
-  -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\""
-  -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\""
-  -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""  
-  -DTCC_GITHASH="\"main:b3d10a35\""
-  -Wall
-  -O2
-  -Wdeclaration-after-statement
-  -fno-strict-aliasing
-  -Wno-pointer-sign
-  -Wno-sign-compare
-  -Wno-unused-result
-  -Wno-format-truncation
-  -Wno-stringop-truncation
+## Show the GCC Options
+$ make --trace cross-riscv64
+gcc \
+  -o riscv64-tcc.o \
+  -c tcc.c \
+  -DTCC_TARGET_RISCV64 \
+  -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
+  -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
+  -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
+  -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
+  -DTCC_GITHASH="\"main:b3d10a35\"" \
+  -Wall \
+  -O2 \
+  -Wdeclaration-after-statement \
+  -fno-strict-aliasing \
+  -Wno-pointer-sign \
+  -Wno-sign-compare \
+  -Wno-unused-result \
+  -Wno-format-truncation \
+  -Wno-stringop-truncation \
   -I. 
 
-gcc
-  -o riscv64-tcc riscv64-tcc.o
-  -lm
-  -lpthread
-  -ldl
-  -s
+gcc \
+  -o riscv64-tcc riscv64-tcc.o \
+  -lm \
+  -lpthread \
+  -ldl \
+  -s \
 
+## Probably won't need this for now
 ../riscv64-tcc -c lib-arm64.c -o riscv64-lib-arm64.o -B.. -I..
 ../riscv64-tcc -c stdatomic.c -o riscv64-stdatomic.o -B.. -I..
 ../riscv64-tcc -c atomic.S -o riscv64-atomic.o -B.. -I..
@@ -100,9 +144,10 @@ gcc
 ../riscv64-tcc -ar rcs ../riscv64-libtcc1.a riscv64-lib-arm64.o riscv64-stdatomic.o riscv64-atomic.o riscv64-dsohandle.o
 ```
 
-TODO
+We copy the above GCC Options and we compile TCC with Zig Compiler...
 
 ```bash
+## Compile TCC with Zig Compiler
 export PATH=/workspaces/bookworm/zig-linux-x86_64-0.12.0-dev.2341+92211135f:$PATH
 
 zig cc \
@@ -124,8 +169,12 @@ zig cc \
   -Wno-stringop-truncation \
   -I.
 
+## Test our TCC compiled with Zig Compiler
 /workspaces/bookworm/tcc-riscv32/a.out -v
-/workspaces/bookworm/tcc-riscv32/a.out -c /workspaces/bookworm/apps/examples/hello/hello_main.c
+
+/workspaces/bookworm/tcc-riscv32/a.out -c \
+  /workspaces/bookworm/apps/examples/hello/hello_main.c
+
 riscv-none-elf-objdump \
   --syms --source --reloc --demangle --line-numbers --wide \
   --debugging \
@@ -134,7 +183,13 @@ riscv-none-elf-objdump \
   2>&1
 ```
 
-TODO
+Yep it works OK!
+
+# Compile TCC to WebAssembly with Zig Compiler
+
+Now we compile TCC to WebAssembly.
+
+Zig Compiler doesn't like it, so we [Patch the longjmp / setjmp](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e30454a0eb9916f820d58a7c3e104eeda67988d8).
 
 ```bash
 ## Compile TCC from C to WebAssembly
@@ -161,14 +216,22 @@ zig cc \
   -Wno-format-truncation \
   -Wno-stringop-truncation \
   -I.
+
+## Dump our Compiled WebAssembly
 sudo apt install wabt
 wasm-objdump -h tcc.o
 wasm-objdump -x tcc.o >/tmp/tcc.txt
 ```
 
-TODO
+Yep it looks OK!
+
+# Missing Functions in TCC WebAssembly
+
+These POSIX Functions are missing from the Compiled WebAssembly...
 
 ```text
+$ cat /tmp/tcc.txt
+
 Import[75]:
  - memory[0] pages: initial=2 <- env.__linear_memory
  - global[0] i32 mutable=1 <- env.__stack_pointer
@@ -247,3 +310,6 @@ Import[75]:
  - table[0] type=funcref initial=4 <- env.__indirect_function_table
 ```
 
+TODO: How to fix these missing POSIX Functions for WebAssembly (Web Browser)
+
+TODO: Do we need all of them? Maybe we run in a Web Browser and see what crashes? [Similar to this](https://lupyuen.github.io/articles/lvgl3)
