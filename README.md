@@ -320,7 +320,7 @@ TODO: Do we need all of them? Maybe we run in a Web Browser and see what crashes
 
 # Test TCC in a Web Browser
 
-TODO
+We link our Compiled WebAssembly `tcc.o` with our Zig App: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
 
 ```bash
 ## Compile our Zig App `tcc-wasm.zig` for WebAssembly
@@ -338,4 +338,25 @@ zig build-exe \
 ## Dump our Linked WebAssembly
 wasm-objdump -h tcc-wasm.wasm
 wasm-objdump -x tcc-wasm.wasm >/tmp/tcc-wasm.txt
+
+## Run our Linked WebAssembly
+## Shows: ret=123
+node zig/test.js
+```
+
+Yep it runs OK and prints `123`, with our NodeJS Script: [zig/test.js](zig/test.js)
+
+```javascript
+const fs = require('fs');
+const source = fs.readFileSync("./tcc-wasm.wasm");
+const typedArray = new Uint8Array(source);
+
+WebAssembly.instantiate(typedArray, {
+  env: {
+    print: (result) => { console.log(`The result is ${result}`); }
+  }}).then(result => {
+  const compile_program = result.instance.exports.compile_program;
+  const ret = compile_program();
+  console.log(`ret=${ret}`);
+});
 ```
