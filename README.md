@@ -442,50 +442,52 @@ Then we...
 
 - [Add vsnprintf and fflush](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c76b671e771d6ba4bb62230e1546aeb3e8637850)
 
-When we run it: open() tries to open `hello.c` and create a Semaphore yay!
+- [Add fprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/36d591ea197eb87eb5f14e9632512cfecc99cbaf)
+
+When we run it: open() tries to open `hello.c` and read the file yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107228, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107228
+sem_init: sem=tcc-wasm.sem_t@107278, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@107278
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
 TODO: vsnprintf: size=128, format=#define __TINYC__ %d
 TODO: vsnprintf: return str=#define __TINYC__ %d
 TODO: vsnprintf: size=107, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=94, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=81, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=196, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=183, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=170, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=157, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=144, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=131, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=118, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=105, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=92, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=335, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=322, format=#define __SIZEOF_POINTER__ %d
 TODO: vsnprintf: return str=#define __SIZEOF_POINTER__ %d
 TODO: vsnprintf: size=292, format=#define __SIZEOF_LONG__ %d
 TODO: vsnprintf: return str=#define __SIZEOF_LONG__ %d
 TODO: vsnprintf: size=265, format=#define %s%s
-TODO: vsnprintf: return str=#define %s%s
+TODO: vsnprintf: return str=#define FIX_vsnprintf
 TODO: vsnprintf: size=252, format=#define __STDC_VERSION__ %dL
 TODO: vsnprintf: return str=#define __STDC_VERSION__ %dL
 TODO: vsnprintf: size=497, format=#define __BASE_FILE__ "%s"
@@ -494,30 +496,33 @@ TODO: vsnprintf: size=128, format=In file included from %s:%d:
 TODO: vsnprintf: return str=In file included from %s:%d:
 TODO: vsnprintf: size=99, format=%s:%d: 
 TODO: vsnprintf: return str=%s:%d: 
-TODO: vsnprintf: size=92, format=error: 
-TODO: vsnprintf: return str=error: 
-TODO: vsnprintf: size=85, format=invalid macro name '%s'
-TODO: vsnprintf: return str=invalid macro name '%s'
-wasm://wasm/00657dfe:1
+TODO: vsnprintf: size=92, format=warning: 
+TODO: vsnprintf: return str=warning: 
+TODO: vsnprintf: size=83, format=%s redefined
+TODO: vsnprintf: return str=%s redefined
+fprintf: stream=tcc-wasm.FILE@2, format=%s
+wasm://wasm/0065a94a:1
 
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/00657dfe:wasm-function[268]:0x4edaf)
-    at fflush (wasm://wasm/00657dfe:wasm-function[314]:0x51554)
-    at error1 (wasm://wasm/00657dfe:wasm-function[85]:0x1751d)
-    at _tcc_error (wasm://wasm/00657dfe:wasm-function[38]:0x5a6c)
-    at parse_define (wasm://wasm/00657dfe:wasm-function[178]:0x364e4)
-    at next_nomacro1 (wasm://wasm/00657dfe:wasm-function[164]:0x301e9)
-    at next (wasm://wasm/00657dfe:wasm-function[91]:0x17da7)
-    at tcc_compile (wasm://wasm/00657dfe:wasm-function[66]:0xfadd)
-    at tcc_add_file_internal (wasm://wasm/00657dfe:wasm-function[106]:0x23ed2)
-    at tcc_add_file (wasm://wasm/00657dfe:wasm-function[107]:0x2484b)
+    at signature_mismatch:read (wasm://wasm/0065a94a:wasm-function[2]:0x5e0)
+    at handle_stray_noerror (wasm://wasm/0065a94a:wasm-function[167]:0x337fb)
+    at next_nomacro1 (wasm://wasm/0065a94a:wasm-function[163]:0x2f710)
+    at next (wasm://wasm/0065a94a:wasm-function[90]:0x17da7)
+    at decl (wasm://wasm/0065a94a:wasm-function[97]:0x20838)
+    at tcc_compile (wasm://wasm/0065a94a:wasm-function[65]:0xfae5)
+    at tcc_add_file_internal (wasm://wasm/0065a94a:wasm-function[105]:0x23ed2)
+    at tcc_add_file (wasm://wasm/0065a94a:wasm-function[106]:0x2484b)
+    at main (wasm://wasm/0065a94a:wasm-function[127]:0x295b4)
+    at compile_program (wasm://wasm/0065a94a:wasm-function[258]:0x4e40e)
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
+TODO: Implement `read`
+
 TODO: Implement vsnprintf() in C?
 
-TODO: `invalid macro name` is probably caused by `#define %s%s`. We should mock up a valid name for `%s%s`
+`invalid macro name` is caused by `#define %s%s`. We should mock up a valid name for `%s%s`
 
 # Analysis of Missing Functions
 
