@@ -149,7 +149,8 @@ We copy the above GCC Options and we compile TCC with Zig Compiler...
 ```bash
 ## Compile TCC with Zig Compiler
 export PATH=/workspaces/bookworm/zig-linux-x86_64-0.12.0-dev.2341+92211135f:$PATH
-
+./configure
+make --trace cross-riscv64
 zig cc \
   tcc.c \
   -DTCC_TARGET_RISCV64 \
@@ -193,6 +194,8 @@ Zig Compiler doesn't like it, so we [Patch the longjmp / setjmp](https://github.
 
 ```bash
 ## Compile TCC from C to WebAssembly
+./configure
+make --trace cross-riscv64
 zig cc \
   -c \
   -target wasm32-freestanding \
@@ -223,13 +226,14 @@ wasm-objdump -h tcc.o
 wasm-objdump -x tcc.o >/tmp/tcc.txt
 ```
 
-Yep it looks OK!
+Yep TCC compiles OK to WebAssembly with Zig Compiler!
 
 # Missing Functions in TCC WebAssembly
 
-These POSIX Functions are missing from the Compiled WebAssembly...
+We check the Compiled WebAssembly. These POSIX Functions are missing from the Compiled WebAssembly...
 
 ```text
+$ wasm-objdump -x tcc.o >/tmp/tcc.txt
 $ cat /tmp/tcc.txt
 
 Import[75]:
@@ -313,3 +317,25 @@ Import[75]:
 TODO: How to fix these missing POSIX Functions for WebAssembly (Web Browser)
 
 TODO: Do we need all of them? Maybe we run in a Web Browser and see what crashes? [Similar to this](https://lupyuen.github.io/articles/lvgl3)
+
+# Test TCC in a Web Browser
+
+TODO
+
+```bash
+## Compile our Zig App `tcc-wasm.zig` for WebAssembly
+## and link with TCC compiled for WebAssembly
+zig build-exe \
+  --verbose-cimport \
+  -target wasm32-freestanding \
+  -rdynamic \
+  -lc \
+  -fno-entry \
+  --export=compile_program \
+  zig/tcc-wasm.zig \
+  tcc.o
+
+## Dump our Linked WebAssembly
+wasm-objdump -h tcc-wasm.wasm
+wasm-objdump -x tcc-wasm.wasm >/tmp/tcc-wasm.txt
+```
