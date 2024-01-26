@@ -97,7 +97,7 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     return @intCast(strlen(format));
 }
 
-const size_t = c_ulong;
+const size_t = c_ulong; // TODO: Should be usize like strlen()?
 const FILE = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
