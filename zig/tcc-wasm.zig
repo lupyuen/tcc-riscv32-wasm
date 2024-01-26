@@ -69,6 +69,14 @@ export fn sem_wait(sem: *sem_t) c_int {
 const sem_t = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
+//  sscanf
+
+export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
+    debug("TODO: sscanf: str={s}, format={s}", .{ str, format });
+    return 0;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
 
 /// Zig replacement for malloc
@@ -349,9 +357,6 @@ pub export fn snprintf(_: c_int) c_int {
 }
 pub export fn sprintf(_: c_int) c_int {
     @panic("TODO: sprintf");
-}
-pub export fn sscanf(_: c_int) c_int {
-    @panic("TODO: sscanf");
 }
 pub export fn strcat(_: c_int) c_int {
     @panic("TODO: strcat");
