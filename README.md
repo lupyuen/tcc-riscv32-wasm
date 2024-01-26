@@ -370,7 +370,7 @@ We test the TCC WebAssembly in a Web Browser with [docs/index.html](docs/index.h
 cargo install simple-http-server
 simple-http-server ./docs &
 
-## Copy the Linked TCC WebAssembly
+## Copy the Linked TCC WebAssembly to the Web Server
 cp tcc-wasm.wasm docs/
 ```
 
@@ -389,3 +389,13 @@ main: end
 ```
 
 TODO: Start the TCC Compiler
+
+TODO: Fix the undefined symbols
+
+```text
++ zig build-exe --verbose-cimport -target wasm32-freestanding -rdynamic -lc -fno-entry --export=compile_program zig/tcc-wasm.zig tcc.o
+error: wasm-ld: tcc.o: undefined symbol: realloc
+error: wasm-ld: tcc.o: undefined symbol: free
+error: wasm-ld: tcc.o: undefined symbol: snprintf
+[...many many more...]
+```
