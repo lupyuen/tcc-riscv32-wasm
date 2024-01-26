@@ -448,14 +448,16 @@ Then we...
 
 - [Add sprintf, snprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/dd0161168815d570259e08d4bf0370a363e6e6e7)
 
-When we run it: open() tries to open `hello.c` and read the file yay!
+- [Add close, sem_post, unlink](https://github.com/lupyuen/tcc-riscv32-wasm/commit/812eaa10d36bd29b6f4efcc35b09f4899f880d5b)
+
+When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107328, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107328
+sem_init: sem=tcc-wasm.sem_t@107428, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@107428
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
 TODO: vsnprintf: size=128, format=#define __TINYC__ %d
@@ -517,26 +519,34 @@ TODO: vsnprintf: return str=warning:
 TODO: vsnprintf: size=112, format=implicit declaration of function '%s'
 TODO: vsnprintf: return str=implicit declaration of function '%s'
 fprintf: stream=tcc-wasm.FILE@2, format=%s
-wasm://wasm/0065ddaa:1
+TODO: sprintf: format=L.%u
+TODO: sprintf: return str=L.%u
+TODO: snprintf: size=256, format=.rela%s
+TODO: snprintf: return str=.rela%s
+read: fd=3, nbyte=8192
+read: return 0
+close: fd=3
+sem_post: sem=tcc-wasm.sem_t@107428
+TODO: snprintf: size=1024, format=%s
+TODO: snprintf: return str=%s
+unlink: path=a.out
+open: path=a.out, oflag=577, return fd=4
+wasm://wasm/006689d6:1
 
 RuntimeError: unreachable
-    at signature_mismatch:sprintf (wasm://wasm/0065ddaa:wasm-function[11]:0x609)
-    at get_tok_str (wasm://wasm/0065ddaa:wasm-function[92]:0x1a56e)
-    at put_extern_sym2 (wasm://wasm/0065ddaa:wasm-function[40]:0x6d8e)
-    at vpush_ref (wasm://wasm/0065ddaa:wasm-function[144]:0x2d794)
-    at decl_initializer_alloc (wasm://wasm/0065ddaa:wasm-function[190]:0x3ca98)
-    at unary (wasm://wasm/0065ddaa:wasm-function[185]:0x3885b)
-    at expr_cond (wasm://wasm/0065ddaa:wasm-function[183]:0x37552)
-    at expr_eq (wasm://wasm/0065ddaa:wasm-function[187]:0x3b93b)
-    at unary (wasm://wasm/0065ddaa:wasm-function[185]:0x3abb4)
-    at expr_cond (wasm://wasm/0065ddaa:wasm-function[183]:0x37552)
+    at signature_mismatch:fdopen (wasm://wasm/006689d6:wasm-function[11]:0x61f)
+    at tcc_write_elf_file (wasm://wasm/006689d6:wasm-function[65]:0x10c66)
+    at tcc_output_file (wasm://wasm/006689d6:wasm-function[59]:0xe06c)
+    at main (wasm://wasm/006689d6:wasm-function[124]:0x297f8)
+    at compile_program (wasm://wasm/006689d6:wasm-function[255]:0x4e41d)
+    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement `sprintf`
+TODO: Implement `fdopen`
 
-TODO: Implement vsnprintf() in C?
+TODO: Need to implement vsnprintf() in C? Or we hardcode the patterns?
 
 `invalid macro name` is caused by `#define %s%s`. We should mock up a valid name for `%s%s`
 
