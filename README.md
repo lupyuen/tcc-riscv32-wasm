@@ -444,7 +444,7 @@ Then we...
 
 - [Add fprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/36d591ea197eb87eb5f14e9632512cfecc99cbaf)
 
-- [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7309abf30c12ade7db89a59539d4e3e04956562a)
+- [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7fe054b38cb52a289f1f512ba1e4ab07823b2ca4)
 
 - [Add sprintf, snprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/dd0161168815d570259e08d4bf0370a363e6e6e7)
 

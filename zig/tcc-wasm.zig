@@ -72,6 +72,16 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     return @intCast(strlen(s));
 }
 
+export fn close(fd0: c_int) c_int {
+    debug("close: fd={}", .{fd0});
+    return 0;
+}
+
+export fn unlink(path: [*:0]const u8) c_int {
+    debug("unlink: path={s}", .{path});
+    return 0;
+}
+
 var fd: c_int = 3;
 var first_read: bool = true;
 
@@ -85,6 +95,11 @@ export fn sem_init(sem: *sem_t, pshared: c_int, value: c_uint) c_int {
 
 export fn sem_wait(sem: *sem_t) c_int {
     debug("sem_wait: sem={*}", .{sem});
+    return 0;
+}
+
+export fn sem_post(sem: *sem_t) c_int {
+    debug("sem_post: sem={*}", .{sem});
     return 0;
 }
 
@@ -350,9 +365,6 @@ pub export var stderr: c_int = 2;
 pub export fn atoi(_: c_int) c_int {
     @panic("TODO: atoi");
 }
-pub export fn close(_: c_int) c_int {
-    @panic("TODO: close");
-}
 pub export fn exit(_: c_int) c_int {
     @panic("TODO: exit");
 }
@@ -407,9 +419,6 @@ pub export fn qsort(_: c_int) c_int {
 pub export fn remove(_: c_int) c_int {
     @panic("TODO: remove");
 }
-pub export fn sem_post(_: c_int) c_int {
-    @panic("TODO: sem_post");
-}
 pub export fn strcat(_: c_int) c_int {
     @panic("TODO: strcat");
 }
@@ -448,7 +457,4 @@ pub export fn strtoull(_: c_int) c_int {
 }
 pub export fn time(_: c_int) c_int {
     @panic("TODO: time");
-}
-pub export fn unlink(_: c_int) c_int {
-    @panic("TODO: unlink");
 }
