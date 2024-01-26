@@ -104,12 +104,29 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
         str[strlen(format)] = 0;
     }
     debug("TODO: vsnprintf: return str={s}", .{str});
-    return @intCast(strlen(format));
+    return @intCast(strlen(format)); // TODO: Should be str?
 }
 
 export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     debug("fprintf: stream={*}, format={s}", .{ stream, format });
     return @intCast(strlen(format));
+}
+
+export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
+    debug("TODO: sprintf: format={s}", .{format});
+    _ = memcpy(str, format, strlen(format));
+    str[strlen(format)] = 0;
+    debug("TODO: sprintf: return str={s}", .{str});
+    return @intCast(strlen(str));
+}
+
+export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+    debug("TODO: snprintf: size={}, format={s}", .{ size, format });
+    // TODO: Catch overflow
+    _ = memcpy(str, format, strlen(format));
+    str[strlen(format)] = 0;
+    debug("TODO: snprintf: return str={s}", .{str});
+    return @intCast(strlen(str));
 }
 
 const size_t = c_ulong; // TODO: Should be usize like strlen()?
@@ -385,12 +402,6 @@ pub export fn remove(_: c_int) c_int {
 }
 pub export fn sem_post(_: c_int) c_int {
     @panic("TODO: sem_post");
-}
-pub export fn snprintf(_: c_int) c_int {
-    @panic("TODO: snprintf");
-}
-pub export fn sprintf(_: c_int) c_int {
-    @panic("TODO: sprintf");
 }
 pub export fn strcat(_: c_int) c_int {
     @panic("TODO: strcat");
