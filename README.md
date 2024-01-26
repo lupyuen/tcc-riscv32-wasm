@@ -444,14 +444,16 @@ Then we...
 
 - [Add fprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/36d591ea197eb87eb5f14e9632512cfecc99cbaf)
 
+- [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7309abf30c12ade7db89a59539d4e3e04956562a)
+
 When we run it: open() tries to open `hello.c` and read the file yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107278, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107278
+sem_init: sem=tcc-wasm.sem_t@107328, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@107328
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
 TODO: vsnprintf: size=128, format=#define __TINYC__ %d
@@ -501,24 +503,36 @@ TODO: vsnprintf: return str=warning:
 TODO: vsnprintf: size=83, format=%s redefined
 TODO: vsnprintf: return str=%s redefined
 fprintf: stream=tcc-wasm.FILE@2, format=%s
-wasm://wasm/0065a94a:1
+read: fd=3, nbyte=8192
+read: return buf=int main(int argc, char *argv[]) {
+  printf("Hello, World!!\n");
+  return 0;
+}
+TODO: vsnprintf: size=128, format=%s:%d: 
+TODO: vsnprintf: return str=%s:%d: 
+TODO: vsnprintf: size=121, format=warning: 
+TODO: vsnprintf: return str=warning: 
+TODO: vsnprintf: size=112, format=implicit declaration of function '%s'
+TODO: vsnprintf: return str=implicit declaration of function '%s'
+fprintf: stream=tcc-wasm.FILE@2, format=%s
+wasm://wasm/0065ddaa:1
 
 RuntimeError: unreachable
-    at signature_mismatch:read (wasm://wasm/0065a94a:wasm-function[2]:0x5e0)
-    at handle_stray_noerror (wasm://wasm/0065a94a:wasm-function[167]:0x337fb)
-    at next_nomacro1 (wasm://wasm/0065a94a:wasm-function[163]:0x2f710)
-    at next (wasm://wasm/0065a94a:wasm-function[90]:0x17da7)
-    at decl (wasm://wasm/0065a94a:wasm-function[97]:0x20838)
-    at tcc_compile (wasm://wasm/0065a94a:wasm-function[65]:0xfae5)
-    at tcc_add_file_internal (wasm://wasm/0065a94a:wasm-function[105]:0x23ed2)
-    at tcc_add_file (wasm://wasm/0065a94a:wasm-function[106]:0x2484b)
-    at main (wasm://wasm/0065a94a:wasm-function[127]:0x295b4)
-    at compile_program (wasm://wasm/0065a94a:wasm-function[258]:0x4e40e)
+    at signature_mismatch:sprintf (wasm://wasm/0065ddaa:wasm-function[11]:0x609)
+    at get_tok_str (wasm://wasm/0065ddaa:wasm-function[92]:0x1a56e)
+    at put_extern_sym2 (wasm://wasm/0065ddaa:wasm-function[40]:0x6d8e)
+    at vpush_ref (wasm://wasm/0065ddaa:wasm-function[144]:0x2d794)
+    at decl_initializer_alloc (wasm://wasm/0065ddaa:wasm-function[190]:0x3ca98)
+    at unary (wasm://wasm/0065ddaa:wasm-function[185]:0x3885b)
+    at expr_cond (wasm://wasm/0065ddaa:wasm-function[183]:0x37552)
+    at expr_eq (wasm://wasm/0065ddaa:wasm-function[187]:0x3b93b)
+    at unary (wasm://wasm/0065ddaa:wasm-function[185]:0x3abb4)
+    at expr_cond (wasm://wasm/0065ddaa:wasm-function[183]:0x37552)
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement `read`
+TODO: Implement `sprintf`
 
 TODO: Implement vsnprintf() in C?
 
