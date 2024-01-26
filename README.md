@@ -402,4 +402,33 @@ error: wasm-ld: tcc.o: undefined symbol: snprintf
 [...many many more...]
 ```
 
-TODO: Fix the undefined symbols 
+So we stubbed them in our Zig App: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
+
+```zig
+/// Fix the Missing Variables
+pub export var errno: c_int = 0;
+pub export var stdout: c_int = 1;
+pub export var stderr: c_int = 2;
+
+/// Fix the Missing Functions
+pub export fn atoi(_: c_int) c_int {
+    @panic("TODO: atoi");
+}
+pub export fn close(_: c_int) c_int {
+    @panic("TODO: close");
+}
+[...many many more...]
+```
+
+When we run it...
+
+```text
++ node zig/test.js
+wasm://wasm/006102ea:1
+RuntimeError: unreachable
+    at builtin.default_panic (wasm://wasm/006102ea:wasm-function[269]:0x4e666)
+    at compile_program (wasm://wasm/006102ea:wasm-function[267]:0x4e1e4)
+    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:10:15
+```
+
+TODO: How to see the Panic Stack Trace?
