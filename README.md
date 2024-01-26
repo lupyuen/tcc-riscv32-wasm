@@ -390,7 +390,7 @@ main: end
 
 TODO: Start the TCC Compiler
 
-TODO: Fix the undefined symbols
+TODO: Fix the undefined symbols when we call `_ = main(argc, &args_ptrs);`
 
 ```text
 + zig build-exe --verbose-cimport -target wasm32-freestanding -rdynamic -lc -fno-entry --export=compile_program zig/tcc-wasm.zig tcc.o
