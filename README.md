@@ -434,20 +434,24 @@ Then we...
 
 - [Added open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c0095568c3595c09345936b74616b528c99b364e)
 
-When we run it, open() tries to open `hello.c` yay!
+- [Added sem_init()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7d72267aaf31d53c6af709acf1d6df099069f0c0)
+
+When we run it: open() tries to open `hello.c` and create a Semaphore yay!
 
 ```text
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-wasm://wasm/0064055a:1
+sem_init: sem=tcc-wasm.sem_t@107108, pshared=0, value=1
+wasm://wasm/0064611a:1
 RuntimeError: unreachable
-    at signature_mismatch:sem_init (wasm://wasm/0064055a:wasm-function[27]:0x61c)
-    at tcc_compile (wasm://wasm/0064055a:wasm-function[69]:0xe267)
-    at tcc_add_file_internal (wasm://wasm/0064055a:wasm-function[109]:0x23eba)
-    at tcc_add_file (wasm://wasm/0064055a:wasm-function[110]:0x24833)
-    at main (wasm://wasm/0064055a:wasm-function[131]:0x2959c)
-    at compile_program (wasm://wasm/0064055a:wasm-function[262]:0x4e3f6)
+    at builtin.default_panic (wasm://wasm/0064611a:wasm-function[270]:0x4ed98)
+    at sem_init (wasm://wasm/0064611a:wasm-function[274]:0x4f061)
+    at tcc_compile (wasm://wasm/0064611a:wasm-function[68]:0xe268)
+    at tcc_add_file_internal (wasm://wasm/0064611a:wasm-function[108]:0x23ebb)
+    at tcc_add_file (wasm://wasm/0064611a:wasm-function[109]:0x24834)
+    at main (wasm://wasm/0064611a:wasm-function[130]:0x2959d)
+    at compile_program (wasm://wasm/0064611a:wasm-function[261]:0x4e3f7)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
