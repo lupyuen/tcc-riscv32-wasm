@@ -53,6 +53,12 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
 
 export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     debug("read: fd={}, nbyte={}", .{ fd0, nbyte });
+    // Return the contents once only
+    if (!first_read) {
+        debug("read: return 0", .{});
+        return 0;
+    }
+    first_read = false;
     const s =
         \\int main(int argc, char *argv[]) {
         \\  printf("Hello, World!!\n");
@@ -67,6 +73,7 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
 }
 
 var fd: c_int = 3;
+var first_read: bool = true;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Semaphore Functions

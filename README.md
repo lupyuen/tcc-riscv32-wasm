@@ -446,6 +446,8 @@ Then we...
 
 - [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7309abf30c12ade7db89a59539d4e3e04956562a)
 
+- [Add sprintf, snprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/dd0161168815d570259e08d4bf0370a363e6e6e7)
+
 When we run it: open() tries to open `hello.c` and read the file yay!
 
 ```text
