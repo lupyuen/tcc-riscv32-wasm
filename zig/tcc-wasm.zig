@@ -78,9 +78,16 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
 
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
+
     // TODO: Catch overflow
-    _ = memcpy(str, format, strlen(format));
-    str[strlen(format)] = 0;
+    if (strcmp(format, "#define %s%s\n") == 0) {
+        const s = "#define FIX_vsnprintf\n";
+        _ = memcpy(str, s, strlen(s));
+        str[strlen(s)] = 0;
+    } else {
+        _ = memcpy(str, format, strlen(format));
+        str[strlen(format)] = 0;
+    }
     debug("TODO: vsnprintf: return str={s}", .{str});
     return @intCast(strlen(format));
 }
@@ -140,6 +147,10 @@ var memory_buffer = std.mem.zeroes([16 * 1024 * 1024]u8);
 
 export fn puts(s: [*:0]const u8) callconv(.C) c_int {
     debug("{s}", .{s});
+    return 0;
+}
+
+pub export fn fflush(_: c_int) c_int {
     return 0;
 }
 
@@ -305,9 +316,6 @@ pub export fn fclose(_: c_int) c_int {
 }
 pub export fn fdopen(_: c_int) c_int {
     @panic("TODO: fdopen");
-}
-pub export fn fflush(_: c_int) c_int {
-    @panic("TODO: fflush");
 }
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
