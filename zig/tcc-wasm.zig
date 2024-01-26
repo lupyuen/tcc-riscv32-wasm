@@ -58,7 +58,12 @@ var fd: c_int = 3;
 
 export fn sem_init(sem: *sem_t, pshared: c_int, value: c_uint) c_int {
     debug("sem_init: sem={*}, pshared={}, value={}", .{ sem, pshared, value });
-    @panic("TODO: sem_init");
+    return 0;
+}
+
+export fn sem_wait(sem: *sem_t) c_int {
+    debug("sem_wait: sem={*}", .{sem});
+    return 0;
 }
 
 const sem_t = opaque {};
@@ -110,6 +115,11 @@ var memory_buffer = std.mem.zeroes([1024 * 1024]u8);
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Logging
+
+export fn puts(s: [*:0]const u8) callconv(.C) c_int {
+    debug("{s}", .{s});
+    return 0;
+}
 
 /// TODO: Doesn't work, missing references in Standard Library
 /// Called by Zig for `std.log.debug`, `std.log.info`, `std.log.err`, ...
@@ -319,9 +329,6 @@ pub export fn lseek(_: c_int) c_int {
 pub export fn printf(_: c_int) c_int {
     @panic("TODO: printf");
 }
-pub export fn puts(_: c_int) c_int {
-    @panic("TODO: puts");
-}
 pub export fn qsort(_: c_int) c_int {
     @panic("TODO: qsort");
 }
@@ -333,9 +340,6 @@ pub export fn remove(_: c_int) c_int {
 }
 pub export fn sem_post(_: c_int) c_int {
     @panic("TODO: sem_post");
-}
-pub export fn sem_wait(_: c_int) c_int {
-    @panic("TODO: sem_wait");
 }
 pub export fn snprintf(_: c_int) c_int {
     @panic("TODO: snprintf");
