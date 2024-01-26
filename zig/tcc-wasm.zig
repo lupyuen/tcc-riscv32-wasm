@@ -75,6 +75,7 @@ const sem_t = opaque {};
 export fn malloc(size: usize) ?*anyopaque {
     // TODO: Save the slice length
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
+        debug("*** malloc error: out of memory, size={}", .{size});
         @panic("*** malloc error: out of memory");
     };
     return mem.ptr;
@@ -87,6 +88,7 @@ export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     //     @panic("*** realloc error: out of memory");
     // };
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
+        debug("*** realloc error: out of memory, size={}", .{size});
         @panic("*** realloc error: out of memory");
     };
     _ = memcpy(mem.ptr, old_mem, size);
@@ -100,7 +102,8 @@ export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
 /// Zig replacement for free
 export fn free(mem: [*c]u8) void {
     _ = mem; // autofix
-    // TODO: if (mem == null) {
+    // TODO: Why is TCC passing NULL?
+    // if (mem == null) {
     //     @panic("*** free error: pointer is null");
     // }
     // TODO: How to free without the slice length?
@@ -111,7 +114,7 @@ export fn free(mem: [*c]u8) void {
 var memory_allocator: std.heap.FixedBufferAllocator = undefined;
 
 /// Memory Buffer for malloc
-var memory_buffer = std.mem.zeroes([1024 * 1024]u8);
+var memory_buffer = std.mem.zeroes([16 * 1024 * 1024]u8);
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Logging
