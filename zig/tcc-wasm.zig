@@ -98,6 +98,11 @@ export fn close(fd0: c_int) c_int {
     return 0;
 }
 
+export fn fclose(stream: *FILE) c_int {
+    debug("close: stream={*}", .{stream});
+    return 0;
+}
+
 export fn unlink(path: [*:0]const u8) c_int {
     debug("unlink: path={s}", .{path});
     return 0;
@@ -388,9 +393,6 @@ pub export fn atoi(_: c_int) c_int {
 }
 pub export fn exit(_: c_int) c_int {
     @panic("TODO: exit");
-}
-pub export fn fclose(_: c_int) c_int {
-    @panic("TODO: fclose");
 }
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
