@@ -814,11 +814,15 @@ TCC calls surprisingly few External Functions! We might get it running on WebAss
 
 ## Semaphore Functions
 
-TODO: Borrow from where?
+Not sure why TCC uses Semaphores? Maybe we'll understand when we support `#include` files.
+
+TODO: Borrow Semaphore Functions from where?
 
 - sem_init, sem_post, sem_wait
 
 ## Standard Library
+
+qsort isn't used right now. Maybe for the Linker later?
 
 TODO: Borrow qsort from where?
 
@@ -826,33 +830,41 @@ TODO: Borrow qsort from where?
 
 ## Time Functions
 
-TODO: Borrow from where?
+Not used right now.
+
+TODO: Borrow Time Functions from where?
 
 - time, gettimeofday, localtime
 
 ## Math Functions
 
-TODO: Borrow from where?
+Also not used right now.
+
+TODO: Borrow Math Functions from where?
 
 - ldexp
 
 ## Varargs Functions
 
-Will be tricky to implement in Zig
+Varargs will be tricky to implement in Zig. Probably we should implement in C. Maybe MUSL?
+
+Right now we're doing simple Pattern Matching. But it won't work for Real Programs.
 
 - printf, snprintf, sprintf, vsnprintf
 - sscanf
 
 ## Filesystem Functions
 
-Will mock up these functions for WebAssembly
+Will mock up these functions for WebAssembly. Maybe an Emulated Filesystem, similar to [Emscripten File System](https://emscripten.org/docs/porting/files/file_systems_overview.html)?
 
 - getcwd
 - remove, unlink
 
 ## File I/O Functions
 
-Will mock up these functions for WebAssembly. We will read only 1 simple C Source File, and produce only 1 Object File. No header files, no libraries. (Should be mockable)
+Will mock up these functions for WebAssembly. Right now we read only 1 simple C Source File, and produce only 1 Object File. No header files, no libraries. And it works!
+
+But later we might need an Emulated Filesystem, similar to [Emscripten File System](https://emscripten.org/docs/porting/files/file_systems_overview.html). And our File I/O code will support Multiple Files with proper Buffer Overflow Checks.
 
 - open, fopen, fdopen, 
 - close, fclose
