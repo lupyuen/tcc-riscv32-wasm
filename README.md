@@ -663,6 +663,8 @@ Also published publicly here (see the JavaScript Console): https://lupyuen.githu
 
 TODO: Verify the generated `a.out`. Didn't we pass `-c` to generate as Object File?
 
+TODO: Check our WebAssembly with [Modsurfer](https://github.com/dylibso/modsurfer)
+
 TODO: Need to implement vsnprintf() in C? Or we hardcode the patterns?
 
 `invalid macro name` is caused by `#define %s%s`. We should mock up a valid name for `%s%s`
