@@ -33,6 +33,10 @@ What if we could allow NuttX Apps to be compiled and tested in the Web Browser?
 
 Let's verify that TCC will generate 64-bit RISC-V code...
 
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-web.png)
+
+[_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
+
 # TCC generates 64-bit RISC-V code
 
 We build TCC to support 64-bit RISC-V Target...
@@ -799,6 +803,10 @@ main():
 Very similar to [hello_main.S](https://gist.github.com/lupyuen/46ffc9481c79e36274c0980f9d58f806)
 
 So yes TCC runs correctly in a Web Browser. With some limitations and lots of hacking! Yay!
+
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-web.png)
+
+[_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
 
 # Analysis of Missing Functions
 
