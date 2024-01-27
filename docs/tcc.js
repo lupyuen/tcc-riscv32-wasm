@@ -2,6 +2,7 @@
 // https://github.com/daneelsan/zig-wasm-logger/blob/master/script.js
 const text_decoder = new TextDecoder();
 let console_log_buffer = "";
+let term = null;
 
 // WebAssembly Helper Functions
 const wasm = {
@@ -36,6 +37,7 @@ const importObject = {
         // https://github.com/daneelsan/zig-wasm-logger/blob/master/script.js
         jsConsoleLogFlush: function() {
             console.log(console_log_buffer);
+            term.write(console_log_buffer.split("\n").join("\r\n") + "\r\n");
             console_log_buffer = "";
         },
     }
@@ -53,6 +55,39 @@ function main() {
     console.log("main: end");
 };
 
+// Start the Terminal
+function start_terminal() {
+    term = new Term({ cols: 80, rows: 50, scrollback: 10000, fontSize: 15 });
+    term.setKeyHandler(term_handler);
+    term.open(document.getElementById("term_container"),
+              document.getElementById("term_paste"));
+    const term_wrap_el = document.getElementById("term_wrap")
+    term_wrap_el.style.width = term.term_el.style.width;
+    term_wrap_el.onclick = term_wrap_onclick_handler;
+    term.write("Loading...\r\n");
+}
+
+// Handle Terminal Input
+function term_handler(str) {
+    for (let i = 0; i < str.length; i++) {
+        // TODO: Send Terminal Input to WebAssembly
+        // console_write1(str.charCodeAt(i));
+    }
+}
+
+// Handle Terminal Click
+function term_wrap_onclick_handler() {
+    const term_wrap_el = document.getElementById("term_wrap");
+    const term_bar_el = document.getElementById("term_bar");
+    const w = term_wrap_el.clientWidth;
+    const h = term_wrap_el.clientHeight;
+    const bar_h = term_bar_el.clientHeight;
+    if (term.resizePixel(w, h - bar_h)) {
+        // TODO: Send Resize Event to WebAssembly
+        // console_resize_event();
+    }
+}
+
 // Load the WebAssembly Module and start the Main Function
 async function bootstrap() {
 
@@ -67,8 +102,11 @@ async function bootstrap() {
     wasm.init(result);
 
     // Start the Main Function
-    main();
-}
+    window.requestAnimationFrame(main);
+}        
+
+// Start the Terminal
+start_terminal();
 
 // Start the loading of WebAssembly Module
-bootstrap();
+window.requestAnimationFrame(bootstrap);
