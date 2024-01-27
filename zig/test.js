@@ -47,7 +47,12 @@ WebAssembly.instantiate(typedArray, {
   wasm.init(result);
 
   // Allocate a String for passing to Zig
-  const s = allocateString("Testing 1 2 3");
+  const s = allocateString(`
+    int main(int argc, char *argv[]) {
+      printf("Hello, World!!\\n");
+      return 0;
+    }
+  `);
 
   // Call TCC to compile a program
   const ret = wasm.instance.exports
