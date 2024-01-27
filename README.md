@@ -464,6 +464,8 @@ Then we...
 
 1.  [Dump the `a.out` file](https://github.com/lupyuen/tcc-riscv32-wasm/commit/a6602a602293addfeb9ce548b9a3aacb62127c5f)
 
+# TCC WebAssembly runs OK in a Web Browser!
+
 When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 
 ```text
@@ -744,7 +746,7 @@ Note: `invalid macro name` is caused by `#define %s%s`. We should mock up a vali
 
 Let's verify the generated `a.out`.
 
-We copied the above `a.out` Hex Dump into a Text File: [a.txt](https://gist.github.com/lupyuen/fd78742847b146c6eea5dfcff0d932f7)
+We copy the above `a.out` Hex Dump into a Text File: [a.txt](https://gist.github.com/lupyuen/fd78742847b146c6eea5dfcff0d932f7)
 
 Then we decompile it...
 
