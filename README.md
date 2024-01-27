@@ -669,6 +669,36 @@ TODO: Need to implement vsnprintf() in C? Or we hardcode the patterns?
 
 `invalid macro name` is caused by `#define %s%s`. We should mock up a valid name for `%s%s`
 
+# Verify TCC Output
+
+TODO: [Dump the `a.out` file](https://github.com/lupyuen/tcc-riscv32-wasm/commit/a6602a602293addfeb9ce548b9a3aacb62127c5f)
+
+Save to `a.txt` and run...
+
+```bash
+## Convert a.txt to a.out
+cat a.txt \
+  | cut --bytes=10- \
+  | xxd -revert -plain \
+  >a.out
+
+## Decompile the a.out to RISC-V Disassembly
+riscv-none-elf-objdump \
+  --syms --source --reloc --demangle --line-numbers --wide \
+  --debugging \
+  a.out \
+  >a.S \
+  2>&1
+```
+
+TODO: `a.out` doesn't seem valid. Change `L.%u` to `L.0`
+
+```bash
+$ objdump -h a.out
+objdump: warning: a.out has a section extending past end of file
+objdump: a.out: file format not recognized
+```
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
