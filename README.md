@@ -450,7 +450,9 @@ Then we...
 
 1.  [Add close, sem_post, unlink](https://github.com/lupyuen/tcc-riscv32-wasm/commit/812eaa10d36bd29b6f4efcc35b09f4899f880d5b)
 
-1.  [Add fdopen, fwrite](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7380fe18d6d109abb55b473b7b7e53749f92a32b)
+1.  [Add fdopen](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7380fe18d6d109abb55b473b7b7e53749f92a32b)
+
+1.  [Add fwrite](https://github.com/lupyuen/tcc-riscv32-wasm/commit/865eaa7970193cc1d3d3dbdfb2b1314971cc1d1c)
 
 When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 
@@ -458,8 +460,8 @@ When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@1074d8, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@1074d8
+sem_init: sem=tcc-wasm.sem_t@1075c8, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@1075c8
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
 TODO: vsnprintf: size=128, format=#define __TINYC__ %d
@@ -528,32 +530,50 @@ TODO: snprintf: return str=.rela%s
 read: fd=3, nbyte=8192
 read: return 0
 close: fd=3
-sem_post: sem=tcc-wasm.sem_t@1074d8
+sem_post: sem=tcc-wasm.sem_t@1075c8
 TODO: snprintf: size=1024, format=%s
 TODO: snprintf: return str=%s
 unlink: path=a.out
 open: path=a.out, oflag=577, return fd=4
 fdopen: fd=4, mode=wb, return FILE=5
 fwrite: ptr=ELF, size=1, nmemb=64, stream=tcc-wasm.FILE@5
-fwrite: ptr=�#<, size=1, nmemb=64, stream=tcc-wasm.FILE@5
-fwrite: ptr=Hello, World!!
+  0000:  7F 45 4C 46 02 01 01 00  00 00 00 00 00 00 00 00  .ELF............
+  0016:  01 00 F3 00 01 00 00 00  00 00 00 00 00 00 00 00  ................
+  0032:  00 00 00 00 00 00 00 00  D0 01 00 00 00 00 00 00  ................
+  0048:  04 00 00 00 40 00 00 00  00 00 40 00 09 00 08 00  ....@.....@.....
+  fwrite: ptr=�#<, size=1, nmemb=64, stream=tcc-wasm.FILE@5
+  0000:  13 01 01 FE 23 3C 11 00  23 38 81 00 13 04 01 02  ....#<..#8......
+  0016:  13 00 00 00 23 34 A4 FE  23 30 B4 FE 17 05 00 00  ....#4..#0......
+  0032:  13 05 05 00 97 00 00 00  E7 80 00 00 1B 05 00 00  ................
+  0048:  83 30 81 01 03 34 01 01  13 01 01 02 67 80 00 00  .0...4......g...
+  fwrite: ptr=Hello, World!!
 , size=1, nmemb=16, stream=tcc-wasm.FILE@5
-fwrite: ptr=, size=1, nmemb=144, stream=tcc-wasm.FILE@5
-fwrite: ptr=, size=1, nmemb=26, stream=tcc-wasm.FILE@5
-wasm://wasm/0066d4d2:1
+  0000:  48 65 6C 6C 6F 2C 20 57  6F 72 6C 64 21 21 0A 00  Hello, World!!..
+  fwrite: ptr=, size=1, nmemb=144, stream=tcc-wasm.FILE@5
+  0000:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+  0016:  00 00 00 00 00 00 00 00  01 00 00 00 04 00 F1 FF  ................
+  0032:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+  0048:  0E 00 00 00 01 00 03 00  00 00 00 00 00 00 00 00  ................
+  0064:  10 00 00 00 00 00 00 00  00 00 00 00 00 00 01 00  ................
+  0080:  1C 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+  0096:  09 00 00 00 12 00 01 00  00 00 00 00 00 00 00 00  ................
+  0112:  40 00 00 00 00 00 00 00  13 00 00 00 12 00 00 00  @...............
+  0128:  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  ................
+  fwrite: ptr=, size=1, nmemb=26, stream=tcc-wasm.FILE@5
+  0000:  00 68 65 6C 6C 6F 2E 63  00 6D 61 69 6E 00 4C 2E  .hello.c.main.L.
+  0016:  25 75 00 70 72 69 6E 74  66 00                    %u.printf.
+  wasm://wasm/006a16ca:1
 
 RuntimeError: unreachable
-    at signature_mismatch:fputc (wasm://wasm/0066d4d2:wasm-function[13]:0x62b)
-    at tcc_write_elf_file (wasm://wasm/0066d4d2:wasm-function[63]:0x11cbd)
-    at tcc_output_file (wasm://wasm/0066d4d2:wasm-function[57]:0xe068)
-    at main (wasm://wasm/0066d4d2:wasm-function[122]:0x297f4)
-    at compile_program (wasm://wasm/0066d4d2:wasm-function[253]:0x4e419)
+    at signature_mismatch:fputc (wasm://wasm/006a16ca:wasm-function[13]:0x657)
+    at tcc_write_elf_file (wasm://wasm/006a16ca:wasm-function[63]:0x11ce9)
+    at tcc_output_file (wasm://wasm/006a16ca:wasm-function[57]:0xe094)
+    at main (wasm://wasm/006a16ca:wasm-function[122]:0x29820)
+    at compile_program (wasm://wasm/006a16ca:wasm-function[253]:0x4e445)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
-
-TODO: Dump `fwrite` buffer as hex
 
 TODO: Implement `fputc`
 
