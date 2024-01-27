@@ -424,31 +424,33 @@ pub export fn close(_: c_int) c_int {
 
 Then we...
 
-- Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc) and [ziglibc](https://github.com/marler8997/ziglibc)
+1.  Borrow from [foundation-libc](https://github.com/ZigEmbeddedGroup/foundation-libc) and [ziglibc](https://github.com/marler8997/ziglibc)
 
-- [Fix malloc()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
+1.  [Fix malloc()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/e7c76474deb52acadd3540dec0589ab98ae243a9#diff-5ecd8d41f5376644e9c3f17c9eac540841ff6f7c00bca34d7811b54e0b9bd7a0)
 
-- [Add getenv()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
+1.  [Add getenv()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c230681899503ea4fe37a3c7ff0031f7018e2e2d)
 
-- [Add String Functions](https://github.com/lupyuen/tcc-riscv32-wasm/commit/4ea06f7602471a65539c65c746bfa65c6d1d4184)
+1.  [Add String Functions](https://github.com/lupyuen/tcc-riscv32-wasm/commit/4ea06f7602471a65539c65c746bfa65c6d1d4184)
 
-- [Add open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c0095568c3595c09345936b74616b528c99b364e)
+1.  [Add open()](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c0095568c3595c09345936b74616b528c99b364e)
 
-- [Add sem_init, sem_wait, puts](https://github.com/lupyuen/tcc-riscv32-wasm/commit/99d1d4a19a2530d1972222d0cdea1c52771f537c)
+1.  [Add sem_init, sem_wait, puts](https://github.com/lupyuen/tcc-riscv32-wasm/commit/99d1d4a19a2530d1972222d0cdea1c52771f537c)
 
-- [Increase malloc buffer](https://github.com/lupyuen/tcc-riscv32-wasm/commit/765bc8b1313d579f9e8975ec57e949408385ae6e)
+1.  [Increase malloc buffer](https://github.com/lupyuen/tcc-riscv32-wasm/commit/765bc8b1313d579f9e8975ec57e949408385ae6e)
 
-- [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
+1.  [Add sscanf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/abf18acd6053b852363afa9adefcc81501f334ed)
 
-- [Add vsnprintf and fflush](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c76b671e771d6ba4bb62230e1546aeb3e8637850)
+1.  [Add vsnprintf and fflush](https://github.com/lupyuen/tcc-riscv32-wasm/commit/c76b671e771d6ba4bb62230e1546aeb3e8637850)
 
-- [Add fprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/36d591ea197eb87eb5f14e9632512cfecc99cbaf)
+1.  [Add fprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/36d591ea197eb87eb5f14e9632512cfecc99cbaf)
 
-- [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7fe054b38cb52a289f1f512ba1e4ab07823b2ca4)
+1.  [Add read](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7fe054b38cb52a289f1f512ba1e4ab07823b2ca4)
 
-- [Add sprintf, snprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/dd0161168815d570259e08d4bf0370a363e6e6e7)
+1.  [Add sprintf, snprintf](https://github.com/lupyuen/tcc-riscv32-wasm/commit/dd0161168815d570259e08d4bf0370a363e6e6e7)
 
-- [Add close, sem_post, unlink](https://github.com/lupyuen/tcc-riscv32-wasm/commit/812eaa10d36bd29b6f4efcc35b09f4899f880d5b)
+1.  [Add close, sem_post, unlink](https://github.com/lupyuen/tcc-riscv32-wasm/commit/812eaa10d36bd29b6f4efcc35b09f4899f880d5b)
+
+1.  [Add fdopen, fwrite](https://github.com/lupyuen/tcc-riscv32-wasm/commit/7380fe18d6d109abb55b473b7b7e53749f92a32b)
 
 When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 
@@ -456,8 +458,8 @@ When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
 + node zig/test.js
 compile_program
 open: path=hello.c, oflag=0, return fd=3
-sem_init: sem=tcc-wasm.sem_t@107428, pshared=0, value=1
-sem_wait: sem=tcc-wasm.sem_t@107428
+sem_init: sem=tcc-wasm.sem_t@1074d8, pshared=0, value=1
+sem_wait: sem=tcc-wasm.sem_t@1074d8
 TODO: setjmp
 TODO: sscanf: str=0.9.27, format=%d.%d.%d
 TODO: vsnprintf: size=128, format=#define __TINYC__ %d
@@ -526,25 +528,34 @@ TODO: snprintf: return str=.rela%s
 read: fd=3, nbyte=8192
 read: return 0
 close: fd=3
-sem_post: sem=tcc-wasm.sem_t@107428
+sem_post: sem=tcc-wasm.sem_t@1074d8
 TODO: snprintf: size=1024, format=%s
 TODO: snprintf: return str=%s
 unlink: path=a.out
 open: path=a.out, oflag=577, return fd=4
-wasm://wasm/006689d6:1
+fdopen: fd=4, mode=wb, return FILE=5
+fwrite: ptr=ELF, size=1, nmemb=64, stream=tcc-wasm.FILE@5
+fwrite: ptr=�#<, size=1, nmemb=64, stream=tcc-wasm.FILE@5
+fwrite: ptr=Hello, World!!
+, size=1, nmemb=16, stream=tcc-wasm.FILE@5
+fwrite: ptr=, size=1, nmemb=144, stream=tcc-wasm.FILE@5
+fwrite: ptr=, size=1, nmemb=26, stream=tcc-wasm.FILE@5
+wasm://wasm/0066d4d2:1
 
 RuntimeError: unreachable
-    at signature_mismatch:fdopen (wasm://wasm/006689d6:wasm-function[11]:0x61f)
-    at tcc_write_elf_file (wasm://wasm/006689d6:wasm-function[65]:0x10c66)
-    at tcc_output_file (wasm://wasm/006689d6:wasm-function[59]:0xe06c)
-    at main (wasm://wasm/006689d6:wasm-function[124]:0x297f8)
-    at compile_program (wasm://wasm/006689d6:wasm-function[255]:0x4e41d)
+    at signature_mismatch:fputc (wasm://wasm/0066d4d2:wasm-function[13]:0x62b)
+    at tcc_write_elf_file (wasm://wasm/0066d4d2:wasm-function[63]:0x11cbd)
+    at tcc_output_file (wasm://wasm/0066d4d2:wasm-function[57]:0xe068)
+    at main (wasm://wasm/0066d4d2:wasm-function[122]:0x297f4)
+    at compile_program (wasm://wasm/0066d4d2:wasm-function[253]:0x4e419)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:52:15
 ```
 
 Also published publicly here (see the JavaScript Console): https://lupyuen.github.io/tcc-riscv32-wasm/
 
-TODO: Implement `fdopen`
+TODO: Dump `fwrite` buffer as hex
+
+TODO: Implement `fputc`
 
 TODO: Need to implement vsnprintf() in C? Or we hardcode the patterns?
 
