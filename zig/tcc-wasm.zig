@@ -82,8 +82,13 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     return @intCast(strlen(s));
 }
 
+export fn fputc(c: c_int, stream: *FILE) c_int {
+    debug("fputc: c=0x{X:0>2}, stream={*}", .{ @as(u8, @intCast(c)), stream });
+    return c;
+}
+
 export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) usize {
-    debug("fwrite: ptr={s}, size={}, nmemb={}, stream={*}", .{ ptr, size, nmemb, stream });
+    debug("fwrite: size={}, nmemb={}, stream={*}", .{ size, nmemb, stream });
     hexdump.hexdump(ptr, size * nmemb);
     return nmemb;
 }
@@ -389,9 +394,6 @@ pub export fn fclose(_: c_int) c_int {
 }
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
-}
-pub export fn fputc(_: c_int) c_int {
-    @panic("TODO: fputc");
 }
 pub export fn fputs(_: c_int) c_int {
     @panic("TODO: fputs");
