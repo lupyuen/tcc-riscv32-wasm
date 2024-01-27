@@ -11,12 +11,12 @@ const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program(code_ptr: [*:0]const u8) u32 {
-    debug("compile_program", .{});
+    debug("compile_program: start", .{});
 
     // Receive the C Program from JavaScript and set our Read Buffer
     // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
     const code: []const u8 = std.mem.span(code_ptr);
-    debug("code={s}", .{code});
+    debug("compile_program: code={s}", .{code});
     read_buf = code;
 
     // TODO: Compiler fails with "type '[*:0]const u8' does not support field access"
