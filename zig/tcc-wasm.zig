@@ -51,6 +51,13 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     return ret;
 }
 
+export fn fdopen(fd0: c_int, mode: [*:0]const u8) *FILE {
+    debug("fdopen: fd={}, mode={s}, return FILE={}", .{ fd0, mode, fd });
+    const ret = fd;
+    fd += 1;
+    return @ptrFromInt(@as(usize, @intCast(ret)));
+}
+
 export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     debug("read: fd={}, nbyte={}", .{ fd0, nbyte });
     // Return the contents once only
@@ -70,6 +77,11 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     buf[strlen(s)] = 0;
     debug("read: return buf={s}", .{buf});
     return @intCast(strlen(s));
+}
+
+export fn fwrite(ptr: [*:0]u8, size: usize, nmemb: usize, stream: *FILE) usize {
+    debug("fwrite: ptr={s}, size={}, nmemb={}, stream={*}", .{ ptr, size, nmemb, stream });
+    return nmemb;
 }
 
 export fn close(fd0: c_int) c_int {
@@ -371,9 +383,6 @@ pub export fn exit(_: c_int) c_int {
 pub export fn fclose(_: c_int) c_int {
     @panic("TODO: fclose");
 }
-pub export fn fdopen(_: c_int) c_int {
-    @panic("TODO: fdopen");
-}
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
 }
@@ -391,9 +400,6 @@ pub export fn fseek(_: c_int) c_int {
 }
 pub export fn ftell(_: c_int) c_int {
     @panic("TODO: ftell");
-}
-pub export fn fwrite(_: c_int) c_int {
-    @panic("TODO: fwrite");
 }
 pub export fn getcwd(_: c_int) c_int {
     @panic("TODO: getcwd");
