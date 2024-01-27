@@ -88,5 +88,5 @@ fn log(
 }
 
 /// Log Buffer
-var buf: [256]u8 = [_]u8{0} ** 256;
+var buf = std.mem.zeroes([256]u8);
 var buflen: usize = 0;

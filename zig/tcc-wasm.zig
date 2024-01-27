@@ -38,7 +38,12 @@ pub export fn compile_program() u32 {
     // Call the TCC Compiler
     _ = main(argc, &args_ptrs);
 
-    return 123;
+    // Dump the generated `a.out`
+    debug("a.out: {} bytes", .{write_buflen});
+    hexdump.hexdump(@ptrCast(&write_buf), write_buflen);
+
+    // Return size of `a.out` to JavaScript
+    return write_buflen;
 }
 
 /// Main Function from tcc.c
@@ -84,12 +89,21 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
 
 export fn fputc(c: c_int, stream: *FILE) c_int {
     debug("fputc: c=0x{X:0>2}, stream={*}", .{ @as(u8, @intCast(c)), stream });
+
+    // Copy to the Write Buffer. TODO: Support more than one `stream`
+    @memset(write_buf[write_buflen .. write_buflen + 1], @intCast(c));
+    write_buflen += 1;
     return c;
 }
 
 export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) usize {
     debug("fwrite: size={}, nmemb={}, stream={*}", .{ size, nmemb, stream });
     hexdump.hexdump(ptr, size * nmemb);
+
+    // Copy to the Write Buffer. TODO: Support more than one `stream`
+    const len = size * nmemb;
+    @memcpy(write_buf[write_buflen .. write_buflen + len], ptr[0..]);
+    write_buflen += len;
     return nmemb;
 }
 
@@ -108,6 +122,11 @@ export fn unlink(path: [*:0]const u8) c_int {
     return 0;
 }
 
+/// Write Buffer for fputc and fwrite
+var write_buf = std.mem.zeroes([8192]u8);
+var write_buflen: usize = 0;
+
+/// Next File Descriptor
 var fd: c_int = 3;
 var first_read: bool = true;
 
