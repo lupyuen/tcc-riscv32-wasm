@@ -181,8 +181,14 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
 
 export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     debug("TODO: sprintf: format={s}", .{format});
-    _ = memcpy(str, format, strlen(format));
-    str[strlen(format)] = 0;
+    if (strcmp(format, "L.%u") == 0) {
+        const s = "L.0";
+        _ = memcpy(str, s, strlen(s));
+        str[strlen(s)] = 0;
+    } else {
+        _ = memcpy(str, format, strlen(format));
+        str[strlen(format)] = 0;
+    }
     debug("TODO: sprintf: return str={s}", .{str});
     return @intCast(strlen(str));
 }
@@ -190,8 +196,14 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
 export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     debug("TODO: snprintf: size={}, format={s}", .{ size, format });
     // TODO: Catch overflow
-    _ = memcpy(str, format, strlen(format));
-    str[strlen(format)] = 0;
+    if (strcmp(format, ".rela%s") == 0) {
+        const s = ".rela.text";
+        _ = memcpy(str, s, strlen(s));
+        str[strlen(s)] = 0;
+    } else {
+        _ = memcpy(str, format, strlen(format));
+        str[strlen(format)] = 0;
+    }
     debug("TODO: snprintf: return str={s}", .{str});
     return @intCast(strlen(str));
 }
