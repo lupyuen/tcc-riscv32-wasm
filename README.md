@@ -466,7 +466,7 @@ Then we...
 
 # TCC WebAssembly runs OK in a Web Browser!
 
-When we run it: TCC compiles `hello.c` and writes to `a.out` yay!
+When we run it in a [Web Browser](https://lupyuen.github.io/tcc-riscv32-wasm/): TCC compiles `hello.c` and writes to `a.out` yay!
 
 ```text
 + node zig/test.js
