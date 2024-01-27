@@ -10,8 +10,16 @@ const wasmlog = @import("wasmlog.zig");
 const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
-pub export fn compile_program() u32 {
+pub export fn compile_program(name_pointer: [*:0]const u8) u32 {
     debug("compile_program", .{});
+
+    // Receive the String from JavaScript
+    // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
+    const name: []const u8 = std.mem.span(name_pointer);
+    debug("name={s}", .{name});
+
+    // TODO: Compiler fails with "type '[*:0]const u8' does not support field access"
+    // defer std.heap.page_allocator.free(name_pointer);
 
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
@@ -44,6 +52,14 @@ pub export fn compile_program() u32 {
 
     // Return size of `a.out` to JavaScript
     return write_buflen;
+}
+
+/// Allocate some WebAssembly Memory, so JavaScript can pass Strings to Zig
+/// https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
+pub export fn allocUint8(length: u32) [*]const u8 {
+    const slice = std.heap.page_allocator.alloc(u8, length) catch
+        @panic("failed to allocate memory");
+    return slice.ptr;
 }
 
 /// Main Function from tcc.c

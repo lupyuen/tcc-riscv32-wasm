@@ -47,12 +47,32 @@ const importObject = {
 function main() {
     console.log("main: start");
 
+    // Allocate a String for passing to Zig
+    const s = allocateString("Testing 1 2 3");
+
     // Call TCC to compile a program
     const ret = wasm.instance.exports
-        .compile_program();
+        .compile_program(s);
     console.log(`ret=${ret}`);
 
     console.log("main: end");
+};
+
+// Allocate a String for passing to Zig
+// https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
+const allocateString = (string) => {
+    const memory = wasm.instance.exports.memory;
+    const buffer = new TextEncoder().encode(string);
+    const pointer = wasm.instance.exports
+        .allocUint8(buffer.length + 1); // ask Zig to allocate memory
+    const slice = new Uint8Array(
+        memory.buffer, // memory exported from Zig
+        pointer,
+        buffer.length + 1
+    );
+    slice.set(buffer);
+    slice[buffer.length] = 0; // null byte to null-terminate the string
+    return pointer;
 };
 
 // Start the Terminal
