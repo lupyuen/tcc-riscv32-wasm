@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html style="font-family: sans-serif">
   <head>
     <title>TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler</title>
     <link href="style.css" type="text/css" rel="stylesheet"/>
@@ -9,7 +9,7 @@
       <tr>
         <td>
           <p>
-            <h3>TCC RISC-V Compiler: <br>Compiled to WebAssembly with Zig Compiler</h3>
+            <h3>TCC RISC-V Compiler: <br>Compiled to WebAssembly <br>With Zig Compiler</h3>
             <textarea id="code" cols="40" rows="20" style="font-size: larger">
 int main(int argc, char *argv[]) {
   printf("Hello, World!!\n");
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
             </textarea>              
           </p>
           <p>
-            <button type="button" style="font-size: larger; margin: auto" onclick="bootstrap()">Compile with TCC</button>
+            <button id="compile" type="button" style="font-size: larger; width: 100%; height: 70px" onclick="bootstrap()">Compile with TCC</button>
           </p>
         </td>
         <td>

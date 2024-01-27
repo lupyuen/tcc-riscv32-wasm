@@ -119,7 +119,8 @@ function term_wrap_onclick_handler() {
   }
 }
 
-// Load the WebAssembly Module and start the Main Function
+// Load the WebAssembly Module and start the Main Function.
+// Called by the Compile Button.
 async function bootstrap() {
   // Load the WebAssembly Module
   // https://developer.mozilla.org/en-US/docs/WebAssembly/JavaScript_interface/instantiateStreaming
