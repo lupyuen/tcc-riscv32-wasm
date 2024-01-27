@@ -6,6 +6,9 @@ const std = @import("std");
 /// Import the WebAssembly Logger
 const wasmlog = @import("wasmlog.zig");
 
+/// Import the Hexdump Logger
+const hexdump = @import("hexdump.zig");
+
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program() u32 {
     debug("compile_program", .{});
@@ -79,8 +82,9 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     return @intCast(strlen(s));
 }
 
-export fn fwrite(ptr: [*:0]u8, size: usize, nmemb: usize, stream: *FILE) usize {
+export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) usize {
     debug("fwrite: ptr={s}, size={}, nmemb={}, stream={*}", .{ ptr, size, nmemb, stream });
+    hexdump.hexdump(ptr, size * nmemb);
     return nmemb;
 }
 
