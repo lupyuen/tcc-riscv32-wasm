@@ -14,22 +14,21 @@ const wasm = {
 
   // Init the WebAssembly Instance
   init: function (obj) {
-      this.instance = obj.instance;
+    this.instance = obj.instance;
   },
 
   // Fetch the Zig String from a WebAssembly Pointer
   getString: function (ptr, len) {
-      const memory = this.instance.exports.memory;
-      return text_decoder.decode(
-          new Uint8Array(memory.buffer, ptr, len)
-      );
+    const memory = this.instance.exports.memory;
+    return text_decoder.decode(
+      new Uint8Array(memory.buffer, ptr, len)
+    );
   },
 };
 
+// Load the WebAssembly
 WebAssembly.instantiate(typedArray, {
   env: {
-    print: (result) => { console.log(`The result is ${result}`); },
-
     // Write to JavaScript Console from Zig
     // https://github.com/daneelsan/zig-wasm-logger/blob/master/script.js
     jsConsoleLogWrite: function(ptr, len) {
@@ -42,13 +41,38 @@ WebAssembly.instantiate(typedArray, {
       console.log(console_log_buffer);
       console_log_buffer = "";
     },
-  }}).then(result => {
-
+  }
+}).then(result => {
   // Store references to WebAssembly Functions and Memory exported by Zig
   wasm.init(result);
 
+  // Allocate a String for passing to Zig
+  const s = allocateString("Testing 1 2 3");
+
   // Call TCC to compile a program
-  const compile_program = result.instance.exports.compile_program;
-  const ret = compile_program();
+  const ret = wasm.instance.exports
+    .compile_program(s);
   console.log(`ret=${ret}`);
 });
+
+// Allocate a String for passing to Zig
+// https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
+const allocateString = (string) => {
+  // WebAssembly Memory exported by Zig
+  const memory = wasm.instance.exports.memory;
+  const buffer = new TextEncoder().encode(string);
+
+  // Ask Zig to allocate memory
+  const pointer = wasm.instance.exports
+    .allocUint8(buffer.length + 1);
+  const slice = new Uint8Array(
+    memory.buffer,
+    pointer,
+    buffer.length + 1
+  );
+  slice.set(buffer);
+
+  // Terminate the string with null
+  slice[buffer.length] = 0;
+  return pointer;
+};
