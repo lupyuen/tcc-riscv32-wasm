@@ -10,16 +10,17 @@ const wasmlog = @import("wasmlog.zig");
 const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
-pub export fn compile_program(name_pointer: [*:0]const u8) u32 {
+pub export fn compile_program(code_ptr: [*:0]const u8) u32 {
     debug("compile_program", .{});
 
-    // Receive the String from JavaScript
+    // Receive the C Program from JavaScript and set our Read Buffer
     // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
-    const name: []const u8 = std.mem.span(name_pointer);
-    debug("name={s}", .{name});
+    const code: []const u8 = std.mem.span(code_ptr);
+    debug("code={s}", .{code});
+    read_buf = code;
 
     // TODO: Compiler fails with "type '[*:0]const u8' does not support field access"
-    // defer std.heap.page_allocator.free(name_pointer);
+    // defer std.heap.page_allocator.free(code_ptr);
 
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
@@ -84,29 +85,23 @@ export fn fdopen(fd0: c_int, mode: [*:0]const u8) *FILE {
 
 export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     debug("read: fd={}, nbyte={}", .{ fd0, nbyte });
-    // Return the contents once only
-    if (!first_read) {
-        debug("read: return 0", .{});
-        return 0;
-    }
-    first_read = false;
-    const s =
-        \\int main(int argc, char *argv[]) {
-        \\  printf("Hello, World!!\n");
-        \\  return 0;
-        \\}
-    ;
+
+    // Copy from the Read Buffer
+    // TODO: Support more than one file
     // TODO: Check overflow
-    _ = memcpy(buf, s, strlen(s));
-    buf[strlen(s)] = 0;
+    const len = read_buf.len;
+    _ = memcpy(buf, read_buf.ptr, len);
+    buf[len] = 0;
+    read_buf.len = 0;
     debug("read: return buf={s}", .{buf});
-    return @intCast(strlen(s));
+    return @intCast(len);
 }
 
 export fn fputc(c: c_int, stream: *FILE) c_int {
     debug("fputc: c=0x{X:0>2}, stream={*}", .{ @as(u8, @intCast(c)), stream });
 
-    // Copy to the Write Buffer. TODO: Support more than one `stream`
+    // Copy to the Write Buffer
+    // TODO: Support more than one `stream`
     @memset(write_buf[write_buflen .. write_buflen + 1], @intCast(c));
     write_buflen += 1;
     return c;
@@ -116,7 +111,8 @@ export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) u
     debug("fwrite: size={}, nmemb={}, stream={*}", .{ size, nmemb, stream });
     hexdump.hexdump(ptr, size * nmemb);
 
-    // Copy to the Write Buffer. TODO: Support more than one `stream`
+    // Copy to the Write Buffer
+    // TODO: Support more than one `stream`
     const len = size * nmemb;
     @memcpy(write_buf[write_buflen .. write_buflen + len], ptr[0..]);
     write_buflen += len;
@@ -141,6 +137,9 @@ export fn unlink(path: [*:0]const u8) c_int {
 /// Write Buffer for fputc and fwrite
 var write_buf = std.mem.zeroes([8192]u8);
 var write_buflen: usize = 0;
+
+/// Read Buffer for read
+var read_buf: []const u8 = undefined;
 
 /// Next File Descriptor
 var fd: c_int = 3;
