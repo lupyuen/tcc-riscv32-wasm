@@ -66,16 +66,14 @@ function main() {
   console.log(`main: len=${len}`);
 
   // Encode the `a.out` data from the rest of the bytes returned
-  const data = new Uint8Array(memory.buffer, ptr, len + 4);
+  const data = new Uint8Array(memory.buffer, ptr + 4, len);
   let encoded_data = "";
   for (const i in data) {
-    if (i < 4) { continue; }  // Skip the first 4 bytes
     const hex = Number(data[i]).toString(16).padStart(2, "0");
     encoded_data += `%${hex}`;
   }
 
   // Download the `a.out` data into the Web Browser
-  console.log(encoded_data);
   download("a.out", encoded_data);
 
   console.log("main: end");
@@ -139,16 +137,14 @@ function term_wrap_onclick_handler() {
 }
 
 // Download the Encoded Data. `encoded_data` looks like "%fd%fe%ff"
+// https://ourcodeworld.com/articles/read/189/how-to-create-a-file-and-generate-a-download-with-javascript-in-the-browser-without-a-server
 function download(filename, encoded_data) {
   var element = document.createElement('a');
   element.setAttribute('href', 'data:application/octet-stream,' + encoded_data);
   element.setAttribute('download', filename);
-
   element.style.display = 'none';
   document.body.appendChild(element);
-
   element.click();
-
   document.body.removeChild(element);
 }
 
