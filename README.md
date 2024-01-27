@@ -1,3 +1,7 @@
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-title.png)
+
+[_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
+
 # TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
 _TCC is a simple C Compiler for 64-bit RISC-V... Can we run TCC in a Web Browser?_
@@ -741,6 +745,10 @@ TODO: Need to implement vsnprintf() in C? Or we hardcode the patterns?
 TODO: Didn't we pass the TCC Option `-c` to generate as Object File? Why is the output `a.out`?
 
 Note: `invalid macro name` is caused by `#define %s%s`. We should mock up a valid name for `%s%s`
+
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-title.png)
+
+[_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
 
 # Verify the TCC Output
 
