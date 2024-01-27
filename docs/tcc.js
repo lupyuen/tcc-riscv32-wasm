@@ -50,17 +50,13 @@ const importObject = {
 function main() {
   console.log("main: start");
 
-  // Allocate a String for passing to Zig
-  const s = allocateString(`
-    int main(int argc, char *argv[]) {
-      printf("Hello, World!!\\n");
-      return 0;
-    }
-  `);
+  // Allocate a String for passing the code to Zig
+  const code = document.getElementById("code").value;
+  const code_ptr = allocateString(code);
 
   // Call TCC to compile a program
   const ret = wasm.instance.exports
-    .compile_program(s);
+    .compile_program(code_ptr);
   console.log(`ret=${ret}`);
 
   console.log("main: end");
@@ -96,10 +92,10 @@ function start_terminal() {
     document.getElementById("term_container"),
     document.getElementById("term_paste")
   );
-  const term_wrap_el = document.getElementById("term_wrap")
+  const term_wrap_el = document.getElementById("term_wrap");
   term_wrap_el.style.width = term.term_el.style.width;
   term_wrap_el.onclick = term_wrap_onclick_handler;
-  term.write("Loading...\r\n");
+  term.write("This is a barebones port of TCC 64-bit RISC-V Compiler to WebAssembly. \r\nOnly very simple C programs are supported. (Sorry, no `#include`) \r\nhttps://github.com/lupyuen/tcc-riscv32-wasm\r\n");
 }
 
 // Handle the Terminal Input
@@ -141,6 +137,3 @@ async function bootstrap() {
 
 // Start the Terminal
 start_terminal();
-
-// Start the loading of WebAssembly Module
-window.requestAnimationFrame(bootstrap);

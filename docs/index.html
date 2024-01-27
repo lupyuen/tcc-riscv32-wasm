@@ -6,12 +6,31 @@
   </head>
   <body style="background-color: lightgrey;">
     <h3>TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler</h3>
-    <div id="term_wrap">
-      <div id="term_container">
-      </div>
-      <div id="term_bar">
-      </div>
-    </div>
+    <table>
+      <tr>
+        <td>
+          <p>
+            <textarea id="code" cols="40" rows="20" style="font-size: larger">
+int main(int argc, char *argv[]) {
+  printf("Hello, World!!\n");
+  return 0;
+}
+            </textarea>              
+          </p>
+          <p>
+            <button type="button" style="font-size: larger; margin: auto" onclick="bootstrap()">Compile with TCC</button>
+          </p>
+        </td>
+        <td>
+          <div id="term_wrap">
+            <div id="term_container">
+            </div>
+            <div id="term_bar">
+            </div>
+          </div>      
+        </td>
+      </tr>
+    </table>
   </body>
   <script type="text/javascript" src="term.js"></script>
   <script type="text/javascript" src="tcc.js"></script>
