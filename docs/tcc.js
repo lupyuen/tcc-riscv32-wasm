@@ -55,9 +55,28 @@ function main() {
   const code_ptr = allocateString(code);
 
   // Call TCC to compile a program
-  const ret = wasm.instance.exports
+  const ptr = wasm.instance.exports
     .compile_program(code_ptr);
-  console.log(`ret=${ret}`);
+  console.log(`main: ptr=${ptr}`);
+
+  // Get the `a.out` size from first 4 bytes returned
+  const memory = wasm.instance.exports.memory;
+  const data_len = new Uint8Array(memory.buffer, ptr, 4);
+  const len = data_len[0] | data_len[1] << 8 | data_len[2] << 16 | data_len[3] << 24;
+  console.log(`main: len=${len}`);
+
+  // Encode the `a.out` data from the rest of the bytes returned
+  const data = new Uint8Array(memory.buffer, ptr, len + 4);
+  let encoded_data = "";
+  for (const i in data) {
+    if (i < 4) { continue; }  // Skip the first 4 bytes
+    const hex = Number(data[i]).toString(16).padStart(2, "0");
+    encoded_data += `%${hex}`;
+  }
+
+  // Download the `a.out` data into the Web Browser
+  console.log(encoded_data);
+  download("a.out", encoded_data);
 
   console.log("main: end");
 };
@@ -95,7 +114,7 @@ function start_terminal() {
   const term_wrap_el = document.getElementById("term_wrap");
   term_wrap_el.style.width = term.term_el.style.width;
   term_wrap_el.onclick = term_wrap_onclick_handler;
-  term.write("This is a barebones port of TCC 64-bit RISC-V Compiler to WebAssembly. \r\nOnly very simple C programs are supported. (Sorry, no `#include`) \r\nhttps://github.com/lupyuen/tcc-riscv32-wasm\r\n");
+  term.write("This is a barebones port of TCC 64-bit RISC-V Compiler to WebAssembly. \r\nOnly very simple C programs are supported. (Sorry, no `#include`) \r\nThe generated RISC-V ELF `a.out` will be auto-downloaded. \r\nhttps://github.com/lupyuen/tcc-riscv32-wasm\r\n");
 }
 
 // Handle the Terminal Input
@@ -117,6 +136,20 @@ function term_wrap_onclick_handler() {
     // TODO: Send Resize Event to WebAssembly
     // console_resize_event();
   }
+}
+
+// Download the Encoded Data. `encoded_data` looks like "%fd%fe%ff"
+function download(filename, encoded_data) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:application/octet-stream,' + encoded_data);
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
 }
 
 // Load the WebAssembly Module and start the Main Function.

@@ -10,7 +10,7 @@ const wasmlog = @import("wasmlog.zig");
 const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
-pub export fn compile_program(code_ptr: [*:0]const u8) u32 {
+pub export fn compile_program(code_ptr: [*:0]const u8) [*]const u8 {
     debug("compile_program: start", .{});
 
     // Receive the C Program from JavaScript and set our Read Buffer
@@ -51,15 +51,23 @@ pub export fn compile_program(code_ptr: [*:0]const u8) u32 {
     debug("a.out: {} bytes", .{write_buflen});
     hexdump.hexdump(@ptrCast(&write_buf), write_buflen);
 
-    // Return size of `a.out` to JavaScript
-    return write_buflen;
+    // Return pointer of `a.out` to JavaScript.
+    // First 4 bytes: Size of `a.out`. Followed by `a.out` data.
+    const slice = std.heap.page_allocator.alloc(u8, write_buflen + 4) catch
+        @panic("Failed to allocate memory");
+    slice[0] = @intCast((write_buflen >> 0) & 0xff);
+    slice[1] = @intCast((write_buflen >> 8) & 0xff);
+    slice[2] = @intCast((write_buflen >> 16) & 0xff);
+    slice[3] = @intCast(write_buflen >> 24);
+    @memcpy(slice[4 .. write_buflen + 4], write_buf[0..write_buflen]);
+    return slice.ptr; // TODO: Deallocate this memory
 }
 
 /// Allocate some WebAssembly Memory, so JavaScript can pass Strings to Zig
 /// https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
 pub export fn allocUint8(length: u32) [*]const u8 {
     const slice = std.heap.page_allocator.alloc(u8, length) catch
-        @panic("failed to allocate memory");
+        @panic("Failed to allocate memory");
     return slice.ptr;
 }
 
