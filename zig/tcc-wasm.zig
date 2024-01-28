@@ -365,8 +365,30 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
 }
 
 export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
-    debug("TODO: fprintf: stream={*}, format={s}", .{ stream, format });
-    return @intCast(strlen(format));
+    // Count the Format Specifiers: `%`
+    const format_slice = std.mem.span(format);
+    const format_cnt = std.mem.count(u8, format_slice, "%");
+
+    if (format_cnt == 1 and std.mem.containsAtLeast(u8, format_slice, 1, "%s")) {
+        // Format a Single `%s`, like `%s\n`
+        var ap = @cVaStart();
+        defer @cVaEnd(&ap);
+        const s = @cVaArg(&ap, [*:0]const u8);
+        const s_slice = std.mem.span(s);
+        debug("TODO: fprintf: stream={*}, format={s}, s={s}", .{ stream, format, s });
+
+        // Replace the Format Specifier
+        var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
+        _ = std.mem.replace(u8, format_slice, "%s", s_slice, &buf);
+
+        // Print the string
+        const len = std.mem.indexOfScalar(u8, &buf, 0).?;
+        debug("fprintf: {s}", .{buf});
+        return @intCast(len);
+    } else {
+        debug("TODO: fprintf: stream={*}, format={s}", .{ stream, format });
+        return @intCast(strlen(format));
+    }
 }
 
 export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
