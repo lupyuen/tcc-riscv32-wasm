@@ -363,8 +363,12 @@ fn format_string(
         return len;
     }
 
-    // Unable to format string
-    return 0;
+    // Unkown Format Pattern. Return the Format String.
+    debug("TODO: format_string: format={s}", .{format});
+    len = format.len;
+    _ = memcpy(str, format.ptr, len);
+    str[len] = 0;
+    return len;
 }
 
 // TODO: Should be `[*]u8`
@@ -372,6 +376,7 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     // Count the Format Specifiers: `%`
     const format_slice = std.mem.span(format);
     const format_cnt = std.mem.count(u8, format_slice, "%");
+    _ = format_cnt; // autofix
 
     // Prepare the varargs
     var ap = @cVaStart();
@@ -379,15 +384,8 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
 
     // Format the string. TODO: Catch overflow
     const len = format_string(&ap, str, size, format_slice);
-    if (len > 0) {
-        // Do Nothing
-    } else {
-        debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
-        _ = memcpy(str, format, strlen(format));
-        str[strlen(format)] = 0;
-    }
     debug("vsnprintf: return str={s}", .{str});
-    return @intCast(strlen(str));
+    return @intCast(len);
 }
 
 // TODO: Should be `[*]u8`
@@ -401,15 +399,8 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
 
     // Format the string. TODO: Catch overflow
     const len = format_string(&ap, str, 0, format_slice);
-    if (len > 0) {
-        // Do Nothing
-    } else {
-        debug("TODO: sprintf: format={s}", .{format});
-        _ = memcpy(str, format, strlen(format));
-        str[strlen(format)] = 0;
-    }
     debug("sprintf: return str={s}", .{str});
-    return @intCast(strlen(str));
+    return @intCast(len);
 }
 
 // TODO: Should be `[*]u8`
@@ -422,15 +413,8 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
     defer @cVaEnd(&ap);
 
     const len = format_string(&ap, str, size, format_slice);
-    if (len > 0) {
-        // Do Nothing
-    } else {
-        debug("TODO: snprintf: size={}, format={s}", .{ size, format });
-        _ = memcpy(str, format, strlen(format));
-        str[strlen(format)] = 0;
-    }
     debug("snprintf: return str={s}", .{str});
-    return @intCast(strlen(str));
+    return @intCast(len);
 }
 
 export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
@@ -444,14 +428,10 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
 
     // Format the string. TODO: Catch overflow
     const len = format_string(&ap, &buf, 0, format_slice);
-    if (len > 0) {
-        // TODO: Handle other File Streams. Right now we assume it's stderr (File Descriptor 2)
-        debug("fprintf: {s}", .{buf});
-        return @intCast(len);
-    } else {
-        debug("TODO: fprintf: stream={*}, format={s}", .{ stream, format });
-        return @intCast(strlen(format));
-    }
+
+    // TODO: Print to other File Streams. Right now we assume it's stderr (File Descriptor 2)
+    debug("fprintf: stream={*}, {s}", .{ stream, buf });
+    return @intCast(len);
 }
 
 export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
