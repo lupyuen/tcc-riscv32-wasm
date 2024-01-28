@@ -199,9 +199,26 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
 
     // TODO: Catch overflow
     if (strcmp(format, "#define %s%s\n") == 0) {
-        const s = "#define FIX_vsnprintf\n";
-        _ = memcpy(str, s, strlen(s));
-        str[strlen(s)] = 0;
+        var ap = @cVaStart();
+        defer @cVaEnd(&ap);
+        const s0 = @cVaArg(&ap, [*:0]const u8);
+        const s1 = @cVaArg(&ap, [*:0]const u8);
+        debug("vsnprintf: s0={s}, s1={s}", .{ s0, s1 });
+
+        // Format the string
+        const format2 = "#define {s}{s}\n";
+        var buf: [100]u8 = undefined; // Limit to 100 chars
+        const slice = std.fmt.bufPrint(&buf, format2, .{ s0, s1 }) catch {
+            wasmlog.Console.log("*** vsnprintf error: buf too small", .{});
+            @panic("*** vsnprintf error: buf too small");
+        };
+
+        _ = memcpy(str, slice.ptr, slice.len);
+        str[slice.len] = 0;
+
+        // const s = "#define FIX_vsnprintf\n";
+        // _ = memcpy(str, s, strlen(s));
+        // str[strlen(s)] = 0;
     } else {
         _ = memcpy(str, format, strlen(format));
         str[strlen(format)] = 0;
