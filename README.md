@@ -810,6 +810,12 @@ So yes TCC runs correctly in a Web Browser. With some limitations and lots of ha
 
 [_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
 
+# Fix the Varargs Functions
+
+TODO
+
+[Fixing varargs](https://github.com/lupyuen/tcc-riscv32-wasm/commit/3c9912101658be9f00341f12cd2010bf831c3054)
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
