@@ -195,15 +195,13 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
 }
 
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
-    debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
-
     // TODO: Catch overflow
     if (strcmp(format, "#define %s%s\n") == 0) {
         var ap = @cVaStart();
         defer @cVaEnd(&ap);
         const s0 = @cVaArg(&ap, [*:0]const u8);
         const s1 = @cVaArg(&ap, [*:0]const u8);
-        debug("vsnprintf: s0={s}, s1={s}", .{ s0, s1 });
+        debug("vsnprintf: size={}, format={s}, s0={s}, s1={s}", .{ size, format, s0, s1 });
 
         // Format the string
         const format2 = "#define {s}{s}\n";
@@ -215,15 +213,12 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
 
         _ = memcpy(str, slice.ptr, slice.len);
         str[slice.len] = 0;
-
-        // const s = "#define FIX_vsnprintf\n";
-        // _ = memcpy(str, s, strlen(s));
-        // str[strlen(s)] = 0;
     } else {
+        debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
         _ = memcpy(str, format, strlen(format));
         str[strlen(format)] = 0;
     }
-    debug("TODO: vsnprintf: return str={s}", .{str});
+    debug("vsnprintf: return str={s}", .{str});
     return @intCast(strlen(format)); // TODO: Should be str?
 }
 
@@ -406,14 +401,6 @@ export fn strcpy(dest: [*:0]u8, src: [*:0]const u8) callconv(.C) [*:0]u8 {
     return dest;
 }
 
-// export fn strcmp(s1: [*:0]const u8, s2: [*:0]const u8) callconv(.C) c_int {
-//     return std.cstr.cmp(s1, s2);
-// }
-
-export fn strlen(s: [*:0]const u8) callconv(.C) usize {
-    return std.mem.len(s);
-}
-
 pub export fn getenv(_: c_int) ?[*]u8 {
     return null;
 }
@@ -474,6 +461,13 @@ export fn strncmp(a: [*:0]const u8, b: [*:0]const u8, n: usize) callconv(.C) c_i
         if (i == n - 1) return 0;
     }
     return @as(c_int, @intCast(a[i])) -| @as(c_int, @intCast(b[i]));
+}
+
+export fn strlen(s: [*:0]const u8) callconv(.C) usize {
+    // trace.log("strlen {}", .{trace.fmtStr(s)});
+    const result = std.mem.len(s);
+    // trace.log("strlen return {}", .{result});
+    return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
