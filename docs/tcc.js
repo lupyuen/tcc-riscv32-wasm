@@ -50,8 +50,18 @@ const importObject = {
 function main() {
   console.log("main: start");
 
+  // Read the Compiler Options
+  const options = [];
+  for (let i = 0; i < 64; i++) {
+    const input = document.getElementById("option" + i);
+    if (!input) { break };
+
+    const option = input.value.trim();
+    if (option === "") { continue; }
+    options.push(option);
+  }
+
   // Allocate a String for passing the Compiler Options to Zig
-  const options = ["-c", "hello.c"];
   const options_ptr = allocateString(JSON.stringify(options));
   
   // Allocate a String for passing the Program Code to Zig

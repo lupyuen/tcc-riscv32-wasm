@@ -10,6 +10,8 @@
         <td>
           <p>
             <h3>TCC RISC-V Compiler: <br>Compiled to WebAssembly <br>With Zig Compiler</h3>
+
+            <!-- Code Box for C Program -->
             <textarea id="code" cols="40" rows="20" style="font-size: larger; padding: 10px">
 int main(int argc, char *argv[]) {
   printf("Hello, World!!\n");
@@ -17,8 +19,33 @@ int main(int argc, char *argv[]) {
 }
             </textarea>              
           </p>
+
           <p>
+            <!-- Compile Button -->
             <button id="compile" type="button" style="font-size: larger; width: 100%; height: 70px" onclick="bootstrap()">Compile with TCC</button>
+          </p>
+
+          <p>
+            <h4>TCC Options</h4>
+
+            <!-- Compiler Options -->
+            <table>
+              <tr>
+                <td><input type="text" id="option0" size="10" value="-c" /></td>
+                <td><input type="text" id="option1" size="10" value="hello.c" /></td>
+                <td><input type="text" id="option2" size="10" /></td>
+                <td><input type="text" id="option3" size="10" /></td>
+              </tr>
+              <tr>
+                <td><input type="text" id="option4" size="10" /></td>
+                <td><input type="text" id="option5" size="10" /></td>
+                <td><input type="text" id="option6" size="10" /></td>
+                <td><input type="text" id="option7" size="10" /></td>
+              </tr>
+            </table>
+          </p>
+          <p>
+            <label id="options"></label>
           </p>
         </td>
         <td>
