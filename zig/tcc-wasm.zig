@@ -245,7 +245,7 @@ fn format_string(
     // Unknown Format Pattern. Return the Format String.
     debug("TODO: format_string: format={s}", .{format});
     const len3 = format.len;
-    _ = memcpy(str, format.ptr, len3);
+    @memcpy(str[0..len3], format[0..len3]);
     str[len3] = 0;
     return len3;
 }
@@ -269,7 +269,7 @@ fn format_string0(
     // Format the string. TODO: Check for overflow
     debug("format_string0: size={}, format={s}", .{ size, format });
     const len = format.len;
-    _ = memcpy(str, format.ptr, len);
+    @memcpy(str[0..len], format[0..len]);
     str[len] = 0;
     return len;
 }
@@ -319,7 +319,7 @@ fn format_string1(
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
-    _ = memcpy(str, &buf2, @intCast(len));
+    @memcpy(str[0..len], buf2[0..len]);
     str[len] = 0;
     return len;
 }
@@ -373,7 +373,7 @@ fn format_string2(
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
-    _ = memcpy(str, &buf2, @intCast(len));
+    @memcpy(str[0..len], buf2[0..len]);
     str[len] = 0;
     return len;
 }
