@@ -197,6 +197,13 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
 
+    // const format_cnt = 2;
+    // if (strstr(format, "%s%s") != null and format_cnt == 2) {
+    //     // const s0: [*:0]const u8 = @ptrCast(a0);
+    //     // const s1: [*:0]const u8 = @ptrCast(a1);
+    //     // debug("s0={s}, s1={s}", .{ a0, a1 });
+    // }
+
     // TODO: Catch overflow
     if (strcmp(format, "#define %s%s\n") == 0) {
         const s = "#define FIX_vsnprintf\n";
@@ -246,6 +253,7 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
 
 const size_t = c_ulong; // TODO: Should be usize like strlen()?
 const FILE = opaque {};
+const Arg = opaque {}; // Vararg passed from C
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
@@ -312,28 +320,28 @@ export fn fflush(_: c_int) c_int {
     return 0;
 }
 
-/// TODO: Doesn't work, missing references in Standard Library
 /// Called by Zig for `std.log.debug`, `std.log.info`, `std.log.err`, ...
 /// https://gist.github.com/leecannon/d6f5d7e5af5881c466161270347ce84d
-// pub fn log(
-//     comptime _message_level: std.log.Level,
-//     comptime _scope: @Type(.EnumLiteral),
-//     comptime format: []const u8,
-//     args: anytype,
-// ) void {
-//     _ = _message_level;
-//     _ = _scope;
+/// TODO: error: root struct of file 'c' has no member named 'fd_t'
+pub fn log(
+    comptime _message_level: std.log.Level,
+    comptime _scope: @Type(.EnumLiteral),
+    comptime format: []const u8,
+    args: anytype,
+) void {
+    _ = _message_level;
+    _ = _scope;
 
-//     // Format the message
-//     var buf: [100]u8 = undefined; // Limit to 100 chars
-//     const slice = std.fmt.bufPrint(&buf, format, args) catch {
-//         wasmlog.Console.log("*** log error: buf too small", .{});
-//         return;
-//     };
+    // Format the message
+    var buf: [100]u8 = undefined; // Limit to 100 chars
+    const slice = std.fmt.bufPrint(&buf, format, args) catch {
+        wasmlog.Console.log("*** log error: buf too small", .{});
+        return;
+    };
 
-//     // Print the formatted message
-//     wasmlog.Console.log("{s}", .{slice});
-// }
+    // Print the formatted message
+    wasmlog.Console.log("{s}", .{slice});
+}
 
 /// Aliases for Zig Standard Library
 const assert = std.debug.assert;
@@ -402,29 +410,6 @@ pub export fn getenv(_: c_int) ?[*]u8 {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// From foundation-libc
-
-// String Functions:
-// https://github.com/ZigEmbeddedGroup/foundation-libc/blob/main/src/modules/string.zig
-
-/// https://en.cppreference.com/w/c/string/byte/strchr
-export fn strchr(str: ?[*:0]const c_char, ch: c_int) ?[*:0]c_char {
-    const s = str orelse return null;
-
-    const searched: c_char = @bitCast(@as(u8, @truncate(@as(c_uint, @bitCast(ch)))));
-
-    var i: usize = 0;
-    while (true) {
-        const actual = s[i];
-        if (actual == searched)
-            return @constCast(s + i);
-        if (actual == 0)
-            return null;
-        i += 1;
-    }
-}
-
-///////////////////////////////////////////////////////////////////////////////
 // From ziglibc
 
 // String Functions:
@@ -451,6 +436,35 @@ export fn strcmp(a: [*:0]const u8, b: [*:0]const u8) callconv(.C) c_int {
     const result = @as(c_int, @intCast(a_next[0])) -| @as(c_int, @intCast(b_next[0]));
     // trace.log("strcmp return {}", .{result});
     return result;
+}
+
+export fn strstr(s1: [*:0]const u8, s2: [*:0]const u8) callconv(.C) ?[*:0]const u8 {
+    // trace.log("strstr {} {}", .{ trace.fmtStr(s1), trace.fmtStr(s2) });
+    const s1_len = strlen(s1);
+    const s2_len = strlen(s2);
+    var i: usize = 0;
+    while (i + s2_len <= s1_len) : (i += 1) {
+        const search = s1 + i;
+        if (0 == strncmp(search, s2, s2_len)) return search;
+    }
+    return null;
+}
+
+export fn strchr(s: [*:0]const u8, char: c_int) callconv(.C) ?[*:0]const u8 {
+    // trace.log("strchr {} c='{}'", .{ trace.fmtStr(s), char });
+    var next = s;
+    while (true) : (next += 1) {
+        if (next[0] == char) return next;
+        if (next[0] == 0) return null;
+    }
+}
+export fn strncmp(a: [*:0]const u8, b: [*:0]const u8, n: usize) callconv(.C) c_int {
+    // trace.log("strncmp {*} {*} n={}", .{ a, b, n });
+    var i: usize = 0;
+    while (a[i] == b[i] and a[0] != 0) : (i += 1) {
+        if (i == n - 1) return 0;
+    }
+    return @as(c_int, @intCast(a[i])) -| @as(c_int, @intCast(b[i]));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -508,14 +522,8 @@ pub export fn strcat(_: c_int) c_int {
 pub export fn strerror(_: c_int) c_int {
     @panic("TODO: strerror");
 }
-pub export fn strncmp(_: c_int) c_int {
-    @panic("TODO: strncmp");
-}
 pub export fn strncpy(_: c_int) c_int {
     @panic("TODO: strncpy");
-}
-pub export fn strstr(_: c_int) c_int {
-    @panic("TODO: strstr");
 }
 pub export fn strtod(_: c_int) c_int {
     @panic("TODO: strtod");
