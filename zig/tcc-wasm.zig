@@ -11,14 +11,21 @@ const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program(
-    options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON containing String Array)
+    options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON Array: ["-c", "hello.c"])
     code_ptr: [*:0]const u8, // C Program to be compiled (Pointer to String)
 ) [*]const u8 { // Returns a pointer to the `a.out` Compiled Code (Size in first 4 bytes)
     debug("compile_program: start", .{});
 
-    // Receive the TCC Compiler Options from JavaScript (JSON containing String Array)
+    // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
     debug("compile_program: options={s}", .{options});
+    const T = [][]u8;
+    const parsed = std.json.parseFromSlice(T, std.heap.page_allocator, options, .{}) catch
+        @panic("Failed to allocate memory");
+    defer parsed.deinit();
+    for (parsed.value, 0..) |option, i| {
+        debug("compile_program: options[{}]={s}", .{ i, option });
+    }
 
     // Receive the C Program from JavaScript and set our Read Buffer
     // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
