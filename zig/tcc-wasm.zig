@@ -204,8 +204,8 @@ fn format_string(
     _ = size; // TODO: Check for overflow
 
     // Count the Format Specifiers: `%`
+    const spec_cnt = std.mem.count(u8, spec, "%");
     const format_cnt = std.mem.count(u8, format, "%");
-    const spec_cnt = std.mem.count(u8, format, "%");
 
     // Check the Format Specifiers: `%`
     if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
@@ -215,21 +215,46 @@ fn format_string(
     }
 
     ////
-    if (std.mem.eql(u8, spec, "%s:%d")) {
+    if (std.mem.eql(u8, spec, "%s")) {
         debug("********", .{});
-        // @compileLog(T0 == c_int);
-        // @compileLog(T1 == c_int);
     }
     ////
 
     // Format the string
-    const res = switch (format_cnt) {
-        // Format Two `%s`, like `#define %s%s\n`
+    switch (spec_cnt) {
+        // Format a Single Specifier, like `#define __BASE_FILE__ "%s"`
+        1 => {
+            const a = @cVaArg(ap, T0);
+            if (T0 == c_int and T1 == c_int) { // TODO: T1 is unused
+                debug("format_string: a={}", .{a});
+            } else {
+                debug("format_string: a={s}", .{a});
+            }
+
+            // Format the string
+            var buf: [100]u8 = undefined; // Limit to 100 chars
+            const buf_slice = std.fmt.bufPrint(&buf, "{s}", .{a}) catch {
+                wasmlog.Console.log("*** format_string error: buf too small", .{});
+                @panic("*** format_string error: buf too small");
+            };
+
+            // Replace the Format Specifier
+            var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+            _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
+
+            // Return the string
+            const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+            _ = memcpy(str, &buf2, @intCast(len));
+            str[len] = 0;
+            debug("str={s}", .{str});
+            return true;
+        },
+        // Format Two Specifiers, like `#define %s%s\n` or `%s:%d`
         2 => {
             const a0 = @cVaArg(ap, T0);
             const a1 = @cVaArg(ap, T1);
 
-            // TODO: Handle a0 is c_int
+            // TODO: Handle T0 is c_int
             if (T0 != c_int and T1 == c_int) {
                 debug("format_string: a0={s}, a1={}", .{ a0, a1 });
             } else {
@@ -254,9 +279,8 @@ fn format_string(
             debug("str={s}", .{str});
             return true;
         },
-        else => false,
-    };
-    return res;
+        else => return false,
+    }
 }
 
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
@@ -273,6 +297,8 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
         // Do Nothing
     } else if (format_string(&ap2, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
         // Do Nothing
+        // } else if (format_string(&ap2, str, size, format_slice, "%s", "{s}", [*:0]const u8, c_int)) { // TODO: c_int is unused
+        //     // Do Nothing
     } else if (format_cnt == 0) {
         // If no Format Specifiers: Return the Format, like `warning: `
         debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
