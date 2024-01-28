@@ -200,7 +200,8 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     const format_cnt = std.mem.count(u8, format_slice, "%");
 
     // TODO: Catch overflow
-    if (strcmp(format, "#define %s%s\n") == 0) {
+    if (format_cnt == 2 and std.mem.containsAtLeast(u8, format_slice, 1, "%s%s")) {
+        // Format Two `%s`, like `#define %s%s\n`
         var ap = @cVaStart();
         defer @cVaEnd(&ap);
         const s0 = @cVaArg(&ap, [*:0]const u8);
@@ -208,16 +209,20 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
         debug("vsnprintf: size={}, format={s}, s0={s}, s1={s}", .{ size, format, s0, s1 });
 
         // Format the string
-        const format2 = "#define {s}{s}\n";
+        const format2 = "{s}{s}"; // Equivalent to C: `%s%s`
         var buf: [100]u8 = undefined; // Limit to 100 chars
-        const slice = std.fmt.bufPrint(&buf, format2, .{ s0, s1 }) catch {
+        const buf_slice = std.fmt.bufPrint(&buf, format2, .{ s0, s1 }) catch {
             wasmlog.Console.log("*** vsnprintf error: buf too small", .{});
             @panic("*** vsnprintf error: buf too small");
         };
 
+        // Replace the Format Specifier
+        var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+        _ = std.mem.replace(u8, format_slice, "%s%s", buf_slice, &buf2);
+
         // Return the string
-        const len = slice.len;
-        _ = memcpy(str, slice.ptr, len);
+        const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+        _ = memcpy(str, &buf2, @intCast(len));
         str[len] = 0;
     } else if (format_cnt == 1 and std.mem.containsAtLeast(u8, format_slice, 1, "%d")) {
         // Format a Single `%d`, like `#define __TINYC__ %d`
@@ -288,6 +293,12 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
 
 export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     debug("TODO: snprintf: size={}, format={s}", .{ size, format });
+
+    // Count the Format Specifiers: `%`
+    const format_slice = std.mem.span(format);
+    const format_cnt = std.mem.count(u8, format_slice, "%");
+    _ = format_cnt; // autofix
+
     // TODO: Catch overflow
     if (strcmp(format, ".rela%s") == 0) {
         const s = ".rela.text";
