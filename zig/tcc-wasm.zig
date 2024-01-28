@@ -371,7 +371,7 @@ fn format_string(
     return len;
 }
 
-// TODO: Should be `[*]u8`
+// TODO: `str` should be `[*]u8`
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
@@ -384,7 +384,7 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     return @intCast(len);
 }
 
-// TODO: Should be `[*]u8`
+// TODO: `str` should be `[*]u8`
 export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
@@ -397,7 +397,7 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     return @intCast(len);
 }
 
-// TODO: Should be `[*]u8`
+// TODO: `str` should be `[*]u8`
 export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
