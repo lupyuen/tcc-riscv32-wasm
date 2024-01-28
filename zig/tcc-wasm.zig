@@ -189,29 +189,66 @@ const sem_t = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Varargs Functions
 
-const FormatPattern = struct {
-    c_spec: []const u8,
-    zig_spec: []const u8,
-    type0: type,
-    type1: ?type,
-};
-
+/// Pattern Matching for String Formatting: We will match these patterns for formatting strings
 const format_patterns = [_]FormatPattern{
-    // Format Two `%s`, like `#define %s%s\n`
-    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
-
-    // Format `%s:%d`, like `%s:%d: `
-    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
-
-    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
-    FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
-
     // Format a Single `%d`, like `#define __TINYC__ %d`
     FormatPattern{ .c_spec = "%d", .zig_spec = "{}", .type0 = c_int, .type1 = null },
 
     // Format a Single `%u`, like `L.%u`
     FormatPattern{ .c_spec = "%u", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
+    FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
+
+    // Format Two `%s`, like `#define %s%s\n`
+    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
+
+    // Format `%s:%d`, like `%s:%d: `
+    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
 };
+
+/// Runtime Function to format a string by Pattern Matching.
+/// Return the number of bytes written to `str`, excluding terminating null.
+fn format_string(
+    ap: *std.builtin.VaList,
+    str: [*]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+) usize {
+    // If no Format Specifiers: Return the Format, like `warning: `
+    const len = format_string0(str, size, format);
+    if (len > 0) {
+        return len;
+    }
+
+    // For every Format Pattern...
+    inline for (format_patterns) |pattern| {
+        // Try formatting the string with the pattern...
+        const len2 =
+            if (pattern.type1) |t1|
+            // Pattern has 2 parameters
+            format_string2(ap, str, size, format, // Output String and Format String
+                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
+                pattern.type0, t1 // Types of the Parameters
+            )
+        else
+            // Pattern has 1 parameter
+            format_string1(ap, str, size, format, // Output String and Format String
+                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
+                pattern.type0 // Type of the Parameter
+            );
+        if (len2 > 0) {
+            return len2;
+        }
+    }
+
+    // Unknown Format Pattern. Return the Format String.
+    debug("TODO: format_string: format={s}", .{format});
+    const len3 = format.len;
+    _ = memcpy(str, format.ptr, len3);
+    str[len3] = 0;
+    return len3;
+}
 
 /// CompTime Function to format a string by Pattern Matching.
 /// If no Format Specifiers: Return the Format, like `warning: `
@@ -341,49 +378,6 @@ fn format_string2(
     return len;
 }
 
-/// Runtime Function to format a string by Pattern Matching.
-/// Return the number of bytes written to `str`, excluding terminating null.
-fn format_string(
-    ap: *std.builtin.VaList,
-    str: [*]u8,
-    size: size_t,
-    format: []const u8, // Like `#define %s%s\n`
-) usize {
-    // If no Format Specifiers: Return the Format, like `warning: `
-    const len = format_string0(str, size, format);
-    if (len > 0) {
-        return len;
-    }
-
-    // For every Format Pattern...
-    inline for (format_patterns) |pattern| {
-        // Try formatting the string with the pattern...
-        const len2 =
-            if (pattern.type1) |t1|
-            // Pattern has 2 parameters
-            format_string2(ap, str, size, format, // Output String and Format String
-                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
-                pattern.type0, t1 // Types of the Parameters
-            )
-        else
-            // Pattern has 1 parameter
-            format_string1(ap, str, size, format, // Output String and Format String
-                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
-                pattern.type0 // Type of the Parameter
-            );
-        if (len2 > 0) {
-            return len2;
-        }
-    }
-
-    // Unknown Format Pattern. Return the Format String.
-    debug("TODO: format_string: format={s}", .{format});
-    const len3 = format.len;
-    _ = memcpy(str, format.ptr, len3);
-    str[len3] = 0;
-    return len3;
-}
-
 export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
@@ -439,6 +433,14 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
     debug("TODO: sscanf: str={s}, format={s}", .{ str, format });
     return 0;
 }
+
+/// String Formatting Pattern
+const FormatPattern = struct {
+    c_spec: []const u8, // Format Specifier in C: `%s:%d`
+    zig_spec: []const u8, // Equivalent Format Specifier in Zig: `{s},{}`
+    type0: type, // Type of the First Parameter: `[*:0]const u8`
+    type1: ?type, // Type of the Second Parameter: `c_int`
+};
 
 const size_t = c_ulong; // TODO: Should be usize like strlen()?
 const FILE = opaque {};
