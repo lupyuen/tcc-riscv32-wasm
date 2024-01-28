@@ -217,6 +217,8 @@ fn format_string(
     ////
     if (std.mem.eql(u8, spec, "%s:%d")) {
         debug("********", .{});
+        // @compileLog(std.mem.eql(u8, @tagName(@typeInfo(T0)), "Pointer"));
+        // @compileLog(std.mem.eql(u8, @tagName(@typeInfo(T1)), "Pointer"));
     }
     ////
 
@@ -226,6 +228,10 @@ fn format_string(
         2 => {
             const a0 = @cVaArg(ap, T0);
             const a1 = @cVaArg(ap, T1);
+
+            const t0 = std.mem.eql(u8, @tagName(@typeInfo(T0)), "Pointer");
+            const t1 = std.mem.eql(u8, @tagName(@typeInfo(T1)), "Pointer");
+            debug("t0={}, t1={}", .{ t0, t1 });
             debug("a0={s}", .{a0});
             // debug("a1={s}", .{a1});
 
