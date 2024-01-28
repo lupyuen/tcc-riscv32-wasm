@@ -468,6 +468,8 @@ Then we...
 
 1.  [Add fclose](https://github.com/lupyuen/tcc-riscv32-wasm/commit/455724992a92bcc2c6294a0a93612c5a616c1013)
 
+1.  [Add fputs](https://github.com/lupyuen/tcc-riscv32-wasm/commit/547759dcf9b991c3b49737e24133b45c47dfd378)
+
 1.  [Change `L.%u` to `L.0`, `.rela%s` to `.rela.text`](https://github.com/lupyuen/tcc-riscv32-wasm/commit/3c8e4337a66e77d06877f7b1606db71139560104)
 
 1.  [Dump the `a.out` file](https://github.com/lupyuen/tcc-riscv32-wasm/commit/a6602a602293addfeb9ce548b9a3aacb62127c5f)
