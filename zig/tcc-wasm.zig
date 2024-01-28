@@ -189,6 +189,7 @@ const sem_t = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Varargs Functions
 
+/// CompTime Function to format a string.
 /// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
 fn format_string(
     ap: *std.builtin.VaList,
@@ -200,15 +201,15 @@ fn format_string(
     comptime T0: type, // Like `[*:0]const u8`
     comptime T1: type, // Like `[*:0]const u8`
 ) bool {
-    _ = size; // autofix
+    _ = size; // TODO: Check for overflow
+
     // Count the Format Specifiers: `%`
     const format_cnt = std.mem.count(u8, format, "%");
     const spec_cnt = std.mem.count(u8, format, "%");
 
-    if (format_cnt != spec_cnt) {
-        return false;
-    }
-    if (!std.mem.containsAtLeast(u8, format, 1, spec)) {
+    if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
+        !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
+    {
         return false;
     }
 
