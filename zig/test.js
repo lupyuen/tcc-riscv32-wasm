@@ -46,8 +46,12 @@ WebAssembly.instantiate(typedArray, {
   // Store references to WebAssembly Functions and Memory exported by Zig
   wasm.init(result);
 
-  // Allocate a String for passing to Zig
-  const s = allocateString(`
+  // Allocate a String for passing the Compiler Options to Zig
+  const options = ["-c", "hello.c"];
+  const options_ptr = allocateString(JSON.stringify(options));
+
+  // Allocate a String for passing Program Code to Zig
+  const code_ptr = allocateString(`
     int main(int argc, char *argv[]) {
       printf("Hello, World!!\\n");
       return 0;
@@ -56,7 +60,7 @@ WebAssembly.instantiate(typedArray, {
 
   // Call TCC to compile a program
   const ret = wasm.instance.exports
-    .compile_program(s);
+    .compile_program(options_ptr, code_ptr);
   console.log(`ret=${ret}`);
 });
 

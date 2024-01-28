@@ -10,8 +10,15 @@ const wasmlog = @import("wasmlog.zig");
 const hexdump = @import("hexdump.zig");
 
 /// Compile a C program to 64-bit RISC-V
-pub export fn compile_program(code_ptr: [*:0]const u8) [*]const u8 {
+pub export fn compile_program(
+    options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON containing String Array)
+    code_ptr: [*:0]const u8, // C Program to be compiled (Pointer to String)
+) [*]const u8 { // Returns a pointer to the `a.out` Compiled Code (Size in first 4 bytes)
     debug("compile_program: start", .{});
+
+    // Receive the TCC Compiler Options from JavaScript (JSON containing String Array)
+    const options: []const u8 = std.mem.span(options_ptr);
+    debug("compile_program: options={s}", .{options});
 
     // Receive the C Program from JavaScript and set our Read Buffer
     // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly

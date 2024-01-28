@@ -50,13 +50,17 @@ const importObject = {
 function main() {
   console.log("main: start");
 
-  // Allocate a String for passing the code to Zig
+  // Allocate a String for passing the Compiler Options to Zig
+  const options = ["-c", "hello.c"];
+  const options_ptr = allocateString(JSON.stringify(options));
+  
+  // Allocate a String for passing the Program Code to Zig
   const code = document.getElementById("code").value;
   const code_ptr = allocateString(code);
 
   // Call TCC to compile a program
   const ptr = wasm.instance.exports
-    .compile_program(code_ptr);
+    .compile_program(options_ptr, code_ptr);
   console.log(`main: ptr=${ptr}`);
 
   // Get the `a.out` size from first 4 bytes returned
