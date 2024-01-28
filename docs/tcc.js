@@ -186,3 +186,6 @@ async function bootstrap() {
 
 // Start the Terminal
 start_terminal();
+
+// Show the Compiler Options
+read_options();
