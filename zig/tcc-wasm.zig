@@ -43,7 +43,7 @@ pub export fn compile_program(
     var args_ptrs: [max_args:null]?[*:0]u8 = undefined;
 
     const tcc = "tcc";
-    std.mem.copyForwards(u8, &args[0], tcc);
+    @memcpy(args[0][0..tcc.len], tcc);
     args[0][tcc.len] = 0;
     args_ptrs[0] = &args[0];
 
@@ -51,7 +51,7 @@ pub export fn compile_program(
     for (parsed.value, 0..) |option, i| {
         debug("compile_program: options[{}]={s}", .{ i, option });
         const a = i + 1;
-        std.mem.copyForwards(u8, &args[a], option);
+        @memcpy(args[a][0..option.len], option);
         args[a][option.len] = 0;
         args_ptrs[a] = &args[a];
     }
