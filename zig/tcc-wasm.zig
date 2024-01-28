@@ -512,7 +512,7 @@ export fn fflush(_: c_int) c_int {
 
 /// Called by Zig for `std.log.debug`, `std.log.info`, `std.log.err`, ...
 /// https://gist.github.com/leecannon/d6f5d7e5af5881c466161270347ce84d
-/// TODO: error: root struct of file 'c' has no member named 'fd_t'
+/// TODO: error: root struct of file 'c' has no member named 'fd_t': "pub const fd_t = system.fd_t;"
 pub fn log(
     comptime _message_level: std.log.Level,
     comptime _scope: @Type(.EnumLiteral),
