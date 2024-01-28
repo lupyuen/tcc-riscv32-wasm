@@ -373,16 +373,12 @@ fn format_string(
 
 // TODO: Should be `[*]u8`
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
-    // Count the Format Specifiers: `%`
-    const format_slice = std.mem.span(format);
-    const format_cnt = std.mem.count(u8, format_slice, "%");
-    _ = format_cnt; // autofix
-
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
+    const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
     debug("vsnprintf: return str={s}", .{str});
     return @intCast(len);
@@ -390,14 +386,12 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
 
 // TODO: Should be `[*]u8`
 export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
-    // Count the Format Specifiers: `%`
-    const format_slice = std.mem.span(format);
-
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
+    const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, 0, format_slice);
     debug("sprintf: return str={s}", .{str});
     return @intCast(len);
@@ -405,32 +399,29 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
 
 // TODO: Should be `[*]u8`
 export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
-    // Count the Format Specifiers: `%`
-    const format_slice = std.mem.span(format);
-
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
+    // Format the string. TODO: Catch overflow
+    const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
     debug("snprintf: return str={s}", .{str});
     return @intCast(len);
 }
 
 export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
-    // Count the Format Specifiers: `%`
-    const format_slice = std.mem.span(format);
-    var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
-
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
+    var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
+    const format_slice = std.mem.span(format);
     const len = format_string(&ap, &buf, 0, format_slice);
 
     // TODO: Print to other File Streams. Right now we assume it's stderr (File Descriptor 2)
-    debug("fprintf: stream={*}, {s}", .{ stream, buf });
+    debug("fprintf: stream={*}\n{s}", .{ stream, buf });
     return @intCast(len);
 }
 
