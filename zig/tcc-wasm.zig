@@ -197,13 +197,6 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     debug("TODO: vsnprintf: size={}, format={s}", .{ size, format });
 
-    // const format_cnt = 2;
-    // if (strstr(format, "%s%s") != null and format_cnt == 2) {
-    //     // const s0: [*:0]const u8 = @ptrCast(a0);
-    //     // const s1: [*:0]const u8 = @ptrCast(a1);
-    //     // debug("s0={s}, s1={s}", .{ a0, a1 });
-    // }
-
     // TODO: Catch overflow
     if (strcmp(format, "#define %s%s\n") == 0) {
         const s = "#define FIX_vsnprintf\n";
