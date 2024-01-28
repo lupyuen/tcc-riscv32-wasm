@@ -317,6 +317,30 @@ fn format_string2(
     return len;
 }
 
+const FormatPattern = struct {
+    c_spec: []const u8,
+    zig_spec: []const u8,
+    type0: type,
+    type1: ?type,
+};
+
+const format_patterns = [_]FormatPattern{
+    // Format Two `%s`, like `#define %s%s\n`
+    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
+
+    // Format `%s:%d`, like `%s:%d: `
+    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
+
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
+    FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
+
+    // Format a Single `%d`, like `#define __TINYC__ %d`
+    FormatPattern{ .c_spec = "%d", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+
+    // Format a Single `%u`, like `L.%u`
+    FormatPattern{ .c_spec = "%u", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+};
+
 /// Runtime Function to format a string by Pattern Matching.
 /// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string(
@@ -325,50 +349,42 @@ fn format_string(
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
 ) usize {
-    var len: usize = undefined;
-
     // If no Format Specifiers: Return the Format, like `warning: `
-    len = format_string0(str, size, format);
+    const len = format_string0(str, size, format);
     if (len > 0) {
         return len;
     }
 
-    // Format Two `%s`, like `#define %s%s\n`
-    len = format_string2(ap, str, size, format, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8);
-    if (len > 0) {
-        return len;
+    // For every Format Pattern...
+    inline for (format_patterns) |pattern| {
+        // Try formatting the string with the pattern...
+        if (pattern.type1) |t1| {
+            // Pattern has 2 parameters
+            const len2 = format_string2(ap, str, size, format, // Output String and Format String
+                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
+                pattern.type0, t1 // Types of the Parameters
+            );
+            if (len2 > 0) {
+                return len2;
+            }
+        } else {
+            // Pattern has 1 parameter
+            const len2 = format_string1(ap, str, size, format, // Output String and Format String
+                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
+                pattern.type0 // Type of the Parameter
+            );
+            if (len2 > 0) {
+                return len2;
+            }
+        }
     }
 
-    // Format `%s:%d`, like `%s:%d: `
-    len = format_string2(ap, str, size, format, "%s:%d", "{s}:{}", [*:0]const u8, c_int);
-    if (len > 0) {
-        return len;
-    }
-
-    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
-    len = format_string1(ap, str, size, format, "%s", "{s}", [*:0]const u8);
-    if (len > 0) {
-        return len;
-    }
-
-    // Format a Single `%d`, like `#define __TINYC__ %d`
-    len = format_string1(ap, str, size, format, "%d", "{}", c_int);
-    if (len > 0) {
-        return len;
-    }
-
-    // Format a Single `%u`, like `L.%u`
-    len = format_string1(ap, str, size, format, "%u", "{}", c_int);
-    if (len > 0) {
-        return len;
-    }
-
-    // Unkown Format Pattern. Return the Format String.
+    // Unknown Format Pattern. Return the Format String.
     debug("TODO: format_string: format={s}", .{format});
-    len = format.len;
-    _ = memcpy(str, format.ptr, len);
-    str[len] = 0;
-    return len;
+    const len3 = format.len;
+    _ = memcpy(str, format.ptr, len3);
+    str[len3] = 0;
+    return len3;
 }
 
 export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
