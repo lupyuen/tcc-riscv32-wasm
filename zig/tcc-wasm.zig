@@ -189,7 +189,7 @@ const sem_t = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Varargs Functions
 
-/// Pattern Matching for String Formatting: We will match these patterns for formatting strings
+/// Pattern Matching for String Formatting: We will match these patterns when formatting strings
 const format_patterns = [_]FormatPattern{
     // Format a Single `%d`, like `#define __TINYC__ %d`
     FormatPattern{ .c_spec = "%d", .zig_spec = "{}", .type0 = c_int, .type1 = null },
