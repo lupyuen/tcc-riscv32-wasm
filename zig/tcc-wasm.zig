@@ -315,6 +315,37 @@ fn format_string2(
     return true;
 }
 
+/// Runtime Function to format a string by Pattern Matching.
+/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+fn format_string(
+    ap: *std.builtin.VaList,
+    str: [*]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+) bool {
+    // If no Format Specifiers: Return the Format, like `warning: `
+    if (format_string0(str, size, format)) {
+        return true;
+    }
+    // Format Two `%s`, like `#define %s%s\n`
+    if (format_string2(ap, str, size, format, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
+        return true;
+    }
+    // Format `%s:%d`, like `%s:%d: `
+    if (format_string2(ap, str, size, format, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
+        return true;
+    }
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
+    if (format_string1(ap, str, size, format, "%s", "{s}", [*:0]const u8)) {
+        return true;
+    }
+    // Format a Single `%d`, like `#define __TINYC__ %d`
+    if (format_string1(ap, str, size, format, "%d", "{}", c_int)) {
+        return true;
+    }
+    return false;
+}
+
 // TODO: Should be `[*]u8`
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Count the Format Specifiers: `%`
@@ -326,16 +357,8 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string0(str, size, format_slice)) {
-        // If no Format Specifiers: Return the Format, like `warning: `
-    } else if (format_string2(&ap, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
-        // Format Two `%s`, like `#define %s%s\n`
-    } else if (format_string2(&ap, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
-        // Format `%s:%d`, like `%s:%d: `
-    } else if (format_string1(&ap, str, size, format_slice, "%s", "{s}", [*:0]const u8)) {
-        // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
-    } else if (format_string1(&ap, str, size, format_slice, "%d", "{}", c_int)) {
-        // Format a Single `%d`, like `#define __TINYC__ %d`
+    if (format_string(&ap, str, size, format_slice)) {
+        // Do Nothing
     } else {
         debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
         _ = memcpy(str, format, strlen(format));
