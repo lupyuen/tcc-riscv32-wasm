@@ -242,6 +242,22 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
         const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
         _ = memcpy(str, &buf2, @intCast(len));
         str[len] = 0;
+    } else if (format_cnt == 1 and std.mem.containsAtLeast(u8, format_slice, 1, "%s")) {
+        // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
+        var ap = @cVaStart();
+        defer @cVaEnd(&ap);
+        const s = @cVaArg(&ap, [*:0]const u8);
+        const s_slice = std.mem.span(s);
+        debug("vsnprintf: size={}, format={s}, s={s}", .{ size, format, s });
+
+        // Replace the Format Specifier
+        var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
+        _ = std.mem.replace(u8, format_slice, "%s", s_slice, &buf);
+
+        // Return the string
+        const len = std.mem.indexOfScalar(u8, &buf, 0).?;
+        _ = memcpy(str, &buf, @intCast(len));
+        str[len] = 0;
     } else {
         debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
         _ = memcpy(str, format, strlen(format));
