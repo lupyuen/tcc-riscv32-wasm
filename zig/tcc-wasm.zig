@@ -250,7 +250,7 @@ fn format_string(
     return len3;
 }
 
-/// CompTime Function to format a string by Pattern Matching.
+/// Runtime Function to format a string by Pattern Matching.
 /// If no Format Specifiers: Return the Format, like `warning: `
 /// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string0(
@@ -434,15 +434,15 @@ export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
     return 0;
 }
 
-/// String Formatting Pattern
+/// Pattern for String Formatting
 const FormatPattern = struct {
     c_spec: []const u8, // Format Specifier in C: `%s:%d`
-    zig_spec: []const u8, // Equivalent Format Specifier in Zig: `{s},{}`
+    zig_spec: []const u8, // Equivalent Format Specifier in Zig: `{s}:{}`
     type0: type, // Type of the First Parameter: `[*:0]const u8`
     type1: ?type, // Type of the Second Parameter: `c_int`
 };
 
-const size_t = c_ulong; // TODO: Should be usize like strlen()?
+const size_t = usize;
 const FILE = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
