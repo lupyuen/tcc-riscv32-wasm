@@ -190,6 +190,34 @@ const sem_t = opaque {};
 //  Varargs Functions
 
 /// CompTime Function to format a string by Pattern Matching.
+/// If no Format Specifiers: Return the Format, like `warning: `
+/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+fn format_string0(
+    str: [*:0]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+) bool {
+    // Count the Format Specifiers: `%`
+    const format_cnt = std.mem.count(u8, format, "%");
+
+    // Check the Format Specifiers: Must have no `%`
+    if (format_cnt != 0) {
+        return false;
+    }
+
+    ////
+    debug("********", .{});
+    ////
+
+    // TODO: Check for overflow
+    debug("format_string0: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
+    const len = format.len;
+    _ = memcpy(str, format.ptr, len);
+    str[len] = 0;
+    return true;
+}
+
+/// CompTime Function to format a string by Pattern Matching.
 /// Format a Single Specifier, like `#define __BASE_FILE__ "%s"`
 /// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
 fn format_string1(
@@ -312,24 +340,25 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     const format_slice = std.mem.span(format);
     const format_cnt = std.mem.count(u8, format_slice, "%");
 
-    // Testing
-    var ap2 = @cVaStart();
-    defer @cVaEnd(&ap2);
+    // Prepare the varargs
+    var ap = @cVaStart();
+    defer @cVaEnd(&ap);
 
     // TODO: Catch overflow
-    if (format_string2(&ap2, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
-        // Do Nothing
-    } else if (format_string2(&ap2, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
-        // Do Nothing
-    } else if (format_string1(&ap2, str, size, format_slice, "%s", "{s}", [*:0]const u8)) {
-        // Do Nothing
-    } else if (format_string1(&ap2, str, size, format_slice, "%d", "{}", c_int)) {
-        // Do Nothing
-    } else if (format_cnt == 0) {
+    if (format_string0(str, size, format_slice)) {
         // If no Format Specifiers: Return the Format, like `warning: `
-        debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
-        _ = memcpy(str, format, strlen(format));
-        str[strlen(format)] = 0;
+    } else if (format_string2(&ap, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
+        // Format Two `%s`, like `#define %s%s\n`
+    } else if (format_string2(&ap, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
+        // Format `%s:%d`, like `%s:%d: `
+    } else if (format_string1(&ap, str, size, format_slice, "%s", "{s}", [*:0]const u8)) {
+        // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
+    } else if (format_string1(&ap, str, size, format_slice, "%d", "{}", c_int)) {
+        // Format a Single `%d`, like `#define __TINYC__ %d`
+        // } else if (format_cnt == 0) {
+        //     debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
+        //     _ = memcpy(str, format, strlen(format));
+        //     str[strlen(format)] = 0;
     } else {
         debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
         _ = memcpy(str, format, strlen(format));
