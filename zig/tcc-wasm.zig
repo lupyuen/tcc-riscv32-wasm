@@ -189,6 +189,30 @@ const sem_t = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Varargs Functions
 
+const FormatPattern = struct {
+    c_spec: []const u8,
+    zig_spec: []const u8,
+    type0: type,
+    type1: ?type,
+};
+
+const format_patterns = [_]FormatPattern{
+    // Format Two `%s`, like `#define %s%s\n`
+    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
+
+    // Format `%s:%d`, like `%s:%d: `
+    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
+
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
+    FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
+
+    // Format a Single `%d`, like `#define __TINYC__ %d`
+    FormatPattern{ .c_spec = "%d", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+
+    // Format a Single `%u`, like `L.%u`
+    FormatPattern{ .c_spec = "%u", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+};
+
 /// CompTime Function to format a string by Pattern Matching.
 /// If no Format Specifiers: Return the Format, like `warning: `
 /// Return the number of bytes written to `str`, excluding terminating null.
@@ -222,17 +246,17 @@ fn format_string1(
     str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
-    comptime spec: []const u8, // Like `%s%s`
+    comptime c_spec: []const u8, // Like `%s%s`
     comptime zig_spec: []const u8, // Like `{s}{s}`
     comptime T0: type, // Like `[*:0]const u8`
 ) usize {
     // Count the Format Specifiers: `%`
-    const spec_cnt = std.mem.count(u8, spec, "%");
+    const spec_cnt = std.mem.count(u8, c_spec, "%");
     const format_cnt = std.mem.count(u8, format, "%");
 
     // Check the Format Specifiers: `%`
     if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
-        !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
+        !std.mem.containsAtLeast(u8, format, 1, c_spec)) // Or if the specifiers are not found
     {
         return 0;
     }
@@ -254,7 +278,7 @@ fn format_string1(
 
     // Replace the Format Specifier
     var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
-    _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
+    _ = std.mem.replace(u8, format, c_spec, buf_slice, &buf2);
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
@@ -272,18 +296,18 @@ fn format_string2(
     str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
-    comptime spec: []const u8, // Like `%s%s`
+    comptime c_spec: []const u8, // Like `%s%s`
     comptime zig_spec: []const u8, // Like `{s}{s}`
     comptime T0: type, // Like `[*:0]const u8`
     comptime T1: type, // Like `[*:0]const u8`
 ) usize {
     // Count the Format Specifiers: `%`
-    const spec_cnt = std.mem.count(u8, spec, "%");
+    const spec_cnt = std.mem.count(u8, c_spec, "%");
     const format_cnt = std.mem.count(u8, format, "%");
 
     // Check the Format Specifiers: `%`
     if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
-        !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
+        !std.mem.containsAtLeast(u8, format, 1, c_spec)) // Or if the specifiers are not found
     {
         return 0;
     }
@@ -308,7 +332,7 @@ fn format_string2(
 
     // Replace the Format Specifier
     var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
-    _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
+    _ = std.mem.replace(u8, format, c_spec, buf_slice, &buf2);
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
@@ -316,30 +340,6 @@ fn format_string2(
     str[len] = 0;
     return len;
 }
-
-const FormatPattern = struct {
-    c_spec: []const u8,
-    zig_spec: []const u8,
-    type0: type,
-    type1: ?type,
-};
-
-const format_patterns = [_]FormatPattern{
-    // Format Two `%s`, like `#define %s%s\n`
-    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
-
-    // Format `%s:%d`, like `%s:%d: `
-    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
-
-    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
-    FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
-
-    // Format a Single `%d`, like `#define __TINYC__ %d`
-    FormatPattern{ .c_spec = "%d", .zig_spec = "{}", .type0 = c_int, .type1 = null },
-
-    // Format a Single `%u`, like `L.%u`
-    FormatPattern{ .c_spec = "%u", .zig_spec = "{}", .type0 = c_int, .type1 = null },
-};
 
 /// Runtime Function to format a string by Pattern Matching.
 /// Return the number of bytes written to `str`, excluding terminating null.
@@ -358,24 +358,21 @@ fn format_string(
     // For every Format Pattern...
     inline for (format_patterns) |pattern| {
         // Try formatting the string with the pattern...
-        if (pattern.type1) |t1| {
+        const len2 =
+            if (pattern.type1) |t1|
             // Pattern has 2 parameters
-            const len2 = format_string2(ap, str, size, format, // Output String and Format String
+            format_string2(ap, str, size, format, // Output String and Format String
                 pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
                 pattern.type0, t1 // Types of the Parameters
-            );
-            if (len2 > 0) {
-                return len2;
-            }
-        } else {
+            )
+        else
             // Pattern has 1 parameter
-            const len2 = format_string1(ap, str, size, format, // Output String and Format String
+            format_string1(ap, str, size, format, // Output String and Format String
                 pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
                 pattern.type0 // Type of the Parameter
             );
-            if (len2 > 0) {
-                return len2;
-            }
+        if (len2 > 0) {
+            return len2;
         }
     }
 
