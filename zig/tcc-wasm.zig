@@ -191,18 +191,18 @@ const sem_t = opaque {};
 
 /// CompTime Function to format a string by Pattern Matching.
 /// If no Format Specifiers: Return the Format, like `warning: `
-/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+/// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string0(
     str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
-) bool {
+) usize {
     // Count the Format Specifiers: `%`
     const format_cnt = std.mem.count(u8, format, "%");
 
     // Check the Format Specifiers: Must have no `%`
     if (format_cnt != 0) {
-        return false;
+        return 0;
     }
 
     // Format the string. TODO: Check for overflow
@@ -210,12 +210,13 @@ fn format_string0(
     const len = format.len;
     _ = memcpy(str, format.ptr, len);
     str[len] = 0;
-    return true;
+    return len;
 }
 
 /// CompTime Function to format a string by Pattern Matching.
 /// Format a Single Specifier, like `#define __BASE_FILE__ "%s"`
-/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+/// If the Spec matches the Format: Return the number of bytes written to `str`, excluding terminating null.
+/// Else return 0.
 fn format_string1(
     ap: *std.builtin.VaList,
     str: [*]u8,
@@ -224,7 +225,7 @@ fn format_string1(
     comptime spec: []const u8, // Like `%s%s`
     comptime zig_spec: []const u8, // Like `{s}{s}`
     comptime T0: type, // Like `[*:0]const u8`
-) bool {
+) usize {
     // Count the Format Specifiers: `%`
     const spec_cnt = std.mem.count(u8, spec, "%");
     const format_cnt = std.mem.count(u8, format, "%");
@@ -233,7 +234,7 @@ fn format_string1(
     if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
         !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
     {
-        return false;
+        return 0;
     }
 
     // Fetch the args
@@ -259,12 +260,13 @@ fn format_string1(
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
     _ = memcpy(str, &buf2, @intCast(len));
     str[len] = 0;
-    return true;
+    return len;
 }
 
 /// CompTime Function to format a string by Pattern Matching.
 /// Format Two Specifiers, like `#define %s%s\n` or `%s:%d`
-/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+/// If the Spec matches the Format: Return the number of bytes written to `str`, excluding terminating null.
+/// Else return 0.
 fn format_string2(
     ap: *std.builtin.VaList,
     str: [*]u8,
@@ -274,7 +276,7 @@ fn format_string2(
     comptime zig_spec: []const u8, // Like `{s}{s}`
     comptime T0: type, // Like `[*:0]const u8`
     comptime T1: type, // Like `[*:0]const u8`
-) bool {
+) usize {
     // Count the Format Specifiers: `%`
     const spec_cnt = std.mem.count(u8, spec, "%");
     const format_cnt = std.mem.count(u8, format, "%");
@@ -283,7 +285,7 @@ fn format_string2(
     if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
         !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
     {
-        return false;
+        return 0;
     }
 
     // Fetch the args
@@ -312,43 +314,57 @@ fn format_string2(
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
     _ = memcpy(str, &buf2, @intCast(len));
     str[len] = 0;
-    return true;
+    return len;
 }
 
 /// Runtime Function to format a string by Pattern Matching.
-/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+/// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string(
     ap: *std.builtin.VaList,
     str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
-) bool {
+) usize {
+    var len: usize = undefined;
+
     // If no Format Specifiers: Return the Format, like `warning: `
-    if (format_string0(str, size, format)) {
-        return true;
-    }
-    // Format Two `%s`, like `#define %s%s\n`
-    if (format_string2(ap, str, size, format, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
-        return true;
-    }
-    // Format `%s:%d`, like `%s:%d: `
-    if (format_string2(ap, str, size, format, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
-        return true;
-    }
-    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
-    if (format_string1(ap, str, size, format, "%s", "{s}", [*:0]const u8)) {
-        return true;
-    }
-    // Format a Single `%d`, like `#define __TINYC__ %d`
-    if (format_string1(ap, str, size, format, "%d", "{}", c_int)) {
-        return true;
-    }
-    // Format a Single `%u`, like `L.%u`
-    if (format_string1(ap, str, size, format, "%u", "{}", c_int)) {
-        return true;
+    len = format_string0(str, size, format);
+    if (len > 0) {
+        return len;
     }
 
-    return false;
+    // Format Two `%s`, like `#define %s%s\n`
+    len = format_string2(ap, str, size, format, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8);
+    if (len > 0) {
+        return len;
+    }
+
+    // Format `%s:%d`, like `%s:%d: `
+    len = format_string2(ap, str, size, format, "%s:%d", "{s}:{}", [*:0]const u8, c_int);
+    if (len > 0) {
+        return len;
+    }
+
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
+    len = format_string1(ap, str, size, format, "%s", "{s}", [*:0]const u8);
+    if (len > 0) {
+        return len;
+    }
+
+    // Format a Single `%d`, like `#define __TINYC__ %d`
+    len = format_string1(ap, str, size, format, "%d", "{}", c_int);
+    if (len > 0) {
+        return len;
+    }
+
+    // Format a Single `%u`, like `L.%u`
+    len = format_string1(ap, str, size, format, "%u", "{}", c_int);
+    if (len > 0) {
+        return len;
+    }
+
+    // Unable to format string
+    return 0;
 }
 
 // TODO: Should be `[*]u8`
@@ -362,7 +378,8 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string(&ap, str, size, format_slice)) {
+    const len = format_string(&ap, str, size, format_slice);
+    if (len > 0) {
         // Do Nothing
     } else {
         debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
@@ -383,7 +400,8 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string(&ap, str, 0, format_slice)) {
+    const len = format_string(&ap, str, 0, format_slice);
+    if (len > 0) {
         // Do Nothing
     } else {
         debug("TODO: sprintf: format={s}", .{format});
@@ -403,8 +421,8 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
-    // Format the string. TODO: Catch overflow
-    if (format_string(&ap, str, size, format_slice)) {
+    const len = format_string(&ap, str, size, format_slice);
+    if (len > 0) {
         // Do Nothing
     } else {
         debug("TODO: snprintf: size={}, format={s}", .{ size, format });
@@ -425,9 +443,9 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string(&ap, &buf, 0, format_slice)) {
+    const len = format_string(&ap, &buf, 0, format_slice);
+    if (len > 0) {
         // TODO: Handle other File Streams. Right now we assume it's stderr (File Descriptor 2)
-        const len = std.mem.indexOfScalar(u8, &buf, 0).?;
         debug("fprintf: {s}", .{buf});
         return @intCast(len);
     } else {
