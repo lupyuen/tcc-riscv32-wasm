@@ -335,7 +335,7 @@ fn format_string(
     if (format_string2(ap, str, size, format, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
         return true;
     }
-    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
+    // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
     if (format_string1(ap, str, size, format, "%s", "{s}", [*:0]const u8)) {
         return true;
     }
@@ -343,6 +343,11 @@ fn format_string(
     if (format_string1(ap, str, size, format, "%d", "{}", c_int)) {
         return true;
     }
+    // Format a Single `%u`, like `L.%u`
+    if (format_string1(ap, str, size, format, "%u", "{}", c_int)) {
+        return true;
+    }
+
     return false;
 }
 
@@ -378,8 +383,8 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string1(&ap, str, 0, format_slice, "%u", "{}", c_int)) {
-        // Format a Single `%u`, like `L.%u`
+    if (format_string(&ap, str, 0, format_slice)) {
+        // Do Nothing
     } else {
         debug("TODO: sprintf: format={s}", .{format});
         _ = memcpy(str, format, strlen(format));
@@ -399,8 +404,8 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string1(&ap, str, 0, format_slice, "%s", "{s}", [*:0]const u8)) {
-        // Format a Single `%s`, like `.rela%s`
+    if (format_string(&ap, str, size, format_slice)) {
+        // Do Nothing
     } else {
         debug("TODO: snprintf: size={}, format={s}", .{ size, format });
         _ = memcpy(str, format, strlen(format));
@@ -420,8 +425,7 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     defer @cVaEnd(&ap);
 
     // Format the string. TODO: Catch overflow
-    if (format_string1(&ap, &buf, 0, format_slice, "%s", "{s}", [*:0]const u8)) {
-        // Format a Single `%s`, like `%s\n`
+    if (format_string(&ap, &buf, 0, format_slice)) {
         // TODO: Handle other File Streams. Right now we assume it's stderr (File Descriptor 2)
         const len = std.mem.indexOfScalar(u8, &buf, 0).?;
         debug("fprintf: {s}", .{buf});
