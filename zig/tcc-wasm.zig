@@ -23,9 +23,6 @@ pub export fn compile_program(
     const parsed = std.json.parseFromSlice(T, std.heap.page_allocator, options, .{}) catch
         @panic("Failed to allocate memory");
     defer parsed.deinit();
-    for (parsed.value, 0..) |option, i| {
-        debug("compile_program: options[{}]={s}", .{ i, option });
-    }
 
     // Receive the C Program from JavaScript and set our Read Buffer
     // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
@@ -39,27 +36,29 @@ pub export fn compile_program(
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
+    // Prepare the TCC args
     const max_args = 64;
     const max_arg_size = 64;
     var args: [max_args][max_arg_size:0]u8 = undefined;
     var args_ptrs: [max_args:null]?[*:0]u8 = undefined;
 
-    // Prepare the TCC args
-    const argv = [_][]const u8{
-        "tcc",
-        "-c",
-        "hello.c",
-    };
-    const argc = argv.len;
-    for (argv, 0..) |s, i| {
-        std.mem.copyForwards(u8, &args[i], s);
-        args[i][s.len] = 0;
-        args_ptrs[i] = &args[i];
+    const tcc = "tcc";
+    std.mem.copyForwards(u8, &args[0], tcc);
+    args[0][tcc.len] = 0;
+    args_ptrs[0] = &args[0];
+
+    const argc = parsed.value.len + 1;
+    for (parsed.value, 0..) |option, i| {
+        debug("compile_program: options[{}]={s}", .{ i, option });
+        const a = i + 1;
+        std.mem.copyForwards(u8, &args[a], option);
+        args[a][option.len] = 0;
+        args_ptrs[a] = &args[a];
     }
     args_ptrs[argc] = null;
 
     // Call the TCC Compiler
-    _ = main(argc, &args_ptrs);
+    _ = main(@intCast(argc), &args_ptrs);
 
     // Dump the generated `a.out`
     debug("a.out: {} bytes", .{write_buflen});
