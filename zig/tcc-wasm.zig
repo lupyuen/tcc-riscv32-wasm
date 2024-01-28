@@ -111,7 +111,7 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     // TODO: Support more than one file
     // TODO: Check overflow
     const len = read_buf.len;
-    _ = memcpy(buf, read_buf.ptr, len);
+    @memcpy(buf[0..len], read_buf[0..len]);
     buf[len] = 0;
     read_buf.len = 0;
     debug("read: return buf={s}", .{buf});
