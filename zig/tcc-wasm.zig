@@ -371,8 +371,7 @@ fn format_string(
     return len;
 }
 
-// TODO: `str` should be `[*]u8`
-export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
@@ -380,12 +379,11 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     // Format the string. TODO: Catch overflow
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
-    debug("vsnprintf: return str={s}", .{str});
+    debug("vsnprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
-// TODO: `str` should be `[*]u8`
-export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
+export fn sprintf(str: [*]u8, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
@@ -393,12 +391,11 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
     // Format the string. TODO: Catch overflow
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, 0, format_slice);
-    debug("sprintf: return str={s}", .{str});
+    debug("sprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
-// TODO: `str` should be `[*]u8`
-export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+export fn snprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
@@ -406,7 +403,7 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
     // Format the string. TODO: Catch overflow
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
-    debug("snprintf: return str={s}", .{str});
+    debug("snprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
