@@ -50,18 +50,8 @@ const importObject = {
 function main() {
   console.log("main: start");
 
-  // Read the Compiler Options
-  const options = [];
-  for (let i = 0; i < 64; i++) {
-    const input = document.getElementById("option" + i);
-    if (!input) { break };
-
-    const option = input.value.trim();
-    if (option === "") { continue; }
-    options.push(option);
-  }
-
   // Allocate a String for passing the Compiler Options to Zig
+  const options = read_options();
   const options_ptr = allocateString(JSON.stringify(options));
   
   // Allocate a String for passing the Program Code to Zig
@@ -95,7 +85,7 @@ function main() {
 
 // Allocate a String for passing to Zig
 // https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
-const allocateString = (string) => {
+function allocateString(string) {
   // WebAssembly Memory exported by Zig
   const memory = wasm.instance.exports.memory;
   const buffer = new TextEncoder().encode(string);
@@ -114,6 +104,21 @@ const allocateString = (string) => {
   slice[buffer.length] = 0;
   return pointer;
 };
+
+// Read the Compiler Options
+function read_options() {
+  const options = [];
+  for (let i = 0; i < 64; i++) {
+    const input = document.getElementById("option" + i);
+    if (!input) { break };
+
+    const option = input.value.trim();
+    if (option === "") { continue; }
+    options.push(option);
+  }
+  document.getElementById("options").innerText = "tcc " + options.join(" ");
+  return options;
+}
 
 // Start the Terminal
 function start_terminal() {
