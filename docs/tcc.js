@@ -68,6 +68,7 @@ function main() {
   const data_len = new Uint8Array(memory.buffer, ptr, 4);
   const len = data_len[0] | data_len[1] << 8 | data_len[2] << 16 | data_len[3] << 24;
   console.log(`main: len=${len}`);
+  if (len <= 0) { return; }
 
   // Encode the `a.out` data from the rest of the bytes returned
   const data = new Uint8Array(memory.buffer, ptr + 4, len);

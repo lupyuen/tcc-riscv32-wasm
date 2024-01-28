@@ -298,12 +298,17 @@ var memory_buffer = std.mem.zeroes([16 * 1024 * 1024]u8);
 ///////////////////////////////////////////////////////////////////////////////
 //  Logging
 
-export fn puts(s: [*:0]const u8) callconv(.C) c_int {
+export fn puts(s: [*:0]const u8) c_int {
     debug("{s}", .{s});
     return 0;
 }
 
-pub export fn fflush(_: c_int) c_int {
+export fn fputs(s: [*:0]const u8, stream: *FILE) c_int {
+    debug("fputs: s={s}, stream={*}", .{ s, stream });
+    return 0;
+}
+
+export fn fflush(_: c_int) c_int {
     return 0;
 }
 
@@ -463,9 +468,6 @@ pub export fn exit(_: c_int) c_int {
 }
 pub export fn fopen(_: c_int) c_int {
     @panic("TODO: fopen");
-}
-pub export fn fputs(_: c_int) c_int {
-    @panic("TODO: fputs");
 }
 pub export fn fread(_: c_int) c_int {
     @panic("TODO: fread");
