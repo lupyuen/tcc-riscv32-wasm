@@ -242,7 +242,7 @@ fn format_string(
         }
     }
 
-    // Unknown Format Pattern. Return the Format String.
+    // Format String doesn't match any Format Pattern. We return the Format String.
     debug("TODO: format_string: format={s}", .{format});
     const len3 = format.len;
     @memcpy(str[0..len3], format[0..len3]);
