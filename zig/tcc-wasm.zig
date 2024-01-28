@@ -381,7 +381,7 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
         var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
         _ = std.mem.replace(u8, format_slice, "%s", s_slice, &buf);
 
-        // Print the string
+        // TODO: Handle other File Streams. Right now we assume it's stderr (File Descriptor 2)
         const len = std.mem.indexOfScalar(u8, &buf, 0).?;
         debug("fprintf: {s}", .{buf});
         return @intCast(len);
