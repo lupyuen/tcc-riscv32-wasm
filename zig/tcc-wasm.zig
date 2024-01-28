@@ -246,7 +246,6 @@ export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int
 
 const size_t = c_ulong; // TODO: Should be usize like strlen()?
 const FILE = opaque {};
-const Arg = opaque {}; // Vararg passed from C
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
