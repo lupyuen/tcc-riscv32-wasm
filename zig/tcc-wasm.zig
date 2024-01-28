@@ -189,41 +189,74 @@ const sem_t = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Varargs Functions
 
-export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+fn format_string(
+    ap: *std.builtin.VaList,
+    str: [*:0]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+    comptime spec: []const u8, // Like `%s%s`
+    comptime zig_spec: []const u8, // Like `{s}{s}`
+    comptime T0: type, // Like `[*:0]const u8`
+    comptime T1: type, // Like `[*:0]const u8`
+) bool {
+    _ = size; // autofix
     // Count the Format Specifiers: `%`
-    const format_slice = std.mem.span(format);
-    const format_cnt = std.mem.count(u8, format_slice, "%");
+    const format_cnt = std.mem.count(u8, format, "%");
+    const spec_cnt = std.mem.count(u8, format, "%");
 
-    // TODO: Catch overflow
-    if (format_cnt == 0) {
-        // If no Format Specifiers: Return the Format, like `warning: `
-        debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
-        _ = memcpy(str, format, strlen(format));
-        str[strlen(format)] = 0;
-    } else if (format_cnt == 2 and std.mem.containsAtLeast(u8, format_slice, 1, "%s%s")) {
+    if (format_cnt != spec_cnt) {
+        return false;
+    }
+    if (!std.mem.containsAtLeast(u8, format, 1, spec)) {
+        return false;
+    }
+
+    if (format_cnt == 2) {
         // Format Two `%s`, like `#define %s%s\n`
-        var ap = @cVaStart();
-        defer @cVaEnd(&ap);
-        const s0 = @cVaArg(&ap, [*:0]const u8);
-        const s1 = @cVaArg(&ap, [*:0]const u8);
-        debug("vsnprintf: size={}, format={s}, s0={s}, s1={s}", .{ size, format, s0, s1 });
+        const a0 = @cVaArg(ap, T0);
+        const a1 = @cVaArg(ap, T1);
+        debug("*** a0={s}", .{a0});
+        debug("*** a1={s}", .{a1});
 
         // Format the string
-        const format2 = "{s}{s}"; // Equivalent to C: `%s%s`
         var buf: [100]u8 = undefined; // Limit to 100 chars
-        const buf_slice = std.fmt.bufPrint(&buf, format2, .{ s0, s1 }) catch {
+        const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
             wasmlog.Console.log("*** vsnprintf error: buf too small", .{});
             @panic("*** vsnprintf error: buf too small");
         };
 
         // Replace the Format Specifier
         var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
-        _ = std.mem.replace(u8, format_slice, "%s%s", buf_slice, &buf2);
+        _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
 
         // Return the string
         const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
         _ = memcpy(str, &buf2, @intCast(len));
         str[len] = 0;
+        debug("*** str={s}", .{str});
+        return true;
+    }
+    return false;
+}
+
+export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
+    // Count the Format Specifiers: `%`
+    const format_slice = std.mem.span(format);
+    const format_cnt = std.mem.count(u8, format_slice, "%");
+
+    // Testing
+    var ap2 = @cVaStart();
+    defer @cVaEnd(&ap2);
+
+    // TODO: Catch overflow
+    if (format_string(&ap2, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
+        // Do Nothing
+    } else if (format_cnt == 0) {
+        // If no Format Specifiers: Return the Format, like `warning: `
+        debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
+        _ = memcpy(str, format, strlen(format));
+        str[strlen(format)] = 0;
     } else if (format_cnt == 2 and std.mem.containsAtLeast(u8, format_slice, 1, "%s:%d")) {
         // Format `%s:%d`, like `%s:%d: `
         var ap = @cVaStart();
