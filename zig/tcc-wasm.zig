@@ -292,23 +292,33 @@ export fn sprintf(str: [*:0]u8, format: [*:0]const u8, ...) c_int {
 }
 
 export fn snprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
-    debug("TODO: snprintf: size={}, format={s}", .{ size, format });
-
     // Count the Format Specifiers: `%`
     const format_slice = std.mem.span(format);
     const format_cnt = std.mem.count(u8, format_slice, "%");
-    _ = format_cnt; // autofix
 
     // TODO: Catch overflow
-    if (strcmp(format, ".rela%s") == 0) {
-        const s = ".rela.text";
-        _ = memcpy(str, s, strlen(s));
-        str[strlen(s)] = 0;
+    if (format_cnt == 1 and std.mem.containsAtLeast(u8, format_slice, 1, "%s")) {
+        // Format a Single `%s`, like `.rela%s`
+        var ap = @cVaStart();
+        defer @cVaEnd(&ap);
+        const s = @cVaArg(&ap, [*:0]const u8);
+        const s_slice = std.mem.span(s);
+        debug("snprintf: size={}, format={s}, s={s}", .{ size, format, s });
+
+        // Replace the Format Specifier
+        var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
+        _ = std.mem.replace(u8, format_slice, "%s", s_slice, &buf);
+
+        // Return the string
+        const len = std.mem.indexOfScalar(u8, &buf, 0).?;
+        _ = memcpy(str, &buf, @intCast(len));
+        str[len] = 0;
     } else {
+        debug("TODO: snprintf: size={}, format={s}", .{ size, format });
         _ = memcpy(str, format, strlen(format));
         str[strlen(format)] = 0;
     }
-    debug("TODO: snprintf: return str={s}", .{str});
+    debug("snprintf: return str={s}", .{str});
     return @intCast(strlen(str));
 }
 
