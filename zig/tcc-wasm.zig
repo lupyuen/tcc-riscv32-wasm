@@ -190,8 +190,66 @@ const sem_t = opaque {};
 //  Varargs Functions
 
 /// CompTime Function to format a string by Pattern Matching.
+/// Format a Single Specifier, like `#define __BASE_FILE__ "%s"`
 /// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
-fn format_string(
+fn format_string1(
+    ap: *std.builtin.VaList,
+    str: [*:0]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+    comptime spec: []const u8, // Like `%s%s`
+    comptime zig_spec: []const u8, // Like `{s}{s}`
+    comptime T0: type, // Like `[*:0]const u8`
+) bool {
+    _ = size; // TODO: Check for overflow
+
+    // Count the Format Specifiers: `%`
+    const spec_cnt = std.mem.count(u8, spec, "%");
+    const format_cnt = std.mem.count(u8, format, "%");
+
+    // Check the Format Specifiers: `%`
+    if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
+        !std.mem.containsAtLeast(u8, format, 1, spec)) // Or if the specifiers are not found
+    {
+        return false;
+    }
+
+    ////
+    if (std.mem.eql(u8, spec, "%s")) {
+        debug("********", .{});
+    }
+    ////
+
+    const a = @cVaArg(ap, T0);
+    if (T0 == c_int) {
+        debug("format_string: a={}", .{a});
+    } else {
+        debug("format_string: a={s}", .{a});
+    }
+
+    // Format the string
+    var buf: [100]u8 = undefined; // Limit to 100 chars
+    const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{a}) catch {
+        wasmlog.Console.log("*** format_string error: buf too small", .{});
+        @panic("*** format_string error: buf too small");
+    };
+
+    // Replace the Format Specifier
+    var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+    _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
+
+    // Return the string
+    const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+    _ = memcpy(str, &buf2, @intCast(len));
+    str[len] = 0;
+    debug("str={s}", .{str});
+    return true;
+}
+
+/// CompTime Function to format a string by Pattern Matching.
+/// Format Two Specifiers, like `#define %s%s\n` or `%s:%d`
+/// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
+fn format_string2(
     ap: *std.builtin.VaList,
     str: [*:0]u8,
     size: size_t,
@@ -220,67 +278,33 @@ fn format_string(
     }
     ////
 
-    // Format the string
-    switch (spec_cnt) {
-        // Format a Single Specifier, like `#define __BASE_FILE__ "%s"`
-        1 => {
-            const a = @cVaArg(ap, T0);
-            if (T0 == c_int and T1 == c_int) { // TODO: T1 is unused
-                debug("format_string: a={}", .{a});
-            } else {
-                debug("format_string: a={s}", .{a});
-            }
+    const a0 = @cVaArg(ap, T0);
+    const a1 = @cVaArg(ap, T1);
 
-            // Format the string
-            var buf: [100]u8 = undefined; // Limit to 100 chars
-            const buf_slice = std.fmt.bufPrint(&buf, "{s}", .{a}) catch {
-                wasmlog.Console.log("*** format_string error: buf too small", .{});
-                @panic("*** format_string error: buf too small");
-            };
-
-            // Replace the Format Specifier
-            var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
-            _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
-
-            // Return the string
-            const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
-            _ = memcpy(str, &buf2, @intCast(len));
-            str[len] = 0;
-            debug("str={s}", .{str});
-            return true;
-        },
-        // Format Two Specifiers, like `#define %s%s\n` or `%s:%d`
-        2 => {
-            const a0 = @cVaArg(ap, T0);
-            const a1 = @cVaArg(ap, T1);
-
-            // TODO: Handle T0 is c_int
-            if (T0 != c_int and T1 == c_int) {
-                debug("format_string: a0={s}, a1={}", .{ a0, a1 });
-            } else {
-                debug("format_string: a0={s}, a1={s}", .{ a0, a1 });
-            }
-
-            // Format the string
-            var buf: [100]u8 = undefined; // Limit to 100 chars
-            const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
-                wasmlog.Console.log("*** format_string error: buf too small", .{});
-                @panic("*** format_string error: buf too small");
-            };
-
-            // Replace the Format Specifier
-            var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
-            _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
-
-            // Return the string
-            const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
-            _ = memcpy(str, &buf2, @intCast(len));
-            str[len] = 0;
-            debug("str={s}", .{str});
-            return true;
-        },
-        else => return false,
+    // TODO: Handle T0 is c_int
+    if (T0 != c_int and T1 == c_int) {
+        debug("format_string: a0={s}, a1={}", .{ a0, a1 });
+    } else {
+        debug("format_string: a0={s}, a1={s}", .{ a0, a1 });
     }
+
+    // Format the string
+    var buf: [100]u8 = undefined; // Limit to 100 chars
+    const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
+        wasmlog.Console.log("*** format_string error: buf too small", .{});
+        @panic("*** format_string error: buf too small");
+    };
+
+    // Replace the Format Specifier
+    var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+    _ = std.mem.replace(u8, format, spec, buf_slice, &buf2);
+
+    // Return the string
+    const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+    _ = memcpy(str, &buf2, @intCast(len));
+    str[len] = 0;
+    debug("str={s}", .{str});
+    return true;
 }
 
 export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_int {
@@ -293,12 +317,12 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
     defer @cVaEnd(&ap2);
 
     // TODO: Catch overflow
-    if (format_string(&ap2, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
+    if (format_string2(&ap2, str, size, format_slice, "%s%s", "{s}{s}", [*:0]const u8, [*:0]const u8)) {
         // Do Nothing
-    } else if (format_string(&ap2, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
+    } else if (format_string2(&ap2, str, size, format_slice, "%s:%d", "{s}:{}", [*:0]const u8, c_int)) {
         // Do Nothing
-        // } else if (format_string(&ap2, str, size, format_slice, "%s", "{s}", [*:0]const u8, c_int)) { // TODO: c_int is unused
-        //     // Do Nothing
+    } else if (format_string1(&ap2, str, size, format_slice, "%s", "{s}", [*:0]const u8)) {
+        // Do Nothing
     } else if (format_cnt == 0) {
         // If no Format Specifiers: Return the Format, like `warning: `
         debug("vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
@@ -326,22 +350,6 @@ export fn vsnprintf(str: [*:0]u8, size: size_t, format: [*:0]const u8, ...) c_in
         // Return the string
         const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
         _ = memcpy(str, &buf2, @intCast(len));
-        str[len] = 0;
-    } else if (format_cnt == 1 and std.mem.containsAtLeast(u8, format_slice, 1, "%s")) {
-        // Format a Single `%s`, like `#define __BASE_FILE__ "%s"`
-        var ap = @cVaStart();
-        defer @cVaEnd(&ap);
-        const s = @cVaArg(&ap, [*:0]const u8);
-        const s_slice = std.mem.span(s);
-        debug("vsnprintf: size={}, format={s}, s={s}", .{ size, format, s });
-
-        // Replace the Format Specifier
-        var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
-        _ = std.mem.replace(u8, format_slice, "%s", s_slice, &buf);
-
-        // Return the string
-        const len = std.mem.indexOfScalar(u8, &buf, 0).?;
-        _ = memcpy(str, &buf, @intCast(len));
         str[len] = 0;
     } else {
         debug("TODO: vsnprintf: size={}, format={s}, format_cnt={}", .{ size, format, format_cnt });
