@@ -193,7 +193,7 @@ const sem_t = opaque {};
 /// If no Format Specifiers: Return the Format, like `warning: `
 /// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
 fn format_string0(
-    str: [*:0]u8, // TODO: Should be `[*]u8`
+    str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
 ) bool {
