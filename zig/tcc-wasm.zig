@@ -267,7 +267,7 @@ fn format_string1(
 /// Return true if the Spec matches the Format, and `str` has been updated with the Formatted String.
 fn format_string2(
     ap: *std.builtin.VaList,
-    str: [*:0]u8, // TODO: Should be `[*]u8`
+    str: [*]u8,
     size: size_t,
     format: []const u8, // Like `#define %s%s\n`
     comptime spec: []const u8, // Like `%s%s`
