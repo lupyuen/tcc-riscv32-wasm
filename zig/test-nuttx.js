@@ -68,15 +68,33 @@ WebAssembly.instantiate(typedArray, {
     register long r3 asm("a3") = (long)(parm3);
   
     asm volatile
-      (
-       // "li a0, 61 \\n"
-       ".long 0x03d00513 \\n"
-       "ecall \\n"
-       // We inserted NOP, because TCC says it's invalid (see below)
-       ".word 0x0001 \\n"
-       :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-       : "memory"
-       );
+    (
+      // Load 61 to Register A0 (SYS_write)
+      // li a0, 61
+      ".long 0x03d00513 \\n"
+
+      // Load 1 to Register A1 (File Descriptor)
+      // li a1, 1
+      ".long 0x00100593 \\n"
+
+      // Load 0xC0100000 to Register A2 (Buffer)
+      // li a2, 0xC0100000
+      ".long 0x00001637 \\n"
+      ".long 0xc016061b \\n"
+      ".long 0x01461613 \\n"
+
+      // Load 15 to Register A3 (Buffer Length)
+      // li a3, 15
+      ".long 0x00f00693 \\n"
+
+      // ECALL for System Call to NuttX Kernel
+      "ecall \\n"
+
+      // We inserted NOP, because TCC says it's invalid (see below)
+      ".word 0x0001 \\n"
+      :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+      : "memory"
+    );
   
     // TODO: TCC says this is invalid
     // asm volatile("nop" : "=r"(r0));
