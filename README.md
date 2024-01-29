@@ -1498,7 +1498,41 @@ nsh> b.out
 [    6.242000] up_dump_register: EPC: 000000008000ad8a
 ```
 
-TODO: Where is the EPC 0x8000ad8a? Is our Linker Map incorrect?
+_Where is the EPC 0x8000ad8a?_
+
+0x8000ad8a is actually in NuttX Kernel...
+
+```text
+up_task_start():
+nuttx/arch/risc-v/src/common/riscv_task_start.c:65
+ *   stub and that stub should call exit if/when the user task terminates.
+ *
+ ****************************************************************************/
+
+void up_task_start(main_t taskentry, int argc, char *argv[])
+{
+    8000ad7a:	1141                	add	sp,sp,-16
+    8000ad7c:	86b2                	mv	a3,a2
+nuttx/arch/risc-v/src/common/riscv_task_start.c:68
+  /* Let sys_call3() do all of the work */
+
+  sys_call3(SYS_task_start, (uintptr_t)taskentry, (uintptr_t)argc,
+    8000ad7e:	862e                	mv	a2,a1
+    8000ad80:	85aa                	mv	a1,a0
+    8000ad82:	4511                	li	a0,4
+nuttx/arch/risc-v/src/common/riscv_task_start.c:65
+{
+    8000ad84:	e406                	sd	ra,8(sp)
+nuttx/arch/risc-v/src/common/riscv_task_start.c:68
+  sys_call3(SYS_task_start, (uintptr_t)taskentry, (uintptr_t)argc,
+    8000ad86:	875f50ef          	jal	800005fa <sys_call0>
+nuttx/arch/risc-v/src/common/riscv_task_start.c:71
+            (uintptr_t)argv);
+  PANIC();
+    8000ad8a:	0000e617          	auipc	a2,0xe
+```
+
+Maybe NuttX Kernel crashed because our NuttX App terminated without calling `exit()`?
 
 _But is our NuttX App actually started?_
 
