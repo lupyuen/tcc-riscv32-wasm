@@ -1356,7 +1356,13 @@ tcc: error: undefined symbol 'lseek'
 tcc: error: undefined symbol 'nx_pthread_exit'
 ```
 
-TODO: Why is `libproxies.a` using Relocation Type 60?
+Why is `libproxies.a` using Relocation Type 60? We dump the Proxy Object File...
+
+```bash
+riscv-none-elf-readelf --wide -all nuttx/syscall/PROXY_write.o
+```
+
+TODO: Check the [ELF Dump](https://gist.github.com/lupyuen/cb0484ec055a7a7dfa34b8a8a34244ee)
 
 TODO: Maybe try this
 
