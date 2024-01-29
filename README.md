@@ -1423,6 +1423,8 @@ tcc: error: undefined symbol 'exit'
 
 TODO: What if we call `write` directly? And stub out `exit`?
 
+TODO: Maybe due to [Thread Local Storage](https://lists.gnu.org/archive/html/tinycc-devel/2020-06/msg00000.html) in GLIBC?
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
