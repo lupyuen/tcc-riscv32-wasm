@@ -1247,7 +1247,7 @@ nsh: a.out: command not found
 nsh> 
 ```
 
-It saw `printf` is missing. Let's fix it...
+It says `printf` is missing. Let's fix it...
 
 For Reference: Here's the log for an ELF that loads properly on NuttX: [NuttX ELF Loader Log](https://gist.github.com/lupyuen/847f7adee50499cac5212f2b95d19cd3)
 
