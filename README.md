@@ -1633,8 +1633,6 @@ riscv_swint: SWInt Return: 7
 
 _But the registers A0, A1, A2 and A3 don't look right!_
 
-Might be a Code Generation Problem in TCC?
-
 Let's hardcode Registers A0, A1, A2 and A3 in Machine Code (because TCC won't assemble the `li` instruction): [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
 
 ```c
@@ -1708,7 +1706,45 @@ elf_loadfile: 4. 00000000->c0101010
 
 Which says that the NuttX ELF Loader copied 16 bytes from our NuttX App Data Section `.data.ro` to 0xc0101000. That's all 15 bytes of "Hello, World!!\n", including the terminating null!
 
-TODO: Something odd about the TCC-generated RISC-V Machine Code? Hmmm...
+_Something odd about the TCC-generated RISC-V Machine Code?_
+
+```text
+// register long a1 asm("a1") = 1;  // File Descriptor (stdout)
+// register long a2 asm("a2") = "Hello, World!!\\n"; // Buffer
+// register long a3 asm("a3") = 15; // Buffer Length
+// Execute ECALL for System Call to NuttX Kernel
+// asm volatile (
+// ECALL for System Call to NuttX Kernel
+//   "ecall \\n"
+//   ".word 0x0001 \\n"
+
+main():
+   0:   fc010113                add     sp,sp,-64
+   4:   02113c23                sd      ra,56(sp)
+   8:   02813823                sd      s0,48(sp)
+   c:   04010413                add     s0,sp,64
+  10:   00000013                nop
+  14:   fea43423                sd      a0,-24(s0)
+  18:   feb43023                sd      a1,-32(s0)
+  1c:   03d0051b                addw    a0,zero,61
+  20:   fca43c23                sd      a0,-40(s0)
+  24:   0010051b                addw    a0,zero,1
+  28:   fca43823                sd      a0,-48(s0)
+  2c:   00000517                auipc   a0,0x0  2c: R_RISCV_PCREL_HI20  L.0
+  30:   00050513                mv      a0,a0   30: R_RISCV_PCREL_LO12_I        .text
+  34:   fca43423                sd      a0,-56(s0)
+  38:   00f0051b                addw    a0,zero,15
+  3c:   fca43023                sd      a0,-64(s0)
+  40:   00000073                ecall
+  44:   0001                    nop
+  46:   0000006f                j       46 <main+0x46>
+  4a:   03813083                ld      ra,56(sp)
+  4e:   03013403                ld      s0,48(sp)
+  52:   04010113                add     sp,sp,64
+  56:   00008067                ret
+```
+
+TODO: Fix the Stack Pointer
 
 TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
