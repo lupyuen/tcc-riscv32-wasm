@@ -1251,6 +1251,37 @@ It saw `printf` is missing. Let's fix it...
 
 For Reference: Here's the log for an ELF that loads properly on NuttX: [NuttX ELF Loader Log](https://gist.github.com/lupyuen/847f7adee50499cac5212f2b95d19cd3)
 
+# Fix Missing `printf` in NuttX App
+
+TODO
+
+```bash
+cd apps
+rm bin/hello
+make --trace import
+```
+
+We see the Linker Command that produces the `hello` app...
+
+```text
+riscv-none-elf-ld \
+  --oformat elf64-littleriscv \
+  -e _start \
+  -Bstatic \
+  -T/workspaces/bookworm/apps/import/scripts/gnu-elf.ld \
+  -L/workspaces/bookworm/apps/import/libs \
+  -L "/workspaces/bookworm/xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d" /workspaces/bookworm/apps/import/startup/crt0.o  hello_main.c.workspaces.bookworm.apps.examples.hello.o \
+  --start-group \
+  -lmm \
+  -lc \
+  -lproxies \
+  -lgcc /workspaces/bookworm/apps/libapps.a /workspaces/bookworm/xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
+  --end-group \
+  -o  /workspaces/bookworm/apps/bin/hello
+```
+
+TODO: We run TCC to link `a.out` with the above libraries
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
