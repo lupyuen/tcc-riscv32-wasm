@@ -1031,6 +1031,35 @@ a.out: 1040 bytes
 
 TODO: Implement sscanf: `str=0.9.27, format=%d.%d.%d`
 
+# Test TCC Output with NuttX
+
+TODO
+
+[NuttX ELF Loader Log](https://gist.github.com/lupyuen/847f7adee50499cac5212f2b95d19cd3)
+
+```bash
+mv ~/Downloads/a.out ~/riscv/apps/bin/
+chmod +x ~/riscv/apps/bin/*
+file  ~/riscv/apps/bin/a.out
+ls -l ~/riscv/apps/bin
+```
+
+Shows...
+
+```text
+$ file  ~/riscv/apps/bin/a.out
+/Users/Luppy/riscv/apps/bin/a.out: ELF 64-bit LSB relocatable, UCB RISC-V, version 1 (SYSV), not stripped
+
+$ ls -l ~/riscv/apps/bin
+total 4744
+-rwxr-xr-x@ 1 Luppy  staff    1040 Jan 29 09:24 a.out
+-rwxr-xr-x  1 Luppy  staff  200176 Jan 29 09:05 getprime
+-rwxr-xr-x  1 Luppy  staff  119560 Jan 29 09:05 hello
+-rwxr-xr-x  1 Luppy  staff  697368 Jan 29 09:05 init
+-rwxr-xr-x  1 Luppy  staff  703840 Jan 29 09:05 ostest
+-rwxr-xr-x  1 Luppy  staff  694648 Jan 29 09:05 sh
+```
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
