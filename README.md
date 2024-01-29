@@ -1033,9 +1033,9 @@ TODO: Implement sscanf: `str=0.9.27, format=%d.%d.%d`
 
 # Test TCC Output with NuttX
 
-Let's run the TCC Output `a.out` on NuttX!
+_TCC in WebAssembly has compiled our C Program into the ELF Binary `a.out`. What happens when we run it on NuttX?_
 
-Copy `a.out` to NuttX Apps Filesystem...
+Let's run the TCC Output `a.out` on NuttX! We copy `a.out` to NuttX Apps Filesystem...
 
 ```bash
 mv ~/Downloads/a.out ~/riscv/apps/bin/
@@ -1044,11 +1044,11 @@ file  ~/riscv/apps/bin/a.out
 ls -l ~/riscv/apps/bin
 ```
 
-Shows...
+Which shows...
 
 ```text
 $ file  ~/riscv/apps/bin/a.out
-/Users/Luppy/riscv/apps/bin/a.out: ELF 64-bit LSB relocatable, UCB RISC-V, version 1 (SYSV), not stripped
+~/riscv/apps/bin/a.out: ELF 64-bit LSB relocatable, UCB RISC-V, version 1 (SYSV), not stripped
 
 $ ls -l ~/riscv/apps/bin
 total 4744
@@ -1060,7 +1060,7 @@ total 4744
 -rwxr-xr-x  1 Luppy  staff  694648 Jan 29 09:05 sh
 ```
 
-Run `a.out` on NuttX...
+Then we boot NuttX on QEMU (64-bit RISC-V) and run `a.out` on NuttX...
 
 ```text
 nsh> a.out
@@ -1247,7 +1247,7 @@ nsh: a.out: command not found
 nsh> 
 ```
 
-TODO: Fix the missing `printf`
+It saw `printf` is missing. Let's fix it...
 
 For Reference: Here's the log for an ELF that loads properly on NuttX: [NuttX ELF Loader Log](https://gist.github.com/lupyuen/847f7adee50499cac5212f2b95d19cd3)
 
