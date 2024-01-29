@@ -1446,7 +1446,7 @@ tcc: error: Unknown relocation type for got: 60
 
 Let's skip everything, we link only `a.out`. Since the other modules are causing the Unknown Relocation Type.
 
-We discovered that `a.out` must be Relocatable Code, otherwise it crashes in NuttX. So we add `-r` to Compiler Options in our modified [test.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test.js#L48-L64)...
+We discovered that `a.out` must be Relocatable Code, otherwise it crashes in NuttX. So we add `-r` to TCC Compiler Options in our modified [test.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test.js#L48-L64)...
 
 ```javascript
   // Allocate a String for passing the Compiler Options to Zig
@@ -1612,6 +1612,8 @@ When we remove the loop, `a.out` also crashes at the same place...
 ```
 
 So in theory we could dump all our NuttX App Code into a single C Source File, and compile to `a.out`!
+
+TODO: Is NuttX starting `main()` or `_start()`? Or the first thing that appears in `a.out`?
 
 TODO: Make a [NuttX System Call (ECALL)](https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel) directly in our TCC Code
 
