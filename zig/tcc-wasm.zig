@@ -656,6 +656,122 @@ export fn strlen(s: [*:0]const u8) callconv(.C) usize {
     return result;
 }
 
+export fn strtoull(nptr: [*:0]const u8, endptr: ?*[*:0]u8, base: c_int) callconv(.C) c_ulonglong {
+    // trace.log("strtoull {} endptr={*} base={}", .{ trace.fmtStr(nptr), endptr, base });
+    return strto(c_ulonglong, nptr, endptr, base);
+}
+
+fn strto(comptime T: type, str: [*:0]const u8, optional_endptr: ?*[*:0]const u8, optional_base: c_int) T {
+    var next = str;
+
+    // skip whitespace
+    while (isspace(next[0]) != 0) : (next += 1) {}
+    const start = next;
+    _ = start; // autofix
+
+    const sign: enum { pos, neg } = blk: {
+        if (next[0] == '-') {
+            next += 1;
+            break :blk .neg;
+        }
+        if (next[0] == '+') next += 1;
+        break :blk .pos;
+    };
+
+    const base = blk: {
+        if (optional_base != 0) {
+            if (optional_base > 36) {
+                if (optional_endptr) |endptr| endptr.* = next;
+                errno = EINVAL;
+                return 0;
+            }
+            if (optional_base == 16 and next[0] == '0' and (next[1] == 'x' or next[1] == 'X')) {
+                next += 2;
+            }
+            break :blk @as(u8, @intCast(optional_base));
+        }
+        if (next[0] == '0') {
+            if (next[1] == 'x' or next[1] == 'X') {
+                next += 2;
+                break :blk 16;
+            }
+            next += 1;
+            break :blk 8;
+        }
+        break :blk 10;
+    };
+
+    const digit_start = next;
+    var x: T = 0;
+
+    while (true) : (next += 1) {
+        const ch = next[0];
+        if (ch == 0) break;
+        const digit = std.math.cast(T, std.fmt.charToDigit(ch, base) catch break) orelse {
+            if (optional_endptr) |endptr| endptr.* = next;
+            errno = ERANGE;
+            return 0;
+        };
+        if (x != 0) x = std.math.mul(T, x, std.math.cast(T, base) orelse {
+            errno = EINVAL;
+            return 0;
+        }) catch {
+            if (optional_endptr) |endptr| endptr.* = next;
+            errno = ERANGE;
+            return switch (sign) {
+                .neg => std.math.minInt(T),
+                .pos => std.math.maxInt(T),
+            };
+        };
+        x = switch (sign) {
+            .pos => std.math.add(T, x, digit) catch {
+                if (optional_endptr) |endptr| endptr.* = next + 1;
+                errno = ERANGE;
+                return switch (sign) {
+                    .neg => std.math.minInt(T),
+                    .pos => std.math.maxInt(T),
+                };
+            },
+            .neg => std.math.sub(T, x, digit) catch {
+                if (optional_endptr) |endptr| endptr.* = next + 1;
+                errno = ERANGE;
+                return switch (sign) {
+                    .neg => std.math.minInt(T),
+                    .pos => std.math.maxInt(T),
+                };
+            },
+        };
+    }
+
+    if (optional_endptr) |endptr| endptr.* = next;
+    if (next == digit_start) {
+        errno = EINVAL; // TODO: is this right?
+    } else {
+        // trace.log("strto str='{s}' result={}", .{ start[0 .. @intFromPtr(next) - @intFromPtr(start)], x });
+    }
+    return x;
+}
+
+export fn isspace(char: c_int) callconv(.C) c_int {
+    // trace.log("isspace {}", .{char});
+    return @intFromBool(std.ascii.isWhitespace(std.math.cast(u8, char) orelse return 0));
+}
+
+const EPERM: c_int = 1;
+const ENOENT: c_int = 2;
+const EINTR: c_int = 4;
+const EAGAIN: c_int = 11;
+const ENOMEM: c_int = 12;
+const EACCES: c_int = 13;
+const EEXIST: c_int = 17;
+const EINVAL: c_int = 22;
+const ENOTTY: c_int = 25;
+const EPIPE: c_int = 32;
+const EDOM: c_int = 33;
+const ERANGE: c_int = 34;
+const EWOULDBLOCK: c_int = 140;
+const ECONNREFUSED: c_int = 111;
+
 ///////////////////////////////////////////////////////////////////////////////
 /// Fix the Missing Variables
 pub export var errno: c_int = 0;
@@ -731,9 +847,6 @@ pub export fn strtoll(_: c_int) c_int {
 }
 pub export fn strtoul(_: c_int) c_int {
     @panic("TODO: strtoul");
-}
-pub export fn strtoull(_: c_int) c_int {
-    @panic("TODO: strtoull");
 }
 pub export fn time(_: c_int) c_int {
     @panic("TODO: time");
