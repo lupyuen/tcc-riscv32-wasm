@@ -1578,9 +1578,9 @@ nsh> b.out
 < ...NuttX Hangs... >
 ```
 
-_OK so `b.out` is running. What about `a.out`?_
+_But wait isn't `b.out` identical to `a.out`? Can we run `a.out`?_
 
-Surprisingly `a.out` is also running!
+Yep `a.out` is also running!
 
 ```text
 NuttShell (NSH) NuttX-12.4.0
