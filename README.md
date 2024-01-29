@@ -1317,8 +1317,8 @@ We run TCC to link `a.out` with the above libraries...
 ```bash
 tcc-riscv32-wasm/riscv64-tcc \
   -nostdlib \
-  apps/bin/a.out \
   apps/import/startup/crt0.o \
+  apps/bin/a.out \
   apps/import/libs/libmm.a \
   apps/import/libs/libc.a \
   apps/import/libs/libproxies.a \
@@ -1336,8 +1336,8 @@ When we remove `libproxies.a`, we don't see the Unknown Relocation Type...
 ```text
 $ tcc-riscv32-wasm/riscv64-tcc \
   -nostdlib \
-  apps/bin/a.out \
   apps/import/startup/crt0.o \
+  apps/bin/a.out \
   apps/import/libs/libmm.a \
   apps/import/libs/libc.a \
   apps/import/libs/libgcc.a
@@ -1401,6 +1401,7 @@ Now Unknown Relocation Type is coming from `libc.a`. If we remove `libc.a`...
 ```text
 $ tcc-riscv32-wasm/riscv64-tcc \
   -nostdlib \
+  apps/import/startup/crt0.o \
   apps/bin/a.out \
   nuttx/syscall/PROXY__exit.o \
   nuttx/syscall/PROXY__assert.o \
@@ -1414,14 +1415,34 @@ $ tcc-riscv32-wasm/riscv64-tcc \
   nuttx/syscall/PROXY_write.o \
   nuttx/syscall/PROXY_lseek.o \
   nuttx/syscall/PROXY_nx_pthread_exit.o \
-  apps/import/startup/crt0.o \
   apps/import/libs/libmm.a
 
 tcc: error: undefined symbol 'printf'
 tcc: error: undefined symbol 'exit'
 ```
 
-TODO: What if we call `write` directly? And stub out `exit`?
+_What if we call `write` directly? (Since `write` is a Proxy to NuttX System Call) And stub out `exit`?_
+
+```c
+int write(int fildes, const void *buf, int nbyte);
+
+int main(int argc, char *argv[]) {
+  const char msg[] = "Hello, World!!\\n";
+  write(1, msg, sizeof(msg));
+  return 0;
+}
+
+void exit(int status) {
+  const char msg[] = "TODO: exit\\n";
+  write(1, msg, sizeof(msg));
+}
+```
+
+Still the same sigh...
+
+```text
+tcc: error: Unknown relocation type for got: 60
+```
 
 TODO: Maybe due to [Thread Local Storage](https://lists.gnu.org/archive/html/tinycc-devel/2020-06/msg00000.html) in GLIBC?
 
