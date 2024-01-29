@@ -47,15 +47,44 @@ WebAssembly.instantiate(typedArray, {
   wasm.init(result);
 
   // Allocate a String for passing the Compiler Options to Zig
-  const options = ["-c", "hello.c"];
+  const options = ["-c", "-r", "hello.c"];
   const options_ptr = allocateString(JSON.stringify(options));
 
   // Allocate a String for passing Program Code to Zig
   const code_ptr = allocateString(`
-    int main(int argc, char *argv[]) {
-      printf("Hello, World!!\\n");
-      return 0;
-    }
+  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3);
+
+  int main(int argc, char *argv[])
+  {
+    const char msg[] = "Hello, World!!\\n";
+    sys_call3(61, 1, msg, sizeof(msg));
+
+    // Loop Forever
+    for(;;) {}
+    return 0;
+  }
+  
+  // System call SYS_ argument and three additional parameters
+  // https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L240-L268
+  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3)
+  {
+    register long r0 asm("a0") = (long)(nbr);
+    register long r1 asm("a1") = (long)(parm1);
+    register long r2 asm("a2") = (long)(parm2);
+    register long r3 asm("a3") = (long)(parm3);
+  
+    asm volatile
+      (
+       "ecall"
+       :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+       : "memory"
+       );
+  
+    // TODO: TCC says this is invalid
+    // asm volatile("nop" : "=r"(r0));
+  
+    return r0;
+  }  
   `);
 
   // Call TCC to compile a program
