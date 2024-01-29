@@ -1251,9 +1251,9 @@ It saw `printf` is missing. Let's fix it...
 
 For Reference: Here's the log for an ELF that loads properly on NuttX: [NuttX ELF Loader Log](https://gist.github.com/lupyuen/847f7adee50499cac5212f2b95d19cd3)
 
-# Fix Missing `printf` in NuttX App
+# How NuttX Build links a NuttX App
 
-_How does NuttX link a NuttX App?_
+_`printf` is missing from our TCC Output `a.out`. How does NuttX Build link a NuttX App?_
 
 Let's find out...
 
@@ -1270,19 +1270,47 @@ riscv-none-elf-ld \
   --oformat elf64-littleriscv \
   -e _start \
   -Bstatic \
-  -T/workspaces/bookworm/apps/import/scripts/gnu-elf.ld \
-  -L/workspaces/bookworm/apps/import/libs \
-  -L "/workspaces/bookworm/xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d" /workspaces/bookworm/apps/import/startup/crt0.o  hello_main.c.workspaces.bookworm.apps.examples.hello.o \
+  -Tapps/import/scripts/gnu-elf.ld \
+  -Lapps/import/libs \
+  -L "xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d" apps/import/startup/crt0.o  hello_main.c.workspaces.bookworm.apps.examples.hello.o \
   --start-group \
   -lmm \
   -lc \
   -lproxies \
-  -lgcc /workspaces/bookworm/apps/libapps.a /workspaces/bookworm/xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
+  -lgcc apps/libapps.a xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
   --end-group \
-  -o  /workspaces/bookworm/apps/bin/hello
+  -o  apps/bin/hello
 ```
 
-TODO: We run TCC to link `a.out` with the above libraries
+This says that NuttX Build links NuttX Apps with these libraries...
+
+- `-lmm`
+
+- `-lc`
+
+- `-lproxies`
+
+- `-lgcc libgcc.a`
+
+Which are located at `apps/import/libs`...
+
+```text
+$ ls -l apps/import/libs
+total 18776
+-rwxr-xr-x 1 vscode vscode 3132730 Jan 29 02:12 libapps.a
+-rw-r--r-- 1 vscode vscode    1064 Jan 29 01:18 libarch.a
+-rw-r--r-- 1 vscode vscode 8946828 Jan 29 01:18 libc.a
+-rw-r--r-- 1 vscode vscode 1462710 Sep 24 08:10 libgcc.a
+-rw-r--r-- 1 vscode vscode 1276866 Jan 29 01:18 libm.a
+-rw-r--r-- 1 vscode vscode 1304366 Jan 29 01:18 libmm.a
+-rw-r--r-- 1 vscode vscode 3086312 Jan 29 01:18 libproxies.a
+```
+
+TODO: We run TCC to link `a.out` with the above libraries...
+
+# Fix Missing `printf` in NuttX App
+
+TODO
 
 # Analysis of Missing Functions
 
