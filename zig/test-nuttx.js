@@ -52,22 +52,16 @@ WebAssembly.instantiate(typedArray, {
 
   // Allocate a String for passing Program Code to Zig
   const code_ptr = allocateString(`
-  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3);
-
   int main(int argc, char *argv[])
   {
+    // Make NuttX System Call to write(fd, buf, buflen)
     const char msg[] = "Hello, World!!\\n";
-    sys_call3(61, 1, msg, sizeof(msg));
+    const unsigned int nbr = 61;     // SYS_write
+    const void *parm1 = 1;           // File Descriptor (stdout)
+    const void *parm2 = msg;         // Buffer
+    const void *parm3 = sizeof(msg); // Buffer Length
 
-    // Loop Forever
-    for(;;) {}
-    return 0;
-  }
-  
-  // System call SYS_ argument and three additional parameters
-  // https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L240-L268
-  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3)
-  {
+    // Execute ECALL for System Call to NuttX Kernel
     register long r0 asm("a0") = (long)(nbr);
     register long r1 asm("a1") = (long)(parm1);
     register long r2 asm("a2") = (long)(parm2);
@@ -75,17 +69,22 @@ WebAssembly.instantiate(typedArray, {
   
     asm volatile
       (
+       // "li a0, 61 \\n"
+       ".long 0x03d00513 \\n"
        "ecall \\n"
-       ".word 0x0001 \\n"  // Inserted NOP
+       // We inserted NOP, because TCC says it's invalid (see below)
+       ".word 0x0001 \\n"
        :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
        : "memory"
        );
   
     // TODO: TCC says this is invalid
     // asm volatile("nop" : "=r"(r0));
-  
-    return r0;
-  }  
+
+    // Loop Forever
+    for(;;) {}
+    return 0;
+  }
   `);
 
   // Call TCC to compile a program
