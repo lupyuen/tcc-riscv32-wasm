@@ -1481,19 +1481,14 @@ nsh> a.out
 [    6.242000] up_dump_register: EPC: 000000008000ad8a
 ```
 
-_Where is the EPC 0x8000ad8a?_
+_Where is the Exception Program Counter 0x8000ad8a?_
 
 0x8000ad8a is actually in NuttX Kernel...
 
 ```text
 up_task_start():
 nuttx/arch/risc-v/src/common/riscv_task_start.c:65
- *   stub and that stub should call exit if/when the user task terminates.
- *
- ****************************************************************************/
-
-void up_task_start(main_t taskentry, int argc, char *argv[])
-{
+void up_task_start(main_t taskentry, int argc, char *argv[]) {
     8000ad7a:	1141                	add	sp,sp,-16
     8000ad7c:	86b2                	mv	a3,a2
 nuttx/arch/risc-v/src/common/riscv_task_start.c:68
@@ -1504,7 +1499,6 @@ nuttx/arch/risc-v/src/common/riscv_task_start.c:68
     8000ad80:	85aa                	mv	a1,a0
     8000ad82:	4511                	li	a0,4
 nuttx/arch/risc-v/src/common/riscv_task_start.c:65
-{
     8000ad84:	e406                	sd	ra,8(sp)
 nuttx/arch/risc-v/src/common/riscv_task_start.c:68
   sys_call3(SYS_task_start, (uintptr_t)taskentry, (uintptr_t)argc,
@@ -1553,11 +1547,11 @@ binfmt_dumpmodule:   mapped:    0 size=0
 binfmt_dumpmodule:   alloc:     0 0 0
 binfmt_dumpmodule:   addrenv:   0x80209b80
 binfmt_dumpmodule:   stacksize: 2048
-[    5.432000] binfmt_dumpmodule:   unload:    0
-[    5.434000] exec_module: Executing a.out
-[    5.434000] binfmt_copyargv: args=1 argsize=6
-[    5.434000] binfmt_copyargv: args=2 argsize=23
-[    5.434000] exec_module: Initialize the user heap (heapsize=528384)
+binfmt_dumpmodule:   unload:    0
+exec_module: Executing a.out
+binfmt_copyargv: args=1 argsize=6
+binfmt_copyargv: args=2 argsize=23
+exec_module: Initialize the user heap (heapsize=528384)
 < ...NuttX Hangs... >
 ```
 
