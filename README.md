@@ -1331,9 +1331,34 @@ It says...
 tcc: error: Unknown relocation type for got: 60
 ```
 
-TODO: Why???
+When we remove `libproxies.a`, we don't see the Unknown Relocation Type...
 
-TODO: Also try this
+```text
+$ tcc-riscv32-wasm/riscv64-tcc \
+  -nostdlib \
+  apps/bin/a.out \
+  apps/import/startup/crt0.o \
+  apps/import/libs/libmm.a \
+  apps/import/libs/libc.a \
+  apps/import/libs/libgcc.a
+
+tcc: error: undefined symbol '_exit'
+tcc: error: undefined symbol '_assert'
+tcc: error: undefined symbol 'nxsem_destroy'
+tcc: error: undefined symbol 'gettid'
+tcc: error: undefined symbol 'nxsem_wait'
+tcc: error: undefined symbol 'nxsem_trywait'
+tcc: error: undefined symbol 'clock_gettime'
+tcc: error: undefined symbol 'nxsem_clockwait'
+tcc: error: undefined symbol 'nxsem_post'
+tcc: error: undefined symbol 'write'
+tcc: error: undefined symbol 'lseek'
+tcc: error: undefined symbol 'nx_pthread_exit'
+```
+
+TODO: Why is `libproxies.a` using Relocation Type 60?
+
+TODO: Maybe try this
 
 ```bash
 tcc-riscv32-wasm/riscv64-tcc \
@@ -1349,8 +1374,6 @@ tcc-riscv32-wasm/riscv64-tcc \
   -lgcc apps/libapps.a xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
   -o  apps/bin/hello2
 ```
-
-TODO
 
 # Analysis of Missing Functions
 
