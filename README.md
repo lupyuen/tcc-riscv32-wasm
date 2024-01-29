@@ -1306,15 +1306,22 @@ total 18776
 -rw-r--r-- 1 vscode vscode 3086312 Jan 29 01:18 libproxies.a
 ```
 
-TODO: We run TCC to link `a.out` with the above libraries...
+Let's run TCC to link `a.out` with the above libraries...
 
 # Fix Missing `printf` in NuttX App
 
-TODO
+We run TCC to link `a.out` with the above libraries...
 
 ```bash
 tcc-riscv32-wasm/riscv64-tcc \
+  apps/bin/a.out \
+  apps/import/libs/libmm.a \
+  apps/import/libs/libc.a \
+  apps/import/libs/libproxies.a \
+  apps/import/libs/libgcc.a
 ```
+
+TODO
 
 # Analysis of Missing Functions
 
