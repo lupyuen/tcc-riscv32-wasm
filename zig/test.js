@@ -59,9 +59,21 @@ WebAssembly.instantiate(typedArray, {
   `);
 
   // Call TCC to compile a program
-  const ret = wasm.instance.exports
+  const ptr = wasm.instance.exports
     .compile_program(options_ptr, code_ptr);
-  console.log(`ret=${ret}`);
+  console.log(`ptr=${ptr}`);
+
+  // Get the `a.out` size from first 4 bytes returned
+  const memory = wasm.instance.exports.memory;
+  const data_len = new Uint8Array(memory.buffer, ptr, 4);
+  const len = data_len[0] | data_len[1] << 8 | data_len[2] << 16 | data_len[3] << 24;
+  console.log(`main: len=${len}`);
+  if (len <= 0) { return; }
+
+  // Save the `a.out` data from the rest of the bytes returned
+  const data = new Uint8Array(memory.buffer, ptr + 4, len);
+  fs.writeFileSync("/tmp/a.out", Buffer.from(data));
+  console.log("TCC Output saved to /tmp/a.out");
 });
 
 // Allocate a String for passing to Zig
