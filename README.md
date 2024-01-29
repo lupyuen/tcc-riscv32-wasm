@@ -1284,13 +1284,13 @@ riscv-none-elf-ld \
 
 This says that NuttX Build links NuttX Apps with these libraries...
 
-- `-lmm`
+- `-lmm`: Mmmmm?
 
-- `-lc`
+- `-lc`: C Library
 
-- `-lproxies`
+- `-lproxies`: [NuttX Proxy Functions](https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel) for NuttX System Calls
 
-- `-lgcc libgcc.a`
+- `-lgcc libgcc.a`: GCC Library
 
 Which are located at `apps/import/libs`...
 
@@ -1311,6 +1311,10 @@ TODO: We run TCC to link `a.out` with the above libraries...
 # Fix Missing `printf` in NuttX App
 
 TODO
+
+```bash
+tcc-riscv32-wasm/riscv64-tcc \
+```
 
 # Analysis of Missing Functions
 
