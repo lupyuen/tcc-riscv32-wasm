@@ -1624,168 +1624,59 @@ TODO: Unknown Relocation Type may be due to [Thread Local Storage](https://lists
 Let's make a [NuttX System Call (ECALL)](https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel) directly in our TCC Code: [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
 
 ```c
-  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3);
-
   int main(int argc, char *argv[])
   {
-    const char msg[] = "Hello, World!!\n";
-    sys_call3(61, 1, msg, sizeof(msg));
+    // Make NuttX System Call to write(fd, buf, buflen)
+    const unsigned int nbr = 61; // SYS_write
+    const void *parm1 = 1;       // File Descriptor (stdout)
+    const void *parm2 = "Hello, World!!\n"; // Buffer
+    const void *parm3 = 15; // Buffer Length
 
-    // Loop Forever
-    for(;;) {}
-    return 0;
-  }
-  
-  // System call SYS_ argument and three additional parameters
-  // https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L240-L268
-  void *sys_call3(unsigned int nbr, void *parm1, void *parm2, void *parm3)
-  {
+    // Execute ECALL for System Call to NuttX Kernel
     register long r0 asm("a0") = (long)(nbr);
     register long r1 asm("a1") = (long)(parm1);
     register long r2 asm("a2") = (long)(parm2);
     register long r3 asm("a3") = (long)(parm3);
   
     asm volatile
-      (
-       "ecall \\n"
-       ".word 0x0001 \\n"  // Inserted NOP
-       :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-       : "memory"
-       );
+    (
+      // ECALL for System Call to NuttX Kernel
+      "ecall \n"
+
+      // We inserted NOP, because TCC says it's invalid (see below)
+      ".word 0x0001 \n"
+      :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+      : "memory"
+    );
   
     // TODO: TCC says this is invalid
     // asm volatile("nop" : "=r"(r0));
-  
-    return r0;
-  }  
+
+    // Loop Forever
+    for(;;) {}
+    return 0;
+  }
 ```
 
 TODO: Why SysCall 61?
 
-Nope we don't see SysCall 61...
+Nope we don't see SysCall 61, but we see a SysCall 15 (what?)...
 
 ```yaml
-load_absmodule: Successfully loaded module /system/bin/a.out
-binfmt_dumpmodule: Module:
-binfmt_dumpmodule:   entrypt:   0xc0000000
-binfmt_dumpmodule:   mapped:    0 size=0
-binfmt_dumpmodule:   alloc:     0 0 0
-binfmt_dumpmodule:   addrenv:   0x80209bc0
-binfmt_dumpmodule:   stacksize: 2048
-binfmt_dumpmodule:   unload:    0
-exec_module: Executing a.out
-binfmt_copyargv: args=1 argsize=6
-binfmt_copyargv: args=2 argsize=23
-exec_module: Initialize the user heap (heapsize=528384)
-
-riscv_swint: Entry: regs: 0x8020aff0 cmd: 3
-up_dump_register: EPC: 00000000c0004540
-up_dump_register: A0: 0000000000000003 A1: 00000000802098c0 A2: 0000000000000000 A3: 0000000080206fa8
-up_dump_register: A4: 0000000000000008 A5: 0000000000000036 A6: 0000000000000000 A7: fffffffffffffff8
-up_dump_register: T0: 0000000000000003 T1: 0000000000000007 T2: 0000000000000020 T3: 00000000c0202030
-up_dump_register: T4: 00000000c0202028 T5: 00000000000000ff T6: 000000000000000f
-up_dump_register: S0: 0000000000000000 S1: 00000000c02005d0 S2: 00000000c02008c8 S3: 0000000000000000
-up_dump_register: S4: 00000000c0202a28 S5: 0000000000000000 S6: 00000000c000b538 S7: 000000000000000a
-up_dump_register: S8: 000000000000000b S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020b200 FP: 0000000000000000 TP: 0000000000000000 RA: 00000000c0004540
-riscv_swint: SWInt Return: 0
-
-riscv_swint: Entry: regs: 0x8020b200 cmd: 59
-up_dump_register: EPC: 00000000c000938c
-up_dump_register: A0: 000000000000003b A1: 0000000000000001 A2: 0000000000000118 A3: 0000000000000003
-up_dump_register: A4: 0000000000000008 A5: 00000000c0202940 A6: 0000000000000000 A7: fffffffffffffff8
-up_dump_register: T0: 0000000000000003 T1: 0000000000000118 T2: 0000000000000020 T3: 0000000000000001
-up_dump_register: T4: 00000000c0202028 T5: 00000000000000ff T6: 000000000000000f
-up_dump_register: S0: 0000000000000000 S1: 00000000c02005d0 S2: 00000000c02008c8 S3: 0000000000000000
-up_dump_register: S4: 00000000c0202a28 S5: 0000000000000000 S6: 00000000c000b538 S7: 000000000000000a
-up_dump_register: S8: 000000000000000b S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 00000000c0202930 FP: 0000000000000000 TP: 0000000000000000 RA: 00000000c000455e
-riscv_swint: SWInt Return: 33
-
-riscv_swint: Entry: regs: 0x8020aff0 cmd: 3
-up_dump_register: EPC: 00000000c000455e
-up_dump_register: A0: 0000000000000003 A1: 000000008020b148 A2: ffffffffffffffff A3: 0000000000000018
-up_dump_register: A4: 00000000c0202000 A5: 00000000c0202000 A6: 0000000000000000 A7: fffffffffffffff8
-up_dump_register: T0: 00000000800072f6 T1: 0000000000000118 T2: 0000000000000020 T3: 0000000000000001
-up_dump_register: T4: 00000000c0202028 T5: 00000000000000ff T6: 000000000000000f
-up_dump_register: S0: 0000000000000000 S1: 00000000c02005d0 S2: 00000000c02008c8 S3: 0000000000000000
-up_dump_register: S4: 00000000c0202a28 S5: 0000000000000000 S6: 00000000c000b538 S7: 000000000000000a
-up_dump_register: S8: 000000000000000b S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020b200 FP: 0000000000000000 TP: 0000000000000000 RA: 00000000c000455e
-riscv_swint: SWInt Return: ffffffffffffffff
-
-riscv_swint: Entry: regs: 0x8020b200 cmd: 34
-up_dump_register: EPC: 00000000c00095a4
-up_dump_register: A0: 0000000000000022 A1: 0000000000000003 A2: 00000000c020297c A3: 0000000000000004
-up_dump_register: A4: 0000000000000003 A5: 00000000c020297c A6: 0000000000000000 A7: fffffffffffffff8
-up_dump_register: T0: 00000000800072f6 T1: 0000000000000118 T2: 0000000000000020 T3: 0000000000000001
-up_dump_register: T4: 00000000c0202028 T5: 00000000000000ff T6: 000000000000000f
-up_dump_register: S0: 0000000000000000 S1: 00000000c02005d0 S2: 00000000c02008c8 S3: ffffffffffffffff
-up_dump_register: S4: 00000000c0202a28 S5: 0000000000000000 S6: 00000000c000b538 S7: 000000000000000a
-up_dump_register: S8: 000000000000000b S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 00000000c0202970 FP: 0000000000000000 TP: 0000000000000000 RA: 00000000c000456a
-riscv_swint: SWInt Return: 1a
-
-riscv_swint: Entry: regs: 0x8020af50 cmd: 2
-up_dump_register: EPC: 0000000080003e98
-up_dump_register: A0: 0000000000000002 A1: 0000000080209510 A2: 0000000080209930 A3: 0000000080200cc0
-up_dump_register: A4: 0000000000000064 A5: 0000000000000000 A6: 0000000000000000 A7: fffffffffffffff8
-up_dump_register: T0: 0000000080007a96 T1: 0000000000000118 T2: 0000000000000020 T3: 0000000000000001
-up_dump_register: T4: 00000000c0202028 T5: 00000000000000ff T6: 000000000000000f
-up_dump_register: S0: 0000000080209510 S1: 0000000080209c70 S2: 0000000200042022 S3: 0000000000000001
-up_dump_register: S4: 0000000080200cc0 S5: 0000000000000001 S6: 00000000c000b538 S7: 000000000000000a
-up_dump_register: S8: 000000000000000b S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020b160 FP: 0000000080209510 TP: 0000000000000000 RA: 0000000080003e98
-riscv_swint: SWInt Return: Context switch!
-
-up_dump_register: EPC: 000000008000464c
-up_dump_register: A0: 0000000000000000 A1: 0000000000000000 A2: 0000000000000000 A3: 0000000000000000
-up_dump_register: A4: 0000000000000000 A5: 0000000000000000 A6: 0000000000000000 A7: 0000000000000000
-up_dump_register: T0: 0000000000000000 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
-up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
-up_dump_register: S0: 0000000000000000 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
-up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
-up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020c020 FP: 0000000000000000 TP: 0000000000000000 RA: 0000000000000000
-
-riscv_swint: Entry: regs: 0x8020bdf0 cmd: 4
-up_dump_register: EPC: 000000008000adee
-up_dump_register: A0: 0000000000000004 A1: 00000000c0000000 A2: 0000000000000001 A3: 00000000c0202010
+riscv_swint: Entry: regs: 0x8020be10 cmd: 15
+up_dump_register: EPC: 00000000c000006c
+up_dump_register: A0: 000000000000000f A1: 00000000c0202010 A2: 0000000000000001 A3: 00000000c0202010
 up_dump_register: A4: 00000000c0000000 A5: 0000000000000000 A6: 0000000000000000 A7: 0000000000000000
 up_dump_register: T0: 0000000000000000 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
 up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
-up_dump_register: S0: 0000000000000000 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
+up_dump_register: S0: 00000000c0202800 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
 up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
 up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020c000 FP: 0000000000000000 TP: 0000000000000000 RA: 000000008000adee
-riscv_swint: SWInt Return: 1
-
-riscv_swint: Entry: regs: 0x8020be10 cmd: 16
-up_dump_register: EPC: 00000000c0000118
-up_dump_register: A0: 0000000000000010 A1: 0000000000000001 A2: 00000000c02027d0 A3: 0000000000000010
-up_dump_register: A4: 00000000c0000000 A5: 0000000000000000 A6: 0000000000000000 A7: 0000000000000000
-up_dump_register: T0: 0000000000000000 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
-up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
-up_dump_register: S0: 00000000c02027d0 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
-up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
-up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 00000000c0202780 FP: 00000000c02027d0 TP: 0000000000000000 RA: 00000000c00000b4
-riscv_swint: SWInt Return: 8
-
-riscv_swint: Entry: regs: 0x8020bc00 cmd: 3
-up_dump_register: EPC: 00000000c00000b4
-up_dump_register: A0: 0000000000000003 A1: 0000000000000001 A2: 0000000000000000 A3: 0000000000000010
-up_dump_register: A4: 00000000c0000000 A5: 0000000080209930 A6: 0000000000000000 A7: 0000000000000000
-up_dump_register: T0: 00000000800077f8 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
-up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
-up_dump_register: S0: 00000000c02027d0 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
-up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
-up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 000000008020be10 FP: 00000000c02027d0 TP: 0000000000000000 RA: 00000000c00000b4
-riscv_swint: SWInt Return: 0
+up_dump_register: SP: 00000000c02027a0 FP: 00000000c0202800 TP: 0000000000000000 RA: 000000008000adee
+riscv_swint: SWInt Return: 7
 ```
 
-But if we hardcode A0 in Machine Code: [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
+But if we hardcode Registers A0, A1, A2 and A3 in Machine Code (TCC won't assemble the `li` instruction): [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
 
 ```c
 // Load 61 to Register A0 (SYS_write)
