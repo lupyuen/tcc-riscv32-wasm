@@ -1788,26 +1788,49 @@ riscv_swint: SWInt Return: 0
 But if we hardcode A0 in Machine Code: [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
 
 ```c
-// "li a0, 61 \\n"
+// Load 61 to Register A0 (SYS_write)
+// li a0, 61
 ".long 0x03d00513 \\n"
+
+// Load 1 to Register A1 (File Descriptor)
+// li a1, 1
+".long 0x00100593 \\n"
+
+// Load 0xc0101000 to Register A2 (Buffer)
+// li a2, 0xc0101000
+".long 0x000c0637 \\n"
+".long 0x1016061b \\n"
+".long 0x00c61613 \\n"
+
+// Load 15 to Register A3 (Buffer Length)
+// li a3, 15
+".long 0x00f00693 \\n"
+
+// ECALL for System Call to NuttX Kernel
 "ecall \\n"
+
+// We inserted NOP, because TCC says it's invalid (see below)
+".word 0x0001 \\n"
 ```
 
 Then we see SysCall 61...
 
 ```yaml
 riscv_swint: Entry: regs: 0x8020be10 cmd: 61
-up_dump_register: EPC: 00000000c00000ec
-up_dump_register: A0: 000000000000003d A1: 00000000c0202010 A2: 0000000000000001 A3: 00000000c0202010
+up_dump_register: EPC: 00000000c0000084
+up_dump_register: A0: 000000000000003d A1: 0000000000000001 A2: 00000000c0101000 A3: 000000000000000f
 up_dump_register: A4: 00000000c0000000 A5: 0000000000000000 A6: 0000000000000000 A7: 0000000000000000
 up_dump_register: T0: 0000000000000000 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
 up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
 up_dump_register: S0: 00000000c0202800 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
 up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
 up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
-up_dump_register: SP: 00000000c0202790 FP: 00000000c0202800 TP: 0000000000000000 RA: 000000008000adee
+up_dump_register: SP: 00000000c02027a0 FP: 00000000c0202800 TP: 0000000000000000 RA: 000000008000adee
 riscv_swint: SWInt Return: 35
+Hello, World!!
 ```
+
+And "Hello, World!!" is printed yay!
 
 TODO: Something odd about the generated RISC-V Machine Code? Hmmm...
 

@@ -76,11 +76,11 @@ WebAssembly.instantiate(typedArray, {
       // li a1, 1
       ".long 0x00100593 \\n"
 
-      // Load 0xC0100000 to Register A2 (Buffer)
-      // li a2, 0xC0100000
-      ".long 0x00001637 \\n"
-      ".long 0xc016061b \\n"
-      ".long 0x01461613 \\n"
+      // Load 0xc0101000 to Register A2 (Buffer)
+      // li a2, 0xc0101000
+      ".long 0x000c0637 \\n"
+      ".long 0x1016061b \\n"
+      ".long 0x00c61613 \\n"
 
       // Load 15 to Register A3 (Buffer Length)
       // li a3, 15
