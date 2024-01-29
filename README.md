@@ -1052,12 +1052,12 @@ $ file  ~/riscv/apps/bin/a.out
 
 $ ls -l ~/riscv/apps/bin
 total 4744
--rwxr-xr-x@ 1 Luppy  staff    1040 Jan 29 09:24 a.out
--rwxr-xr-x  1 Luppy  staff  200176 Jan 29 09:05 getprime
--rwxr-xr-x  1 Luppy  staff  119560 Jan 29 09:05 hello
--rwxr-xr-x  1 Luppy  staff  697368 Jan 29 09:05 init
--rwxr-xr-x  1 Luppy  staff  703840 Jan 29 09:05 ostest
--rwxr-xr-x  1 Luppy  staff  694648 Jan 29 09:05 sh
+-rwxr-xr-x@ 1   1040 Jan 29 09:24 a.out
+-rwxr-xr-x  1 200176 Jan 29 09:05 getprime
+-rwxr-xr-x  1 119560 Jan 29 09:05 hello
+-rwxr-xr-x  1 697368 Jan 29 09:05 init
+-rwxr-xr-x  1 703840 Jan 29 09:05 ostest
+-rwxr-xr-x  1 694648 Jan 29 09:05 sh
 ```
 
 Then we boot NuttX on QEMU (64-bit RISC-V) and run `a.out` on NuttX...
@@ -1299,13 +1299,13 @@ Which are located at `apps/import/libs`...
 ```text
 $ ls -l apps/import/libs
 total 18776
--rwxr-xr-x 1 vscode vscode 3132730 Jan 29 02:12 libapps.a
--rw-r--r-- 1 vscode vscode    1064 Jan 29 01:18 libarch.a
--rw-r--r-- 1 vscode vscode 8946828 Jan 29 01:18 libc.a
--rw-r--r-- 1 vscode vscode 1462710 Sep 24 08:10 libgcc.a
--rw-r--r-- 1 vscode vscode 1276866 Jan 29 01:18 libm.a
--rw-r--r-- 1 vscode vscode 1304366 Jan 29 01:18 libmm.a
--rw-r--r-- 1 vscode vscode 3086312 Jan 29 01:18 libproxies.a
+-rwxr-xr-x 1 3132730 Jan 29 02:12 libapps.a
+-rw-r--r-- 1    1064 Jan 29 01:18 libarch.a
+-rw-r--r-- 1 8946828 Jan 29 01:18 libc.a
+-rw-r--r-- 1 1462710 Sep 24 08:10 libgcc.a
+-rw-r--r-- 1 1276866 Jan 29 01:18 libm.a
+-rw-r--r-- 1 1304366 Jan 29 01:18 libmm.a
+-rw-r--r-- 1 3086312 Jan 29 01:18 libproxies.a
 ```
 
 Let's run TCC to link `a.out` with the above libraries...
