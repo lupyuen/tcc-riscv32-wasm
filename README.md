@@ -1060,189 +1060,207 @@ total 4744
 -rwxr-xr-x  1 694648 Jan 29 09:05 sh
 ```
 
+In NuttX we enable Binary Loader Logging: `make menuconfig` then select...
+
+- Build Setup > Debug Options > Binary Loader Debug Features > Enable "Binary Loader Error, Warnings and Info"
+
 Then we boot NuttX on QEMU (64-bit RISC-V) and run `a.out` on NuttX...
 
 ```text
 nsh> a.out
-[   23.292000] load_absmodule: Loading /system/bin/a.out
-[   23.293000] elf_loadbinary: Loading file: /system/bin/a.out
-[   23.294000] elf_init: filename: /system/bin/a.out loadinfo: 0x8020afa8
-[   23.295000] elf_read: Read 64 bytes from offset 0
-[   23.297000] elf_dumploadinfo: LOAD_INFO:
-[   23.298000] elf_dumploadinfo:   textalloc:    00000000
-[   23.299000] elf_dumploadinfo:   dataalloc:    00000000
-[   23.300000] elf_dumploadinfo:   textsize:     0
-[   23.301000] elf_dumploadinfo:   datasize:     0
-[   23.303000] elf_dumploadinfo:   textalign:    0
-[   23.304000] elf_dumploadinfo:   dataalign:    0
-[   23.305000] elf_dumploadinfo:   filelen:      1040
-[   23.305000] elf_dumploadinfo:   symtabidx:    0
-[   23.306000] elf_dumploadinfo:   strtabidx:    0
-[   23.307000] elf_dumploadinfo: ELF Header:
-[   23.308000] elf_dumploadinfo:   e_ident:      7f 45 4c 46
-[   23.309000] elf_dumploadinfo:   e_type:       0001
-[   23.310000] elf_dumploadinfo:   e_machine:    00f3
-[   23.311000] elf_dumploadinfo:   e_version:    00000001
-[   23.312000] elf_dumploadinfo:   e_entry:      00000000
-[   23.313000] elf_dumploadinfo:   e_phoff:      0
-[   23.314000] elf_dumploadinfo:   e_shoff:      464
-[   23.315000] elf_dumploadinfo:   e_flags:      00000004
-[   23.316000] elf_dumploadinfo:   e_ehsize:     64
-[   23.317000] elf_dumploadinfo:   e_phentsize:  0
-[   23.318000] elf_dumploadinfo:   e_phnum:      0
-[   23.319000] elf_dumploadinfo:   e_shentsize:  64
-[   23.320000] elf_dumploadinfo:   e_shnum:      9
-[   23.321000] elf_dumploadinfo:   e_shstrndx:   8
-[   23.323000] elf_load: loadinfo: 0x8020afa8
-[   23.324000] elf_loadphdrs: No programs(?)
-[   23.325000] elf_read: Read 576 bytes from offset 464
-[   23.381000] elf_loadfile: Loaded sections:
-[   23.382000] elf_read: Read 64 bytes from offset 64
-[   23.382000] elf_loadfile: 1. 00000000->c0000000
-[   23.383000] elf_read: Read 0 bytes from offset 128
-[   23.383000] elf_loadfile: 2. 00000000->c0101000
-[   23.383000] elf_read: Read 16 bytes from offset 128
-[   23.385000] elf_loadfile: 3. 00000000->c0101000
-[   23.387000] elf_loadfile: 4. 00000000->c0101010
-[   23.388000] elf_dumploadinfo: LOAD_INFO:
-[   23.390000] elf_dumploadinfo:   textalloc:    c0000000
-[   23.390000] elf_dumploadinfo:   dataalloc:    c0101000
-[   23.390000] elf_dumploadinfo:   textsize:     64
-[   23.391000] elf_dumploadinfo:   datasize:     16
-[   23.392000] elf_dumploadinfo:   textalign:    8
-[   23.393000] elf_dumploadinfo:   dataalign:    8
-[   23.393000] elf_dumploadinfo:   filelen:      1040
-[   23.393000] elf_dumploadinfo:   symtabidx:    0
-[   23.395000] elf_dumploadinfo:   strtabidx:    0
-[   23.395000] elf_dumploadinfo: ELF Header:
-[   23.395000] elf_dumploadinfo:   e_ident:      7f 45 4c 46
-[   23.395000] elf_dumploadinfo:   e_type:       0001
-[   23.396000] elf_dumploadinfo:   e_machine:    00f3
-[   23.396000] elf_dumploadinfo:   e_version:    00000001
-[   23.396000] elf_dumploadinfo:   e_entry:      00000000
-[   23.397000] elf_dumploadinfo:   e_phoff:      0
-[   23.397000] elf_dumploadinfo:   e_shoff:      464
-[   23.397000] elf_dumploadinfo:   e_flags:      00000004
-[   23.399000] elf_dumploadinfo:   e_ehsize:     64
-[   23.400000] elf_dumploadinfo:   e_phentsize:  0
-[   23.401000] elf_dumploadinfo:   e_phnum:      0
-[   23.402000] elf_dumploadinfo:   e_shentsize:  64
-[   23.403000] elf_dumploadinfo:   e_shnum:      9
-[   23.403000] elf_dumploadinfo:   e_shstrndx:   8
-[   23.403000] elf_dumploadinfo: Sections 0:
-[   23.405000] elf_dumploadinfo:   sh_name:      00000000
-[   23.406000] elf_dumploadinfo:   sh_type:      00000000
-[   23.407000] elf_dumploadinfo:   sh_flags:     00000000
-[   23.407000] elf_dumploadinfo:   sh_addr:      00000000
-[   23.409000] elf_dumploadinfo:   sh_offset:    0
-[   23.410000] elf_dumploadinfo:   sh_size:      0
-[   23.412000] elf_dumploadinfo:   sh_link:      0
-[   23.413000] elf_dumploadinfo:   sh_info:      0
-[   23.414000] elf_dumploadinfo:   sh_addralign: 0
-[   23.415000] elf_dumploadinfo:   sh_entsize:   0
-[   23.416000] elf_dumploadinfo: Sections 1:
-[   23.417000] elf_dumploadinfo:   sh_name:      00000001
-[   23.419000] elf_dumploadinfo:   sh_type:      00000001
-[   23.420000] elf_dumploadinfo:   sh_flags:     00000006
-[   23.422000] elf_dumploadinfo:   sh_addr:      c0000000
-[   23.423000] elf_dumploadinfo:   sh_offset:    64
-[   23.426000] elf_dumploadinfo:   sh_size:      64
-[   23.427000] elf_dumploadinfo:   sh_link:      0
-[   23.428000] elf_dumploadinfo:   sh_info:      0
-[   23.429000] elf_dumploadinfo:   sh_addralign: 8
-[   23.430000] elf_dumploadinfo:   sh_entsize:   0
-[   23.431000] elf_dumploadinfo: Sections 2:
-[   23.432000] elf_dumploadinfo:   sh_name:      00000007
-[   23.432000] elf_dumploadinfo:   sh_type:      00000001
-[   23.433000] elf_dumploadinfo:   sh_flags:     00000003
-[   23.433000] elf_dumploadinfo:   sh_addr:      c0101000
-[   23.433000] elf_dumploadinfo:   sh_offset:    128
-[   23.433000] elf_dumploadinfo:   sh_size:      0
-[   23.433000] elf_dumploadinfo:   sh_link:      0
-[   23.435000] elf_dumploadinfo:   sh_info:      0
-[   23.435000] elf_dumploadinfo:   sh_addralign: 8
-[   23.436000] elf_dumploadinfo:   sh_entsize:   0
-[   23.437000] elf_dumploadinfo: Sections 3:
-[   23.438000] elf_dumploadinfo:   sh_name:      0000000d
-[   23.439000] elf_dumploadinfo:   sh_type:      00000001
-[   23.442000] elf_dumploadinfo:   sh_flags:     00000003
-[   23.443000] elf_dumploadinfo:   sh_addr:      c0101000
-[   23.444000] elf_dumploadinfo:   sh_offset:    128
-[   23.445000] elf_dumploadinfo:   sh_size:      16
-[   23.446000] elf_dumploadinfo:   sh_link:      0
-[   23.447000] elf_dumploadinfo:   sh_info:      0
-[   23.447000] elf_dumploadinfo:   sh_addralign: 8
-[   23.447000] elf_dumploadinfo:   sh_entsize:   0
-[   23.447000] elf_dumploadinfo: Sections 4:
-[   23.447000] elf_dumploadinfo:   sh_name:      00000016
-[   23.448000] elf_dumploadinfo:   sh_type:      00000008
-[   23.450000] elf_dumploadinfo:   sh_flags:     00000003
-[   23.451000] elf_dumploadinfo:   sh_addr:      c0101010
-[   23.453000] elf_dumploadinfo:   sh_offset:    144
-[   23.454000] elf_dumploadinfo:   sh_size:      0
-[   23.456000] elf_dumploadinfo:   sh_link:      0
-[   23.457000] elf_dumploadinfo:   sh_info:      0
-[   23.458000] elf_dumploadinfo:   sh_addralign: 8
-[   23.460000] elf_dumploadinfo:   sh_entsize:   0
-[   23.462000] elf_dumploadinfo: Sections 5:
-[   23.463000] elf_dumploadinfo:   sh_name:      0000001b
-[   23.464000] elf_dumploadinfo:   sh_type:      00000002
-[   23.465000] elf_dumploadinfo:   sh_flags:     00000000
-[   23.467000] elf_dumploadinfo:   sh_addr:      00000000
-[   23.468000] elf_dumploadinfo:   sh_offset:    144
-[   23.469000] elf_dumploadinfo:   sh_size:      144
-[   23.471000] elf_dumploadinfo:   sh_link:      6
-[   23.473000] elf_dumploadinfo:   sh_info:      4
-[   23.474000] elf_dumploadinfo:   sh_addralign: 8
-[   23.475000] elf_dumploadinfo:   sh_entsize:   24
-[   23.477000] elf_dumploadinfo: Sections 6:
-[   23.477000] elf_dumploadinfo:   sh_name:      00000023
-[   23.479000] elf_dumploadinfo:   sh_type:      00000003
-[   23.480000] elf_dumploadinfo:   sh_flags:     00000000
-[   23.481000] elf_dumploadinfo:   sh_addr:      00000000
-[   23.482000] elf_dumploadinfo:   sh_offset:    288
-[   23.484000] elf_dumploadinfo:   sh_size:      25
-[   23.485000] elf_dumploadinfo:   sh_link:      0
-[   23.486000] elf_dumploadinfo:   sh_info:      0
-[   23.487000] elf_dumploadinfo:   sh_addralign: 1
-[   23.488000] elf_dumploadinfo:   sh_entsize:   0
-[   23.489000] elf_dumploadinfo: Sections 7:
-[   23.490000] elf_dumploadinfo:   sh_name:      0000002b
-[   23.491000] elf_dumploadinfo:   sh_type:      00000004
-[   23.493000] elf_dumploadinfo:   sh_flags:     00000000
-[   23.494000] elf_dumploadinfo:   sh_addr:      00000000
-[   23.495000] elf_dumploadinfo:   sh_offset:    320
-[   23.496000] elf_dumploadinfo:   sh_size:      72
-[   23.498000] elf_dumploadinfo:   sh_link:      5
-[   23.499000] elf_dumploadinfo:   sh_info:      1
-[   23.500000] elf_dumploadinfo:   sh_addralign: 8
-[   23.501000] elf_dumploadinfo:   sh_entsize:   24
-[   23.502000] elf_dumploadinfo: Sections 8:
-[   23.504000] elf_dumploadinfo:   sh_name:      00000036
-[   23.505000] elf_dumploadinfo:   sh_type:      00000003
-[   23.507000] elf_dumploadinfo:   sh_flags:     00000000
-[   23.508000] elf_dumploadinfo:   sh_addr:      00000000
-[   23.509000] elf_dumploadinfo:   sh_offset:    400
-[   23.510000] elf_dumploadinfo:   sh_size:      64
-[   23.511000] elf_dumploadinfo:   sh_link:      0
-[   23.512000] elf_dumploadinfo:   sh_info:      0
-[   23.513000] elf_dumploadinfo:   sh_addralign: 1
-[   23.514000] elf_dumploadinfo:   sh_entsize:   0
-[   23.518000] elf_read: Read 72 bytes from offset 320
-[   23.519000] elf_read: Read 24 bytes from offset 192
-[   23.521000] elf_symvalue: Other: 00000000+c0101000=c0101000
-[   23.523000] up_relocateadd: PCREL_HI20 at c000001c [00000517] to sym=0x80209030 st_value=c0101000
-[   23.530000] _calc_imm: offset=1052644: hi=257 lo=-28
-[   23.535000] elf_read: Read 24 bytes from offset 216
-[   23.536000] elf_symvalue: Other: 0000001c+c0000000=c000001c
-[   23.536000] up_relocateadd: PCREL_LO12_I at c0000020 [00050513] to sym=0x80209070 st_value=c000001c
-[   23.537000] _calc_imm: offset=1052644: hi=257 lo=-28
-[   23.539000] elf_read: Read 24 bytes from offset 264
-[   23.541000] elf_read: Read 32 bytes from offset 306
-[   23.542000] elf_symvalue: SHN_UNDEF: Exported symbol "printf" not found
-[   23.549000] elf_relocateadd: Section 7 reloc 2: Failed to get value of symbol[5]: -2
-[   23.556000] elf_loadbinary: Failed to bind symbols program binary: -2
-[   23.562000] exec_internal: ERROR: Failed to load program 'a.out': -2
+load_absmodule: Loading /system/bin/a.out
+elf_loadbinary: Loading file: /system/bin/a.out
+elf_init: filename: /system/bin/a.out loadinfo: 0x8020afa8
+elf_read: Read 64 bytes from offset 0
+elf_dumploadinfo: LOAD_INFO:
+elf_dumploadinfo:   textalloc:    00000000
+elf_dumploadinfo:   dataalloc:    00000000
+elf_dumploadinfo:   textsize:     0
+elf_dumploadinfo:   datasize:     0
+elf_dumploadinfo:   textalign:    0
+elf_dumploadinfo:   dataalign:    0
+elf_dumploadinfo:   filelen:      1040
+elf_dumploadinfo:   symtabidx:    0
+elf_dumploadinfo:   strtabidx:    0
+
+elf_dumploadinfo: ELF Header:
+elf_dumploadinfo:   e_ident:      7f 45 4c 46
+elf_dumploadinfo:   e_type:       0001
+elf_dumploadinfo:   e_machine:    00f3
+elf_dumploadinfo:   e_version:    00000001
+elf_dumploadinfo:   e_entry:      00000000
+elf_dumploadinfo:   e_phoff:      0
+elf_dumploadinfo:   e_shoff:      464
+elf_dumploadinfo:   e_flags:      00000004
+elf_dumploadinfo:   e_ehsize:     64
+elf_dumploadinfo:   e_phentsize:  0
+elf_dumploadinfo:   e_phnum:      0
+elf_dumploadinfo:   e_shentsize:  64
+elf_dumploadinfo:   e_shnum:      9
+elf_dumploadinfo:   e_shstrndx:   8
+
+elf_load: loadinfo: 0x8020afa8
+elf_loadphdrs: No programs(?)
+elf_read: Read 576 bytes from offset 464
+elf_loadfile: Loaded sections:
+elf_read: Read 64 bytes from offset 64
+elf_loadfile: 1. 00000000->c0000000
+elf_read: Read 0 bytes from offset 128
+elf_loadfile: 2. 00000000->c0101000
+elf_read: Read 16 bytes from offset 128
+elf_loadfile: 3. 00000000->c0101000
+elf_loadfile: 4. 00000000->c0101010
+
+elf_dumploadinfo: LOAD_INFO:
+elf_dumploadinfo:   textalloc:    c0000000
+elf_dumploadinfo:   dataalloc:    c0101000
+elf_dumploadinfo:   textsize:     64
+elf_dumploadinfo:   datasize:     16
+elf_dumploadinfo:   textalign:    8
+elf_dumploadinfo:   dataalign:    8
+elf_dumploadinfo:   filelen:      1040
+elf_dumploadinfo:   symtabidx:    0
+elf_dumploadinfo:   strtabidx:    0
+
+elf_dumploadinfo: ELF Header:
+elf_dumploadinfo:   e_ident:      7f 45 4c 46
+elf_dumploadinfo:   e_type:       0001
+elf_dumploadinfo:   e_machine:    00f3
+elf_dumploadinfo:   e_version:    00000001
+elf_dumploadinfo:   e_entry:      00000000
+elf_dumploadinfo:   e_phoff:      0
+elf_dumploadinfo:   e_shoff:      464
+elf_dumploadinfo:   e_flags:      00000004
+elf_dumploadinfo:   e_ehsize:     64
+elf_dumploadinfo:   e_phentsize:  0
+elf_dumploadinfo:   e_phnum:      0
+elf_dumploadinfo:   e_shentsize:  64
+elf_dumploadinfo:   e_shnum:      9
+elf_dumploadinfo:   e_shstrndx:   8
+
+elf_dumploadinfo: Sections 0:
+elf_dumploadinfo:   sh_name:      00000000
+elf_dumploadinfo:   sh_type:      00000000
+elf_dumploadinfo:   sh_flags:     00000000
+elf_dumploadinfo:   sh_addr:      00000000
+elf_dumploadinfo:   sh_offset:    0
+elf_dumploadinfo:   sh_size:      0
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 0
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 1:
+elf_dumploadinfo:   sh_name:      00000001
+elf_dumploadinfo:   sh_type:      00000001
+elf_dumploadinfo:   sh_flags:     00000006
+elf_dumploadinfo:   sh_addr:      c0000000
+elf_dumploadinfo:   sh_offset:    64
+elf_dumploadinfo:   sh_size:      64
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 2:
+elf_dumploadinfo:   sh_name:      00000007
+elf_dumploadinfo:   sh_type:      00000001
+elf_dumploadinfo:   sh_flags:     00000003
+elf_dumploadinfo:   sh_addr:      c0101000
+elf_dumploadinfo:   sh_offset:    128
+elf_dumploadinfo:   sh_size:      0
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 3:
+elf_dumploadinfo:   sh_name:      0000000d
+elf_dumploadinfo:   sh_type:      00000001
+elf_dumploadinfo:   sh_flags:     00000003
+elf_dumploadinfo:   sh_addr:      c0101000
+elf_dumploadinfo:   sh_offset:    128
+elf_dumploadinfo:   sh_size:      16
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 4:
+elf_dumploadinfo:   sh_name:      00000016
+elf_dumploadinfo:   sh_type:      00000008
+elf_dumploadinfo:   sh_flags:     00000003
+elf_dumploadinfo:   sh_addr:      c0101010
+elf_dumploadinfo:   sh_offset:    144
+elf_dumploadinfo:   sh_size:      0
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 5:
+elf_dumploadinfo:   sh_name:      0000001b
+elf_dumploadinfo:   sh_type:      00000002
+elf_dumploadinfo:   sh_flags:     00000000
+elf_dumploadinfo:   sh_addr:      00000000
+elf_dumploadinfo:   sh_offset:    144
+elf_dumploadinfo:   sh_size:      144
+elf_dumploadinfo:   sh_link:      6
+elf_dumploadinfo:   sh_info:      4
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   24
+
+elf_dumploadinfo: Sections 6:
+elf_dumploadinfo:   sh_name:      00000023
+elf_dumploadinfo:   sh_type:      00000003
+elf_dumploadinfo:   sh_flags:     00000000
+elf_dumploadinfo:   sh_addr:      00000000
+elf_dumploadinfo:   sh_offset:    288
+elf_dumploadinfo:   sh_size:      25
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 1
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_dumploadinfo: Sections 7:
+elf_dumploadinfo:   sh_name:      0000002b
+elf_dumploadinfo:   sh_type:      00000004
+elf_dumploadinfo:   sh_flags:     00000000
+elf_dumploadinfo:   sh_addr:      00000000
+elf_dumploadinfo:   sh_offset:    320
+elf_dumploadinfo:   sh_size:      72
+elf_dumploadinfo:   sh_link:      5
+elf_dumploadinfo:   sh_info:      1
+elf_dumploadinfo:   sh_addralign: 8
+elf_dumploadinfo:   sh_entsize:   24
+
+elf_dumploadinfo: Sections 8:
+elf_dumploadinfo:   sh_name:      00000036
+elf_dumploadinfo:   sh_type:      00000003
+elf_dumploadinfo:   sh_flags:     00000000
+elf_dumploadinfo:   sh_addr:      00000000
+elf_dumploadinfo:   sh_offset:    400
+elf_dumploadinfo:   sh_size:      64
+elf_dumploadinfo:   sh_link:      0
+elf_dumploadinfo:   sh_info:      0
+elf_dumploadinfo:   sh_addralign: 1
+elf_dumploadinfo:   sh_entsize:   0
+
+elf_read: Read 72 bytes from offset 320
+elf_read: Read 24 bytes from offset 192
+elf_symvalue: Other: 00000000+c0101000=c0101000
+up_relocateadd: PCREL_HI20 at c000001c [00000517] to sym=0x80209030 st_value=c0101000
+_calc_imm: offset=1052644: hi=257 lo=-28
+elf_read: Read 24 bytes from offset 216
+elf_symvalue: Other: 0000001c+c0000000=c000001c
+up_relocateadd: PCREL_LO12_I at c0000020 [00050513] to sym=0x80209070 st_value=c000001c
+_calc_imm: offset=1052644: hi=257 lo=-28
+elf_read: Read 24 bytes from offset 264
+elf_read: Read 32 bytes from offset 306
+elf_symvalue: SHN_UNDEF: Exported symbol "printf" not found
+elf_relocateadd: Section 7 reloc 2: Failed to get value of symbol[5]: -2
+elf_loadbinary: Failed to bind symbols program binary: -2
+exec_internal: ERROR: Failed to load program 'a.out': -2
 nsh: a.out: command not found
 nsh> 
 ```
@@ -1604,6 +1622,10 @@ Directly in our C Code! Like this: [test-nuttx.js](https://github.com/lupyuen/tc
 
 Why SysCall 61? Because that's the value of `SYS_write` System Call according to `nuttx.S` (the RISC-V Disassembly of NuttX Kernel).
 
+In NuttX we enable System Call Logging: `make menuconfig` then select...
+
+- Build Setup > Debug Options > SYSCALL  Debug Features > Enable "SYSCALL Error, Warnings and Info"
+
 _Does it work?_
 
 Nope we don't see SysCall 61, but we see a SysCall 15 (what?)...
@@ -1705,6 +1727,7 @@ _Something odd about the TCC-generated RISC-V Machine Code?_
 The registers seem to be mushed up in the generated RISC-V Machine Code. That's why it was passing value 15 in Register A0. (Supposed to be Register A3)
 
 ```text
+// Watch how TCC compiles this C Program to RISC-V Assembly...
 // register long a0 asm("a0") = 61; // SYS_write
 // register long a1 asm("a1") = 1;  // File Descriptor (stdout)
 // register long a2 asm("a2") = "Hello, World!!\\n"; // Buffer
