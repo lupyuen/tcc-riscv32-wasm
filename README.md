@@ -1253,7 +1253,9 @@ For Reference: Here's the log for an ELF that loads properly on NuttX: [NuttX EL
 
 # Fix Missing `printf` in NuttX App
 
-TODO
+_How does NuttX link a NuttX App?_
+
+Let's find out...
 
 ```bash
 cd apps
