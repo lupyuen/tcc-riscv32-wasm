@@ -1364,22 +1364,64 @@ riscv-none-elf-readelf --wide -all nuttx/syscall/PROXY_write.o
 
 TODO: Check the [ELF Dump](https://gist.github.com/lupyuen/cb0484ec055a7a7dfa34b8a8a34244ee)
 
-TODO: Maybe try this
+Let's link the Proxy Functions ourselves...
 
 ```bash
 tcc-riscv32-wasm/riscv64-tcc \
   -nostdlib \
-  -Bstatic \
-  -Lapps/import/libs \
-  -L "xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d" \
-  apps/import/startup/crt0.o  \
-  apps/examples/hello/hello_main.c.workspaces.bookworm.apps.examples.hello.o \
-  -lmm \
-  -lc \
-  -lproxies \
-  -lgcc apps/libapps.a xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
-  -o  apps/bin/hello2
+  apps/bin/a.out \
+  nuttx/syscall/PROXY__exit.o \
+  nuttx/syscall/PROXY__assert.o \
+  nuttx/syscall/PROXY_nxsem_destroy.o \
+  nuttx/syscall/PROXY_gettid.o \
+  nuttx/syscall/PROXY_nxsem_wait.o \
+  nuttx/syscall/PROXY_nxsem_trywait.o \
+  nuttx/syscall/PROXY_clock_gettime.o \
+  nuttx/syscall/PROXY_nxsem_clockwait.o \
+  nuttx/syscall/PROXY_nxsem_post.o \
+  nuttx/syscall/PROXY_write.o \
+  nuttx/syscall/PROXY_lseek.o \
+  nuttx/syscall/PROXY_nx_pthread_exit.o \
+  apps/import/startup/crt0.o \
+  apps/import/libs/libmm.a \
+  apps/import/libs/libc.a \
+  apps/import/libs/libgcc.a
 ```
+
+_Does it work?_
+
+Arg nope...
+
+```text
+tcc: error: Unknown relocation type for got: 60
+```
+
+Now Unknown Relocation Type is coming from `libc.a`. If we remove `libc.a`...
+
+```text
+$ tcc-riscv32-wasm/riscv64-tcc \
+  -nostdlib \
+  apps/bin/a.out \
+  nuttx/syscall/PROXY__exit.o \
+  nuttx/syscall/PROXY__assert.o \
+  nuttx/syscall/PROXY_nxsem_destroy.o \
+  nuttx/syscall/PROXY_gettid.o \
+  nuttx/syscall/PROXY_nxsem_wait.o \
+  nuttx/syscall/PROXY_nxsem_trywait.o \
+  nuttx/syscall/PROXY_clock_gettime.o \
+  nuttx/syscall/PROXY_nxsem_clockwait.o \
+  nuttx/syscall/PROXY_nxsem_post.o \
+  nuttx/syscall/PROXY_write.o \
+  nuttx/syscall/PROXY_lseek.o \
+  nuttx/syscall/PROXY_nx_pthread_exit.o \
+  apps/import/startup/crt0.o \
+  apps/import/libs/libmm.a
+
+tcc: error: undefined symbol 'printf'
+tcc: error: undefined symbol 'exit'
+```
+
+TODO: What if we call `write` directly? And stub out `exit`?
 
 # Analysis of Missing Functions
 
