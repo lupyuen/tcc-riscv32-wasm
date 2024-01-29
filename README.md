@@ -1785,6 +1785,32 @@ up_dump_register: SP: 000000008020be10 FP: 00000000c02027d0 TP: 0000000000000000
 riscv_swint: SWInt Return: 0
 ```
 
+But if we hardcode A0 in Machine Code: [test-nuttx.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/test-nuttx.js#L55-L87)
+
+```c
+// "li a0, 61 \\n"
+".long 0x03d00513 \\n"
+"ecall \\n"
+```
+
+Then we see SysCall 61...
+
+```yaml
+riscv_swint: Entry: regs: 0x8020be10 cmd: 61
+up_dump_register: EPC: 00000000c00000ec
+up_dump_register: A0: 000000000000003d A1: 00000000c0202010 A2: 0000000000000001 A3: 00000000c0202010
+up_dump_register: A4: 00000000c0000000 A5: 0000000000000000 A6: 0000000000000000 A7: 0000000000000000
+up_dump_register: T0: 0000000000000000 T1: 0000000000000000 T2: 0000000000000000 T3: 0000000000000000
+up_dump_register: T4: 0000000000000000 T5: 0000000000000000 T6: 0000000000000000
+up_dump_register: S0: 00000000c0202800 S1: 0000000000000000 S2: 0000000000000000 S3: 0000000000000000
+up_dump_register: S4: 0000000000000000 S5: 0000000000000000 S6: 0000000000000000 S7: 0000000000000000
+up_dump_register: S8: 0000000000000000 S9: 0000000000000000 S10: 0000000000000000 S11: 0000000000000000
+up_dump_register: SP: 00000000c0202790 FP: 00000000c0202800 TP: 0000000000000000 RA: 000000008000adee
+riscv_swint: SWInt Return: 35
+```
+
+TODO: Something odd about the generated RISC-V Machine Code? Hmmm...
+
 TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
 # Analysis of Missing Functions
