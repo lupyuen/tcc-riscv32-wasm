@@ -1658,7 +1658,7 @@ Let's make a [NuttX System Call (ECALL)](https://lupyuen.github.io/articles/app#
   }
 ```
 
-TODO: Why SysCall 61?
+(Why SysCall 61? Because that's the value of `SYS_write` according to `nuttx.S`, the RISC-V Disassembly of NuttX Kernel)
 
 Nope we don't see SysCall 61, but we see a SysCall 15 (what?)...
 
