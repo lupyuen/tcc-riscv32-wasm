@@ -1284,6 +1284,8 @@ riscv-none-elf-ld \
 
 This says that NuttX Build links NuttX Apps with these libraries...
 
+- `crt0.o`: Start Code
+
 - `-lmm`: Mmmmm?
 
 - `-lc`: C Library
@@ -1314,11 +1316,38 @@ We run TCC to link `a.out` with the above libraries...
 
 ```bash
 tcc-riscv32-wasm/riscv64-tcc \
+  -nostdlib \
   apps/bin/a.out \
+  apps/import/startup/crt0.o \
   apps/import/libs/libmm.a \
   apps/import/libs/libc.a \
   apps/import/libs/libproxies.a \
   apps/import/libs/libgcc.a
+```
+
+It says...
+
+```text
+tcc: error: Unknown relocation type for got: 60
+```
+
+TODO: Why???
+
+TODO: Also try this
+
+```bash
+tcc-riscv32-wasm/riscv64-tcc \
+  -nostdlib \
+  -Bstatic \
+  -Lapps/import/libs \
+  -L "xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d" \
+  apps/import/startup/crt0.o  \
+  apps/examples/hello/hello_main.c.workspaces.bookworm.apps.examples.hello.o \
+  -lmm \
+  -lc \
+  -lproxies \
+  -lgcc apps/libapps.a xpack-riscv-none-elf-gcc-13.2.0-2/bin/../lib/gcc/riscv-none-elf/13.2.0/rv64imafdc_zicsr/lp64d/libgcc.a \
+  -o  apps/bin/hello2
 ```
 
 TODO
