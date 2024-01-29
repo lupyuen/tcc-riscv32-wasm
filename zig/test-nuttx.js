@@ -75,7 +75,8 @@ WebAssembly.instantiate(typedArray, {
   
     asm volatile
       (
-       "ecall"
+       "ecall \\n"
+       ".word 0x0001 \\n"  // Inserted NOP
        :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
        : "memory"
        );
