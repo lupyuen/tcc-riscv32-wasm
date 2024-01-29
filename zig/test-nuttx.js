@@ -55,11 +55,10 @@ WebAssembly.instantiate(typedArray, {
   int main(int argc, char *argv[])
   {
     // Make NuttX System Call to write(fd, buf, buflen)
-    const char msg[] = "Hello, World!!\\n";
-    const unsigned int nbr = 61;     // SYS_write
-    const void *parm1 = 1;           // File Descriptor (stdout)
-    const void *parm2 = msg;         // Buffer
-    const void *parm3 = sizeof(msg); // Buffer Length
+    const unsigned int nbr = 61; // SYS_write
+    const void *parm1 = 1;       // File Descriptor (stdout)
+    const void *parm2 = "Hello, World!!\\n"; // Buffer
+    const void *parm3 = 15; // Buffer Length
 
     // Execute ECALL for System Call to NuttX Kernel
     register long r0 asm("a0") = (long)(nbr);
