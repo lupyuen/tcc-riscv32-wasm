@@ -336,11 +336,12 @@ We link our Compiled WebAssembly `tcc.o` with our Zig App: [zig/tcc-wasm.zig](zi
 ## Compile our Zig App `tcc-wasm.zig` for WebAssembly
 ## and link with TCC compiled for WebAssembly
 zig build-exe \
-  --verbose-cimport \
   -target wasm32-freestanding \
   -rdynamic \
   -lc \
   -fno-entry \
+  -freference-trace \
+  --verbose-cimport \
   --export=compile_program \
   zig/tcc-wasm.zig \
   tcc.o
