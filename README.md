@@ -1900,7 +1900,36 @@ That's why NuttX Emulator can pick up the `a.out` from our Web Browser!
 
 _But NuttX Emulator boots from a fixed [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image), loaded from our Static Web Server. How did `a.out` appear inside the NuttX Image?_
 
+We used a nifty illusion... `a.out` was in the NuttX Image all along!
 
+```bash
+## Create a Fake a.out that contains a Distinct Pattern:
+##   22 05 69 00
+##   22 05 69 01
+## For 1024 times
+rm -f /tmp/pattern.txt
+start=$((0x22056900))
+for i in {0..1023}
+do
+  printf 0x%x\\n $(($start + $i)) >> /tmp/pattern.txt
+done
+
+## Copy the Fake a.out to our NuttX Apps Folder
+cat /tmp/pattern.txt \
+  | xxd -revert -plain \
+  >~/ox64/apps/bin/a.out
+hexdump -C ~/ox64/apps/bin/a.out
+```
+
+During NuttX Build, the Fake `a.out` gets bundled into the [Initial RAM Disk (initrd)](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/initrd).
+
+Which gets appended to the [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image).
+
+But because `a.out` doesn't contain a valid ELF File, NuttX says "command not found" because it couldn't load `a.out` as an ELF Executable.
+
+_So we patched Fake `a.out` in the NuttX Image with the Real `a.out`?_
+
+Exactly!
 
 # Analysis of Missing Functions
 
