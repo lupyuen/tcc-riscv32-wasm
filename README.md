@@ -1946,6 +1946,8 @@ Which gets appended to the [NuttX Image](https://github.com/lupyuen/nuttx-tinyem
 
 But because `a.out` doesn't contain a valid ELF File, NuttX says "command not found" because it couldn't load `a.out` as an ELF Executable.
 
+(This won't work with QEMU, because NuttX QEMU doesn't append the Initial RAM Disk to NuttX Image. Instead it uses Semihosting to access the NuttX Apps, which won't work in a Web Browsr)
+
 _So we patched Fake `a.out` in the NuttX Image with the Real `a.out`?_
 
 Exactly! In the NuttX Emulator JavaScript, we read `elf_data` from the Local Storage and pass it to TinyEMU WebAssembly: [jslinux.js](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/jslinux.js#L504-L545)
