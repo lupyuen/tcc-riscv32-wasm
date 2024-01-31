@@ -1785,6 +1785,123 @@ TODO: Is there a workaround? Do we paste the ECALL Machine Code ourselves?
 
 TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
+# NuttX App runs in a Web Browser!
+
+_OK so we can compile NuttX Apps in a Web Browser... But can we run them in a Web Browser?_
+
+Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
+
+TODO: Watch the demo on YouTube
+
+1.  Browse to our latest NuttX Emulator in Web Browser...
+
+    [NuttX Emulator for Ox64 (modified for TCC)](https://lupyuen.github.io/nuttx-tinyemu/tcc/)
+
+    Enter `a.out` and we'll see...
+
+    ```text
+    NuttShell (NSH) NuttX-12.4.0-RC0
+    nsh> a.out
+    nsh: a.out: command not found
+    ```
+
+1.  Browse to our TCC Compiler in Web Browser...
+
+    [TCC Compiler for WebAssembly](https://lupyuen.github.io/tcc-riscv32-wasm/)
+
+    [Paste this code](https://gist.github.com/lupyuen/cc74229e39b3cea0d6974a85fb06f65a) into the Web Browser...
+
+    ```c
+    int main(int argc, char *argv[]) {
+
+      // Make NuttX System Call to write(fd, buf, buflen)
+      const unsigned int nbr = 61; // SYS_write
+      const void *parm1 = 1;       // File Descriptor (stdout)
+      const void *parm2 = "Hello, World!!\n"; // Buffer
+      const void *parm3 = 15; // Buffer Length
+
+      // Load the Parameters into Registers A0 to A3
+      // TODO: This doesn't work, so we load again below
+      register long r0 asm("a0") = (long)(nbr);
+      register long r1 asm("a1") = (long)(parm1);
+      register long r2 asm("a2") = (long)(parm2);
+      register long r3 asm("a3") = (long)(parm3);
+
+      // Execute ECALL for System Call to NuttX Kernel
+      // Load the Parameters into Registers A0 to A3
+      asm volatile (
+
+        // Load 61 to Register A0 (SYS_write)
+        // li a0, 61
+        ".long 0x03d00513 \n"
+
+        // Load 1 to Register A1 (File Descriptor)
+        // li a1, 1
+        ".long 0x00100593 \n"
+
+        // Load 0x80101000 to Register A2 (Buffer)
+        // li a2, 0x80101000
+        ".long 0x00080637 \n"
+        ".long 0x1016061b \n"
+        ".long 0x00c61613 \n"
+
+        // Load 15 to Register A3 (Buffer Length)
+        // li a3, 15
+        ".long 0x00f00693 \n"
+
+        // ECALL for System Call to NuttX Kernel
+        "ecall \n"
+
+        // NuttX needs NOP after ECALL
+        ".word 0x0001 \n"
+      );
+
+      // Loop Forever
+      for(;;) {}
+      return 0;
+    }
+    ```    
+
+    Note that the Buffer Address (Register A2) is now 0x80101000 because we're running on Ox64 Emulator.
+    
+    (Instead of 0xC0101000 for QEMU Emulator)
+
+1.  Click the "Compile" button.
+
+1.  Head back to our latest NuttX Emulator in Web Browser...
+
+    [NuttX Emulator for Ox64 (modified for TCC)](https://lupyuen.github.io/nuttx-tinyemu/tcc/)
+
+    Enter `a.out` and we'll see...
+
+    ```text
+    NuttShell (NSH) NuttX-12.4.0-RC0
+    nsh> a.out
+    Hello, World!!
+    ```
+
+    A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
+
+1.  Try changing "Hello World" to "Hello aaaaa" (or any other message) as long as the Length stays the same.
+
+    (Because we hardcoded the length in Register A3)
+
+    Recompile, switch back to the Emulator, re-run `a.out`. It changes!
+
+_Wow how does it work?_
+
+In Chrome Web Browser, click to `Menu > Developer Tools > Application Tab > Local Storage > lupyuen.github.io`
+
+We'll see that the RISC-V ELF `a.out` is stored locally as `elf_data` in Local Storage.
+
+That's why NuttX Emulator can pick up the `a.out` from our Web Browser!
+
+(TCC Compiler saves `a.out` to `elf_data` in Local Storage)
+
+_But NuttX Emulator boots from a fixed [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image), loaded from our Static Web Server. How did `a.out` appear inside the NuttX Image?_
+
+
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
