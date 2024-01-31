@@ -1896,7 +1896,26 @@ We'll see that the RISC-V ELF `a.out` is stored locally as `elf_data` in Local S
 
 That's why NuttX Emulator can pick up the `a.out` from our Web Browser!
 
-(TCC Compiler saves `a.out` to `elf_data` in Local Storage)
+TCC Compiler saves `a.out` to `elf_data` in Local Storage: [tcc.js](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/docs/tcc.js#L60-L90)
+
+```javascript
+  // Call TCC to compile a program
+  const ptr = wasm.instance.exports
+    .compile_program(options_ptr, code_ptr);
+  console.log(`main: ptr=${ptr}`);
+  ...
+  // Encode the `a.out` data from the rest of the bytes returned
+  const data = new Uint8Array(memory.buffer, ptr + 4, len);
+  let encoded_data = "";
+  for (const i in data) {
+    const hex = Number(data[i]).toString(16).padStart(2, "0");
+    encoded_data += `%${hex}`;
+  }
+
+  // Save the ELF Data to Local Storage for loading by NuttX Emulator
+  localStorage.setItem("elf_data", encoded_data);
+  console.log({ elf_data: localStorage.getItem("elf_data") });
+```
 
 _But NuttX Emulator boots from a fixed [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image), loaded from our Static Web Server. How did `a.out` appear inside the NuttX Image?_
 
