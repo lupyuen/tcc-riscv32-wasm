@@ -81,6 +81,10 @@ function main() {
   // Download the `a.out` data into the Web Browser
   download("a.out", encoded_data);
 
+  // Save the ELF Data to Local Storage for loading by NuttX Emulator
+  localStorage.setItem("elf_data", encoded_data);
+  console.log({ elf_data: localStorage.getItem("elf_data") });
+
   console.log("main: end");
 };
 
