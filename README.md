@@ -1,6 +1,8 @@
-![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-title.png)
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu.png)
 
-[_(Try the __Online Demo__)_](https://lupyuen.github.io/tcc-riscv32-wasm/)
+[(Try the __Online Demo__)](https://lupyuen.github.io/tcc-riscv32-wasm/)
+
+[(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
 
 # TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
@@ -1785,13 +1787,15 @@ TODO: Is there a workaround? Do we paste the ECALL Machine Code ourselves?
 
 TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu.png)
+
 # NuttX App runs in a Web Browser!
 
 _OK so we can compile NuttX Apps in a Web Browser... But can we run them in a Web Browser?_
 
 Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
 
-[(Watch the demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
+[(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
 
 1.  Browse to our latest NuttX Emulator in Web Browser...
 
@@ -2023,6 +2027,8 @@ Then we search for our Magic Pattern `22 05 69 00` in our Fake `a.out`: [riscv_m
 And we overwrite the Fake `a.out` with the Real `a.out` from `elf_data`.
 
 That's how we compile a NuttX App in the Web Browser, and run it with NuttX Emulator in the Web Browser! 🎉
+
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu2.png)
 
 # Analysis of Missing Functions
 
