@@ -1791,7 +1791,7 @@ _OK so we can compile NuttX Apps in a Web Browser... But can we run them in a We
 
 Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
 
-TODO: Watch the demo on YouTube
+[(Watch the demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
 
 1.  Browse to our latest NuttX Emulator in Web Browser...
 
