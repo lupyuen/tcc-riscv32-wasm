@@ -1946,11 +1946,11 @@ hexdump -C ~/ox64/apps/bin/a.out
 
 During NuttX Build, the Fake `a.out` gets bundled into the [Initial RAM Disk (initrd)](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/initrd).
 
-Which gets appended to the [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image).
+[Which gets appended](https://lupyuen.github.io/articles/app#initial-ram-disk) to the [NuttX Image](https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/Image).
 
 But because `a.out` doesn't contain a valid ELF File, NuttX says "command not found" because it couldn't load `a.out` as an ELF Executable.
 
-(This won't work with QEMU, because NuttX QEMU doesn't append the Initial RAM Disk to NuttX Image. Instead it uses Semihosting to access the NuttX Apps, which won't work in a Web Browsr)
+(This won't work with QEMU, because NuttX QEMU doesn't append the Initial RAM Disk to NuttX Image. Instead [QEMU uses Semihosting](https://lupyuen.github.io/articles/semihost#nuttx-calls-semihosting) to access the NuttX Apps, which won't work in a Web Browsr)
 
 _So we patched Fake `a.out` in the NuttX Image with the Real `a.out`?_
 
