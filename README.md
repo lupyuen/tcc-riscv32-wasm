@@ -1929,7 +1929,95 @@ But because `a.out` doesn't contain a valid ELF File, NuttX says "command not fo
 
 _So we patched Fake `a.out` in the NuttX Image with the Real `a.out`?_
 
-Exactly!
+Exactly! In the NuttX WebAssembly Emulator,
+
+https://github.com/lupyuen/nuttx-tinyemu/blob/main/docs/tcc/jslinux.js#L504-L545
+
+```javascript
+    function start()
+    {
+        //// Begin Test: Patch the ELF Data to a.out in Initial RAM Disk
+        //// localStorage.setItem("elf_data", "%7f%45%4c%46%02%01%01%00%00%00%00%00%00%00%00%00%01%00%f3%00%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%02%00%00%00%00%00%00%04%00%00%00%40%00%00%00%00%00%40%00%09%00%08%00%13%01%01%fa%23%3c%11%04%23%38%81%04%13%04%01%06%13%00%00%00%23%34%a4%fe%23%30%b4%fe%1b%05%d0%03%23%2e%a4%fc%1b%05%10%00%23%38%a4%fc%17%05%00%00%13%05%05%00%23%34%a4%fc%1b%05%f0%00%23%30%a4%fc%03%25%c4%fd%13%15%05%02%13%55%05%02%23%3c%a4%fa%03%35%04%fd%23%38%a4%fa%03%35%84%fc%23%34%a4%fa%03%35%04%fc%23%30%a4%fa%13%05%d0%03%93%05%10%00%37%06%08%00%1b%06%16%10%13%16%c6%00%93%06%f0%00%73%00%00%00%01%00%6f%00%00%00%83%30%81%05%03%34%01%05%13%01%01%06%67%80%00%00%00%00%00%00%00%00%48%65%6c%6c%6f%2c%20%57%6f%72%6c%64%21%21%0a%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%00%00%00%04%00%f1%ff%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%0e%00%00%00%01%00%03%00%00%00%00%00%00%00%00%00%10%00%00%00%00%00%00%00%00%00%00%00%00%00%01%00%2c%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%09%00%00%00%12%00%01%00%00%00%00%00%00%00%00%00%9a%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%68%65%6c%6c%6f%2e%63%00%6d%61%69%6e%00%4c%2e%30%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%2c%00%00%00%00%00%00%00%17%00%00%00%02%00%00%00%00%00%00%00%00%00%00%00%30%00%00%00%00%00%00%00%18%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%2e%74%65%78%74%00%2e%64%61%74%61%00%2e%64%61%74%61%2e%72%6f%00%2e%62%73%73%00%2e%73%79%6d%74%61%62%00%2e%73%74%72%74%61%62%00%2e%72%65%6c%61%2e%74%65%78%74%00%2e%73%68%73%74%72%74%61%62%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%00%00%00%01%00%00%00%06%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%40%00%00%00%00%00%00%00%9a%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%08%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%07%00%00%00%01%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%e0%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%08%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%0d%00%00%00%01%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%e0%00%00%00%00%00%00%00%10%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%08%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%16%00%00%00%08%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%f0%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%08%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%1b%00%00%00%02%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%f0%00%00%00%00%00%00%00%78%00%00%00%00%00%00%00%06%00%00%00%04%00%00%00%08%00%00%00%00%00%00%00%18%00%00%00%00%00%00%00%23%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%70%01%00%00%00%00%00%00%12%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%2b%00%00%00%04%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%90%01%00%00%00%00%00%00%30%00%00%00%00%00%00%00%05%00%00%00%01%00%00%00%08%00%00%00%00%00%00%00%18%00%00%00%00%00%00%00%36%00%00%00%03%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%c0%01%00%00%00%00%00%00%40%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00%01%00%00%00%00%00%00%00%00%00%00%00%00%00%00%00");
+        let elf_len = 0;
+        let elf_data = new Uint8Array([]);
+        const elf_data_encoded = localStorage.getItem("elf_data");
+        if (elf_data_encoded) {
+            elf_data = new Uint8Array(
+                elf_data_encoded
+                    .split("%")
+                    .slice(1)
+                    .map(hex=>Number("0x" + hex))
+            );
+            elf_len = elf_data.length;
+            console.log({elf_len, elf_data});    
+        }
+        ...
+        // Pass elf_data and elf_len to TinyEMU
+        Module.ccall(
+            "vm_start",
+            null,
+            ["string", "number", "string", "string", "number", "number", "number", "string", "array", "number"],
+            [url, mem_size, cmdline, pwd, width, height, (net_state != null) | 0, drive_url, elf_data, elf_len]
+        );
+```
+
+https://github.com/lupyuen/ox64-tinyemu/blob/tcc/jsemu.c#L182-L211
+
+```c
+void vm_start(const char *url, int ram_size, const char *cmdline,
+              const char *pwd, int width, int height, BOOL has_network,
+              const char *drive_url, uint8_t *elf_data0, int elf_len0)
+{
+    //// Begin Test: Patch the ELF Data to a.out in Initial RAM Disk
+    extern uint8_t elf_data[];  // From riscv_machine.c
+    extern int elf_len;
+    elf_len = elf_len0;
+
+    // Must copy ELF Data to Local Buffer because it will get overwritten
+    printf("elf_len=%d\n", elf_len);
+    if (elf_len > 4096) { puts("*** ERROR: elf_len exceeds 4096, increase elf_data and a.out size"); }
+    memcpy(elf_data, elf_data0, elf_len);
+    //// End Test
+
+    VMStartState *s;
+
+    s = mallocz(sizeof(*s));
+    s->ram_size = ram_size;
+    s->cmdline = strdup(cmdline);
+    if (pwd)
+        s->pwd = strdup(pwd);
+    global_width = width;
+    global_height = height;
+    s->has_network = has_network;
+    s->p = mallocz(sizeof(VirtMachineParams));
+    virt_machine_set_defaults(s->p);
+    virt_machine_load_config_file(s->p, url, init_vm_fs, s);
+}
+```
+
+TODO
+
+https://github.com/lupyuen/ox64-tinyemu/blob/tcc/riscv_machine.c#L1034-L1053
+
+```c
+    // Patch the ELF Data to a.out in Initial RAM Disk
+    uint64_t elf_addr = 0;
+    printf("elf_len=%d\n", elf_len);
+    if (elf_len > 0) {
+        //// TODO: Fix the Image Size
+        for (int i = 0; i < 0xD61680; i++) {
+            const uint8_t pattern[] = { 0x22, 0x05, 0x69, 0x00 };
+            if (memcmp(&kernel_ptr[i], pattern, sizeof(pattern)) == 0) {
+                //// TODO: Catch overflow of a.out
+                memcpy(&kernel_ptr[i], elf_data, elf_len);
+                elf_addr = RAM_BASE_ADDR + i;
+                printf("Patched ELF Data to a.out at %p\n", elf_addr);
+                break;
+            }
+        }
+        if (elf_addr == 0) { puts("*** ERROR: Pattern for ELF Data a.out is missing"); }
+    }
+```
 
 # Analysis of Missing Functions
 
