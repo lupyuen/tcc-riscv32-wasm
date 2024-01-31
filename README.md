@@ -2,7 +2,7 @@
 
 [(Try the __Online Demo__)](https://lupyuen.github.io/tcc-riscv32-wasm/)
 
-[(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
+[(Watch the __Demo on YouTube__)](https://youtu.be/DJMDYq52Iv8)
 
 # TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
