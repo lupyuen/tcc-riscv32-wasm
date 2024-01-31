@@ -1493,13 +1493,13 @@ And we run `a.out` on NuttX. Now we get an [Instruction Page Fault](https://gist
 NuttShell (NSH) NuttX-12.4.0
 nsh> a.out
 ...
-[    6.240000] binfmt_copyargv: args=2 argsize=23
-[    6.240000] exec_module: Initialize the user heap (heapsize=528384)
-[    6.242000] riscv_exception: EXCEPTION: Instruction page fault. MCAUSE: 000000000000000c, EPC: 000000008000ad8a, MTVAL: 000000008000ad8a
-[    6.242000] riscv_exception: PANIC!!! Exception = 000000000000000c
-[    6.242000] _assert: Current Version: NuttX  12.4.0 f8b0b06b978 Jan 29 2024 01:16:20 risc-v
-[    6.242000] _assert: Assertion failed panic: at file: common/riscv_exception.c:85 task: /system/bin/init process: /system/bin/init 0xc000001a
-[    6.242000] up_dump_register: EPC: 000000008000ad8a
+binfmt_copyargv: args=2 argsize=23
+exec_module: Initialize the user heap (heapsize=528384)
+riscv_exception: EXCEPTION: Instruction page fault. MCAUSE: 000000000000000c, EPC: 000000008000ad8a, MTVAL: 000000008000ad8a
+riscv_exception: PANIC!!! Exception = 000000000000000c
+_assert: Current Version: NuttX  12.4.0 f8b0b06b978 Jan 29 2024 01:16:20 risc-v
+_assert: Assertion failed panic: at file: common/riscv_exception.c:85 task: /system/bin/init process: /system/bin/init 0xc000001a
+up_dump_register: EPC: 000000008000ad8a
 ```
 
 _Where is the Exception Program Counter 0x8000ad8a?_
