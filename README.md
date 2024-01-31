@@ -1,4 +1,4 @@
-![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu.png)
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-ecall.png)
 
 [(Try the __Online Demo__)](https://lupyuen.github.io/tcc-riscv32-wasm/)
 
@@ -1787,7 +1787,7 @@ TODO: Is there a workaround? Do we paste the ECALL Machine Code ourselves?
 
 TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
-![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu.png)
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-ecall.png)
 
 # NuttX App runs in a Web Browser!
 
