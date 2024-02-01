@@ -815,11 +815,21 @@ So yes TCC runs correctly in a Web Browser. With some limitations and lots of ha
 
 # Fix the Varargs Functions
 
-_TCC calls C Formatting Functions with Variable Arguments: fprintf, sprintf, ..._
+_Why is fprintf particularly problematic?_
 
-_How will we implement them with Zig in WebAssembly?_
+Here's the fearsome thing about __fprintf__ and friends: __sprintf, snprintf, vsnprintf__...
 
-Parsing the C Format Strings in Zig will be tedious. Thankfully, TCC only uses 5 patterns of C Format Strings: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/tcc-wasm.zig#L191-L209)
+- __C Format Strings__ are difficult to parse
+
+- __Variable Number of Untyped Arguments__ might create Bad Pointers
+
+Hence we hacked up an implementation of __String Formatting__ that's safer, simpler and so-barebones-you-can-make-_soup-tulang_.
+
+![Fix the Varargs Functions](https://lupyuen.github.io/images/tcc-format.jpg)
+
+_Soup tulang? Tell me more..._
+
+Our Zig Wrapper uses __Pattern Matching__ to match the __C Formats__ and substitute the __Zig Equivalent__: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/main/zig/tcc-wasm.zig#L191-L209)
 
 ```zig
 /// Pattern Matching for String Formatting: We will match these patterns when formatting strings
