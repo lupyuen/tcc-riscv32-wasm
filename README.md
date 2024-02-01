@@ -1809,8 +1809,6 @@ Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator 
 
 [(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
 
-![Building and Testing NuttX Apps inside a Web Browser](https://lupyuen.github.io/images/tcc-nuttx.jpg)
-
 1.  Browse to our latest NuttX Emulator in Web Browser...
 
     [NuttX Emulator for Ox64 (modified for TCC)](https://lupyuen.github.io/nuttx-tinyemu/tcc/)
@@ -1905,6 +1903,10 @@ Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator 
     (Because we hardcoded the length in Register A3)
 
     Recompile, switch back to the Emulator, re-run `a.out`. It changes!
+
+    [(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
+
+![Building and Testing NuttX Apps inside a Web Browser](https://lupyuen.github.io/images/tcc-nuttx.jpg)
 
 _Wow how does it work?_
 
