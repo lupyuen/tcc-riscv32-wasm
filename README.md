@@ -240,6 +240,8 @@ wasm-objdump -x tcc.o >/tmp/tcc.txt
 
 Yep TCC compiles OK to WebAssembly with Zig Compiler!
 
+![Compile TCC to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-zig.jpg)
+
 # Missing Functions in TCC WebAssembly
 
 We check the Compiled WebAssembly. These POSIX Functions are missing from the Compiled WebAssembly...
@@ -1806,6 +1808,8 @@ _OK so we can compile NuttX Apps in a Web Browser... But can we run them in a We
 Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
 
 [(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
+
+![Building and Testing NuttX Apps inside a Web Browser](https://lupyuen.github.io/images/tcc-nuttx.jpg)
 
 1.  Browse to our latest NuttX Emulator in Web Browser...
 
