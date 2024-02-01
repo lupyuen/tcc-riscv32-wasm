@@ -2034,6 +2034,8 @@ That's how we compile a NuttX App in the Web Browser, and run it with NuttX Emul
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
 
+![Analysis of Missing Functions](https://lupyuen.github.io/images/tcc-posix.jpg)
+
 ## Semaphore Functions
 
 Not sure why TCC uses Semaphores? Maybe we'll understand when we support `#include` files.
