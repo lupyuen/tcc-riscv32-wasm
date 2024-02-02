@@ -1848,22 +1848,18 @@ Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator 
       asm volatile (
 
         // Load 61 to Register A0 (SYS_write)
-        // li a0, 61
-        ".long 0x03d00513 \n"
+        "addi a0, zero, 61 \n"
 
         // Load 1 to Register A1 (File Descriptor)
-        // li a1, 1
-        ".long 0x00100593 \n"
+        "addi a1, zero, 1 \n"
 
         // Load 0x80101000 to Register A2 (Buffer)
-        // li a2, 0x80101000
-        ".long 0x00080637 \n"
-        ".long 0x1016061b \n"
-        ".long 0x00c61613 \n"
+        "lui   a2, 0x80 \n"
+        "addiw a2, a2, 257 \n"
+        "slli  a2, a2, 0xc \n"
 
         // Load 15 to Register A3 (Buffer Length)
-        // li a3, 15
-        ".long 0x00f00693 \n"
+        "addi a3, zero, 15 \n"
 
         // ECALL for System Call to NuttX Kernel
         "ecall \n"
