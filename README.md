@@ -1620,15 +1620,17 @@ Directly in our C Code! Like this: [test-nuttx.js](https://github.com/lupyuen/tc
       // ECALL for System Call to NuttX Kernel
       "ecall \n"
 
-      // We inserted NOP, because TCC says it's invalid (see below)
+      // NuttX needs NOP after ECALL
       ".word 0x0001 \n"
-      :: "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+
+      // Input+Output Registers: None
+      // Input-Only Registers: A0 to A3
+      // Clobbers the Memory
+      :
+      : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
       : "memory"
     );
   
-    // TODO: TCC says this is invalid
-    // asm volatile("nop" : "=r"(r0));
-
     // Loop Forever
     for(;;) {}
     return 0;
@@ -1668,28 +1670,24 @@ Let's hardcode Registers A0, A1, A2 and A3 in Machine Code (because TCC won't as
 
 ```c
 // Load 61 to Register A0 (SYS_write)
-// li a0, 61
-".long 0x03d00513 \\n"
+"addi a0, zero, 61 \n"
 
 // Load 1 to Register A1 (File Descriptor)
-// li a1, 1
-".long 0x00100593 \\n"
+"addi a1, zero, 1 \n"
 
 // Load 0xc0101000 to Register A2 (Buffer)
-// li a2, 0xc0101000
-".long 0x000c0637 \\n"
-".long 0x1016061b \\n"
-".long 0x00c61613 \\n"
+"lui   a2, 0xc0 \n"
+"addiw a2, a2, 257 \n"
+"slli  a2, a2, 0xc \n"
 
 // Load 15 to Register A3 (Buffer Length)
-// li a3, 15
-".long 0x00f00693 \\n"
+"addi a3, zero, 15 \n"
 
 // ECALL for System Call to NuttX Kernel
-"ecall \\n"
+"ecall \n"
 
-// We inserted NOP, because TCC says it's invalid (see below)
-".word 0x0001 \\n"
+// NuttX needs NOP after ECALL
+".word 0x0001 \n"
 ```
 
 (We used this [RISC-V Online Assembler](https://riscvasm.lucasteske.dev/#) to assemble the Machine Code)
@@ -1866,6 +1864,13 @@ Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator 
 
         // NuttX needs NOP after ECALL
         ".word 0x0001 \n"
+
+        // Input+Output Registers: None
+        // Input-Only Registers: A0 to A3
+        // Clobbers the Memory
+        :
+        : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+        : "memory"
       );
 
       // Loop Forever
