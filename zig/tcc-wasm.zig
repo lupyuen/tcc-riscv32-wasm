@@ -816,11 +816,12 @@ const ECONNREFUSED: c_int = 111;
 ///////////////////////////////////////////////////////////////////////////////
 // NuttX Functions
 
-export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, arg: *anyopaque) c_int {
-    // TODO: Handle BIOC_XIPBASE
+export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, rm_xipbase: *c_int) c_int {
     _ = dev; // autofix
-    _ = cmd; // autofix
-    _ = arg; // autofix
+    // Handle BIOC_XIPBASE
+    if (cmd == c.BIOC_XIPBASE) {
+        rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
+    }
     return 0;
 }
 
@@ -836,6 +837,10 @@ export fn nxrmutex_lock(_: *rmutex_t) c_int {
 export fn nxrmutex_unlock(_: *rmutex_t) c_int {
     return 0;
 }
+
+/// Embed the ROM FS Filesystem.
+/// Later our JavaScript shall fetch this over HTTP.
+const ROMFS_DATA = @embedFile("romfs.bin");
 
 const mtd_dev_s = opaque {};
 const rmutex_t = opaque {};
