@@ -121,7 +121,7 @@ const struct mountpt_operations g_romfs_operations =
   NULL,            /* write */
   romfs_seek,      /* seek */
   romfs_ioctl,     /* ioctl */
-  romfs_mmap,      /* mmap */
+  NULL,////romfs_mmap,      /* mmap */
   NULL,            /* truncate */
   NULL,            /* poll */
 

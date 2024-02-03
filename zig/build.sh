@@ -13,10 +13,14 @@ function build_wasm {
 
   zig cc \
     -DCODE= \
+    -DDEBUGASSERT=assert \
     -DFAR= \
     -DNAME_MAX=255 \
     -DPATH_MAX=255 \
     -DOK=0 \
+    -Dferr=printf \
+    -Dfinfo=printf \
+    -Dfwarn=printf \
     -Dposix_spawn_file_actions_t=int \
     -Drmutex_t=int \
     -Dspinlock_t=int \
