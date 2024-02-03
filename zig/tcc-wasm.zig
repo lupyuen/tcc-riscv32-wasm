@@ -23,8 +23,12 @@ pub export fn compile_program(
     defer debug("compile_program: end", .{});
 
     // Mount the ROM FS Filesystem
-    const ret = c.romfs_bind(
-        //struct inode *blkdriver, const void *data, void **handle
+    const blkdriver = c.struct_inode_6{};
+    const handle: *anyopaque = null;
+    const ret = c.romfs_bind( // Bind the ROM FS Filesystem
+        &blkdriver, // ?*struct_inode_6
+        null, // data: ?*const anyopaque
+        &handle // [*c]?*anyopaque
     );
     assert(ret >= 0);
 
