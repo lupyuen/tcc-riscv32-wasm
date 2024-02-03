@@ -4,6 +4,7 @@
 //// Custom Definitions for Zig ROM FS
 #include <stdio.h>
 #include <stdint.h>
+#include "inode.h"
 
 struct mtd_geometry_s {
   uint32_t blocksize;     /* Size of one read/write block. */
@@ -17,6 +18,8 @@ struct mm_map_entry_s {
   size_t length;
   off_t offset;
 };
+
+int romfs_bind(struct inode *blkdriver, const void *data, void **handle);
 
 int nxrmutex_init(rmutex_t *rmutex);
 int nxrmutex_destroy(rmutex_t *rmutex);
