@@ -2151,9 +2151,16 @@ RuntimeError: null function or function signature mismatch
 
 ```
 
-Probably because our `romfs_blkdriver` is an empty `inode`.
+Probably because our `romfs_blkdriver` is an empty `inode`: [romfs_hwconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L630-L733)
 
-TODO: Init `romfs_blkdriver`
+```c
+int romfs_hwconfigure(FAR struct romfs_mountpt_s *rm) {
+  ...
+  // Crashes becaise `u.i_bops` is null
+  ret = inode->u.i_bops->geometry(inode, &geo);
+```
+
+TODO: Init `romfs_blkdriver`. Why do we need geometry for a RAM Disk?
 
 # Analysis of Missing Functions
 
