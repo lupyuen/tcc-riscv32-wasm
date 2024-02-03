@@ -121,7 +121,7 @@ function build_wasm {
     -freference-trace \
     --verbose-cimport \
     --export=compile_program \
-    -I. \
+    -I zig \
     zig/tcc-wasm.zig \
     fs_romfs.o \
     fs_romfsutil.o \

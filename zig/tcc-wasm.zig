@@ -11,7 +11,7 @@ const hexdump = @import("hexdump.zig");
 
 /// Import the ROM FS
 const c = @cImport({
-    @cInclude("zig/zig_romfs.h");
+    @cInclude("zig_romfs.h");
 });
 
 /// Compile a C program to 64-bit RISC-V
