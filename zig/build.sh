@@ -33,6 +33,7 @@ function build_wasm {
     -DEAGAIN=11 \
     -DENOMEM=12 \
     -DEACCES=13 \
+    -DEBUSY=16 \
     -DEEXIST=17 \
     -DENODEV=19 \
     -DENOTDIR=20 \
@@ -42,6 +43,7 @@ function build_wasm {
     -DEPIPE=32 \
     -DEDOM=33 \
     -DERANGE=34 \
+    -DENOSYS=38 \
     -DEWOULDBLOCK=140 \
     -DECONNREFUSED=111 \
     \
