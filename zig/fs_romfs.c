@@ -38,7 +38,7 @@
 ////#include <debug.h>
 
 ////#include <nuttx/kmalloc.h>
-////#include <nuttx/fs/fs.h>
+#include "fs.h"////
 ////#include <nuttx/fs/ioctl.h>
 
 #include "fs_romfs.h"

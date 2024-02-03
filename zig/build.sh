@@ -12,9 +12,12 @@ set -x  #  Echo commands
 function build_wasm {
 
   zig cc \
+    -DCODE= \
     -DFAR= \
+    -DNAME_MAX=255 \
     -DOK=0 \
     -Drmutex_t=int \
+    -Dspinlock_t=int \
     \
     -c \
     -target wasm32-freestanding \
