@@ -38,15 +38,21 @@ function build_wasm {
 
   ## Zig Compiler options for NuttX ROM FS
   nuttx_options=" \
+    -DBIOC_XIPBASE=2 \
     -DCODE= \
+    -DCONFIG_FS_ROMFS_CACHE_FILE_NSECTORS=1 \
     -DDEBUGASSERT=assert \
     -DDTYPE_DIRECTORY=DT_DIR \
     -DDTYPE_FILE=DT_REG \
     -DDTYPE_LINK=DT_LNK \
+    -DERROR=-1 \
     -DFAR= \
     -DFIOC_FILEPATH=1 \
     -DNAME_MAX=255 \
     -DOK=0 \
+    -DMTD_BREAD=mtd_bread \
+    -DMTD_IOCTL=mtd_ioctl \
+    -DMTDIOC_GEOMETRY=3 \
     -DPATH_MAX=255 \
     -DROMFS_MAGIC=0x7275 \
     \
@@ -63,6 +69,7 @@ function build_wasm {
     -DEPERM=1 \
     -DENOENT=2 \
     -DEINTR=4 \
+    -DEIO=5 \
     -DENXIO=6 \
     -DEAGAIN=11 \
     -DENOMEM=12 \
@@ -78,8 +85,10 @@ function build_wasm {
     -DEDOM=33 \
     -DERANGE=34 \
     -DENOSYS=38 \
-    -DEWOULDBLOCK=140 \
+    -DELOOP=40 \
     -DECONNREFUSED=111 \
+    -DENOTSUP=138 \
+    -DEWOULDBLOCK=140 \
     "
 
   ## Compile fs_romfs.c to WebAssembly
@@ -115,7 +124,7 @@ function build_wasm {
     --export=compile_program \
     zig/tcc-wasm.zig \
     fs_romfs.o \
-    fs_romfsutil.c \
+    fs_romfsutil.o \
     tcc.o
 
   ## Dump our Linked WebAssembly

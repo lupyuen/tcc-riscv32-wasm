@@ -41,6 +41,7 @@
 ////#include <nuttx/fs/ioctl.h>
 ////#include <nuttx/mtd/mtd.h>
 
+#include "fs.h"////
 #include "fs_romfs.h"
 
 /****************************************************************************
