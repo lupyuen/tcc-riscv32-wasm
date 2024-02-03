@@ -12,6 +12,10 @@ set -x  #  Echo commands
 function build_wasm {
 
   zig cc \
+    -DFAR= \
+    -DOK=0 \
+    -Drmutex_t=int \
+    \
     -c \
     -target wasm32-freestanding \
     -dynamic \

@@ -25,12 +25,12 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+////#include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "inode/inode.h"
+#include "inode.h"////
 
 /****************************************************************************
  * Pre-processor Definitions
