@@ -44,6 +44,8 @@
 #include "fs.h"////
 #include "fs_romfs.h"
 
+#define INODE_IS_MTD(inode) 1 ////
+
 /****************************************************************************
  * Pre-processor Definitions
  ****************************************************************************/
@@ -674,7 +676,9 @@ int romfs_hwconfigure(FAR struct romfs_mountpt_s *rm)
     {
       struct geometry geo;
 
+      puts("a");
       ret = inode->u.i_bops->geometry(inode, &geo);
+      puts("b");
       if (ret != OK)
         {
           return ret;
