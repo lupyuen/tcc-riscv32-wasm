@@ -25,6 +25,9 @@ struct mm_map_entry_s {
   off_t offset;
 };
 
+extern struct inode *romfs_blkdriver;
+extern void *romfs_handle;
+
 int romfs_bind(struct inode *blkdriver, const void *data, void **handle);
 
 int nxrmutex_init(rmutex_t *rmutex);
