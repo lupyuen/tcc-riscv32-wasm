@@ -445,6 +445,20 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     return @intCast(len);
 }
 
+export fn printf(format: [*:0]const u8, ...) c_int {
+    // Prepare the varargs
+    var ap = @cVaStart();
+    defer @cVaEnd(&ap);
+
+    // Format the string. TODO: Is 512 sufficient?
+    var buf = std.mem.zeroes([512]u8);
+    const format_slice = std.mem.span(format);
+    const len = format_string(&ap, &buf, buf.len, format_slice);
+
+    debug("printf:\n{s}", .{buf});
+    return @intCast(len);
+}
+
 export fn sscanf(str: [*:0]const u8, format: [*:0]const u8, ...) c_int {
     debug("TODO: sscanf: str={s}, format={s}", .{ str, format });
     return 0;
@@ -827,9 +841,6 @@ pub export fn localtime(_: c_int) c_int {
 }
 pub export fn lseek(_: c_int) c_int {
     @panic("TODO: lseek");
-}
-pub export fn printf(_: c_int) c_int {
-    @panic("TODO: printf");
 }
 pub export fn qsort(_: c_int) c_int {
     @panic("TODO: qsort");
