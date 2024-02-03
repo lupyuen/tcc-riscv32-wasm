@@ -2162,7 +2162,64 @@ ret = MTD_IOCTL(inode->u.i_mtd, BIOC_XIPBASE,
                 (unsigned long)&rm->rm_xipbase);
 ```
 
-TODO: Implement `mid_ioctl` for `BIOC_XIPBASE`
+We implement `mid_ioctl` for `BIOC_XIPBASE`: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L819-L826)
+
+```zig
+export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, rm_xipbase: *c_int) c_int {
+    // Handle BIOC_XIPBASE
+    if (cmd == c.BIOC_XIPBASE) {
+        rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
+    }
+    return 0;
+}
+
+/// Embed the ROM FS Filesystem.
+/// Later our JavaScript shall fetch this over HTTP.
+const ROMFS_DATA = @embedFile("romfs.bin");
+```
+
+Also we embed the ROM FS Data inside our Zig Wrapper for now. Later our JavaScript shall fetch `romfs.bin` over HTTP.
+
+And the mounting succeeds yay! 
+
+```bash
+$ node zig/test.js
+compile_program: start
+compile_program: Mounting ROM FS...
+format_string0: size=512, format=Entry
+printf: Entry
+compile_program: ROM FS mounted OK!
+```
+
+The ROM FS Driver verifies the Magic Number when mounting. So we know it's correct: (fs_romfsutil.c)[https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L765-L770]
+
+```c
+int romfs_fsconfigure(FAR struct romfs_mountpt_s *rm) {
+  ...
+  /* Verify the magic number at that identifies this as a ROMFS filesystem */
+  #define ROMFS_VHDR_MAGIC   "-rom1fs-"
+  if (memcmp(rm->rm_buffer, ROMFS_VHDR_MAGIC, 8) != 0)
+    { return -EINVAL; }
+```
+
+If we don't embed a proper ROM FS Filesystem, it will fail...
+
+```bash
+## Let's embed some junk:
+## const ROMFS_DATA = @embedFile("build.sh");
+
+## The ROM FS Mounting fails...
+$ node zig/test.js
+compile_program: start
+format_string0: size=512, format=Entry
+printf: Entry
+format_string1: size=512, format=ERROR: romfs_fsconfigure failed: %d
+, a=-22
+printf:
+ERROR: romfs_fsconfigure failed: -22
+```
+
+TODO: Read a file from ROM FS
 
 # Analysis of Missing Functions
 
