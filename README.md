@@ -2049,21 +2049,35 @@ That's how we compile a NuttX App in the Web Browser, and run it with NuttX Emul
 
 # ROM FS Filesystem for TCC WebAssembly
 
-TODO
+_TCC WebAssembly needs an Embedded Filesystem that will have C Header Files and C Library Files for building apps..._
 
-_Can we handle Multiple Files?_
+_How will we implement this Embedded Filesystem in Zig?_
 
-We'll have to embed an __Emulated Filesystem__ inside our Zig Wrapper. The Filesystem will be preloaded with the Header and Library Files needed by TCC.
+Let's embed the simple [__ROM FS Filesystem__](https://docs.kernel.org/filesystems/romfs.html) inside our Zig Wrapper...
+
+1.  Our TCC JavaScript will fetch the ROM FS Filesystem over HTTP: [romfs.bin](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/docs/romfs/romfs.bin)
+
+1.  Then copy the ROM FS into Zig Wrapper's WebAssembly Memory
+
+1.  Our Zig Wrapper will mount the ROM FS in memory
+
+1.  And expose POSIX Functions to TCC that will access the Emulated Filesystem
 
 [(Works like the __Emscripten Filesystem__)](https://emscripten.org/docs/porting/files/file_systems_overview.html)
 
-[(Maybe we embed the simple __ROM FS Filesystem__)](https://docs.kernel.org/filesystems/romfs.html)
+_How to implement the ROM FS in our Zig Wrapper?_
+
+We'll take the ROM FS implementation from Apache NuttX RTOS. And compile it from C to WebAssembly with Zig Compiler...
 
 - [fs_romfs.c](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.c)
 
 - [fs_romfs.h](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.h)
 
 - [fs_romfsutil.c](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfsutil.c)
+
+[(See the __Build Script__)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/build.sh)
+
+TODO
 
 # Analysis of Missing Functions
 
