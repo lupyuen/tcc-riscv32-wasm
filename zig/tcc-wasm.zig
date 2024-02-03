@@ -814,6 +814,24 @@ const EWOULDBLOCK: c_int = 140;
 const ECONNREFUSED: c_int = 111;
 
 ///////////////////////////////////////////////////////////////////////////////
+// NuttX Functions
+
+export fn nxrmutex_init(_: *rmutex_t) c_int {
+    return 0;
+}
+export fn nxrmutex_destroy(_: *rmutex_t) c_int {
+    return 0;
+}
+export fn nxrmutex_lock(_: *rmutex_t) c_int {
+    return 0;
+}
+export fn nxrmutex_unlock(_: *rmutex_t) c_int {
+    return 0;
+}
+
+const rmutex_t = opaque {};
+
+///////////////////////////////////////////////////////////////////////////////
 /// Fix the Missing Variables
 pub export var errno: c_int = 0;
 pub export var stdout: c_int = 1;
@@ -888,12 +906,6 @@ pub export fn strtoul(_: c_int) c_int {
 }
 pub export fn time(_: c_int) c_int {
     @panic("TODO: time");
-}
-pub export fn nxrmutex_init(_: c_int) c_int {
-    @panic("TODO: nxrmutex_init");
-}
-pub export fn nxrmutex_destroy(_: c_int) c_int {
-    @panic("TODO: nxrmutex_destroy");
 }
 pub export fn mtd_ioctl(_: c_int) c_int {
     @panic("TODO: mtd_ioctl");
