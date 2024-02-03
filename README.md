@@ -2086,6 +2086,8 @@ We'll take the ROM FS implementation from Apache NuttX RTOS. And compile it from
 
 - [inode.h](https://github.com/apache/nuttx/blob/master/fs/inode/inode.h)
 
+- [fs.h](https://github.com/apache/nuttx/blob/master/include/nuttx/fs/fs.h)
+
 [(See the __Build Script__)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/build.sh)
 
 TODO
