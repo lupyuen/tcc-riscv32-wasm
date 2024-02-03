@@ -25,17 +25,17 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
-#include <nuttx/compiler.h>
+////#include <nuttx/config.h>
+////#include <nuttx/compiler.h>
 
 #include <sys/types.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <dirent.h>
 
-#include <nuttx/kmalloc.h>
-#include <nuttx/fs/fs.h>
-#include <nuttx/lib/lib.h>
+////#include <nuttx/kmalloc.h>
+////#include <nuttx/fs/fs.h>
+////#include <nuttx/lib/lib.h>
 
 /****************************************************************************
  * Pre-processor Definitions
