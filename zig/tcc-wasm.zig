@@ -22,6 +22,9 @@ pub export fn compile_program(
     debug("compile_program: start", .{});
     defer debug("compile_program: end", .{});
 
+    // Create the Memory Allocator for malloc
+    memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
+
     // Mount the ROM FS Filesystem
     const ret = c.romfs_bind( // Bind the ROM FS Filesystem
         c.romfs_blkdriver, // ?*struct_inode_6
@@ -46,9 +49,6 @@ pub export fn compile_program(
 
     // TODO: Compiler fails with "type '[*:0]const u8' does not support field access"
     // defer std.heap.page_allocator.free(code_ptr);
-
-    // Create the Memory Allocator for malloc
-    memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
     // Prepare the TCC args
     const max_args = 64;
@@ -488,6 +488,17 @@ export fn malloc(size: usize) ?*anyopaque {
     return mem.ptr;
 }
 
+/// Zig replacement for zalloc
+export fn zalloc(size: usize) ?*anyopaque {
+    // TODO: Save the slice length
+    const mem = memory_allocator.allocator().alloc(u8, size) catch {
+        debug("*** zalloc error: out of memory, size={}", .{size});
+        @panic("*** zalloc error: out of memory");
+    };
+    @memset(mem, 0);
+    return mem.ptr;
+}
+
 /// Zig replacement for realloc
 export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     // TODO: Call realloc instead
@@ -877,9 +888,6 @@ pub export fn strtoul(_: c_int) c_int {
 }
 pub export fn time(_: c_int) c_int {
     @panic("TODO: time");
-}
-pub export fn zalloc(_: c_int) c_int {
-    @panic("TODO: zalloc");
 }
 pub export fn nxrmutex_init(_: c_int) c_int {
     @panic("TODO: nxrmutex_init");

@@ -45,7 +45,8 @@
 
 #include "fs_romfs.h"
 
-struct inode *romfs_blkdriver = NULL; ////
+struct inode romfs_blkdriver_inode; ////
+struct inode *romfs_blkdriver = &romfs_blkdriver_inode; ////
 void *romfs_handle = NULL; ////
 
 /****************************************************************************
