@@ -6,6 +6,10 @@
 #define NAME_MAX 255
 #define PATH_MAX 255
 
+// For mtd_ioctl()
+#define MTDIOC_GEOMETRY 1
+#define BIOC_XIPBASE 2
+
 #include <stdio.h>
 #include <stdint.h>
 #include "inode.h"

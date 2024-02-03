@@ -39,7 +39,6 @@ function build_wasm {
   ## Zig Compiler options for NuttX ROM FS
   ## Note: All `static` functions become public
   nuttx_options=" \
-    -DBIOC_XIPBASE=2 \
     -DCODE= \
     -DCONFIG_FS_ROMFS_CACHE_FILE_NSECTORS=1 \
     -DDEBUGASSERT=assert \
@@ -52,7 +51,6 @@ function build_wasm {
     -DOK=0 \
     -DMTD_BREAD=mtd_bread \
     -DMTD_IOCTL=mtd_ioctl \
-    -DMTDIOC_GEOMETRY=3 \
     -DROMFS_MAGIC=0x7275 \
     \
     -Dferr=printf \

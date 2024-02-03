@@ -816,6 +816,14 @@ const ECONNREFUSED: c_int = 111;
 ///////////////////////////////////////////////////////////////////////////////
 // NuttX Functions
 
+export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, arg: *anyopaque) c_int {
+    // TODO: Handle BIOC_XIPBASE
+    _ = dev; // autofix
+    _ = cmd; // autofix
+    _ = arg; // autofix
+    return 0;
+}
+
 export fn nxrmutex_init(_: *rmutex_t) c_int {
     return 0;
 }
@@ -829,6 +837,7 @@ export fn nxrmutex_unlock(_: *rmutex_t) c_int {
     return 0;
 }
 
+const mtd_dev_s = opaque {};
 const rmutex_t = opaque {};
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -906,9 +915,6 @@ pub export fn strtoul(_: c_int) c_int {
 }
 pub export fn time(_: c_int) c_int {
     @panic("TODO: time");
-}
-pub export fn mtd_ioctl(_: c_int) c_int {
-    @panic("TODO: mtd_ioctl");
 }
 pub export fn mtd_bread(_: c_int) c_int {
     @panic("TODO: mtd_bread");
