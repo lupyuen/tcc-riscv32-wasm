@@ -82,6 +82,12 @@ function build_wasm {
     -DECONNREFUSED=111 \
     "
 
+  ## Compile fs_romfsutil.c to WebAssembly
+  zig cc \
+    $nuttx_options \
+    $tcc_options \
+    zig/fs_romfsutil.c
+
   ## Compile fs_romfs.c to WebAssembly
   zig cc \
     $nuttx_options \
@@ -109,6 +115,7 @@ function build_wasm {
     --export=compile_program \
     zig/tcc-wasm.zig \
     fs_romfs.o \
+    fs_romfsutil.c \
     tcc.o
 
   ## Dump our Linked WebAssembly

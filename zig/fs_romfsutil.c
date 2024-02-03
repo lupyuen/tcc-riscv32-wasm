@@ -25,7 +25,7 @@
  * Included Files
  ****************************************************************************/
 
-#include <nuttx/config.h>
+////#include <nuttx/config.h>
 #include <sys/types.h>
 
 #include <inttypes.h>
@@ -34,11 +34,11 @@
 #include <assert.h>
 #include <errno.h>
 #include <assert.h>
-#include <debug.h>
+////#include <debug.h>
 
-#include <nuttx/kmalloc.h>
-#include <nuttx/fs/ioctl.h>
-#include <nuttx/mtd/mtd.h>
+////#include <nuttx/kmalloc.h>
+////#include <nuttx/fs/ioctl.h>
+////#include <nuttx/mtd/mtd.h>
 
 #include "fs_romfs.h"
 
