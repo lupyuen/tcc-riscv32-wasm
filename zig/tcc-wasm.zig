@@ -68,10 +68,8 @@ pub export fn compile_program(
     // First 4 bytes: Size of `a.out`. Followed by `a.out` data.
     const slice = std.heap.page_allocator.alloc(u8, write_buflen + 4) catch
         @panic("Failed to allocate memory");
-    slice[0] = @intCast((write_buflen >> 0) & 0xff);
-    slice[1] = @intCast((write_buflen >> 8) & 0xff);
-    slice[2] = @intCast((write_buflen >> 16) & 0xff);
-    slice[3] = @intCast(write_buflen >> 24);
+    const size_ptr: *u32 = @alignCast(@ptrCast(slice.ptr));
+    size_ptr.* = write_buflen;
     @memcpy(slice[4 .. write_buflen + 4], write_buf[0..write_buflen]);
     return slice.ptr; // TODO: Deallocate this memory
 }
