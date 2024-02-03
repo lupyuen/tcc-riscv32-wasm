@@ -2100,7 +2100,60 @@ This compiles OK with Zig Compiler with a few tweaks, let's test it in Zig...
 
 # Mount the ROM FS Filesystem in Zig
 
-TODO
+This is how we mount the ROM FS Filesystem in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L12-L34)
+
+```zig
+/// Import the ROM FS
+const c = @cImport({
+    @cInclude("zig_romfs.h");
+});
+
+/// Compile a C program to 64-bit RISC-V
+pub export fn compile_program(
+    options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON Array: ["-c", "hello.c"])
+    code_ptr: [*:0]const u8, // C Program to be compiled (Pointer to String)
+) [*]const u8 { // Returns a pointer to the `a.out` Compiled Code (Size in first 4 bytes)
+
+    // Create the Memory Allocator for malloc
+    memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
+
+    // Mount the ROM FS Filesystem
+    const ret = c.romfs_bind( // Bind the ROM FS Filesystem
+        c.romfs_blkdriver, // ?*struct_inode_6
+        null, // data: ?*const anyopaque
+        &c.romfs_handle // [*c]?*anyopaque
+    );
+    assert(ret >= 0);
+```
+
+Zig don't let us create objects for `romfs_blkdriver` and `romfs_handle`, so we create them in C: [fs_romfs.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfs.c#L48-L50)
+
+```c
+struct inode romfs_blkdriver_inode;
+struct inode *romfs_blkdriver = &romfs_blkdriver_inode;
+void *romfs_handle = NULL;
+```
+
+This crashes inside [romfs_hwconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L630-L733)...
+
+```text
+$ node zig/test.js
+compile_program: start
+format_string0: size=512, format=Entry
+printf: Entry
+
+wasm://wasm/00860a5a:1
+RuntimeError: null function or function signature mismatch
+    at romfs_hwconfigure (wasm://wasm/00860a5a:wasm-function[22]:0xa3e)
+    at romfs_bind (wasm://wasm/00860a5a:wasm-function[21]:0x939)
+    at compile_program (wasm://wasm/00860a5a:wasm-function[252]:0x4e765)
+    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
+
+```
+
+Probably because our `romfs_blkdriver` is an empty `inode`.
+
+TODO: Init `romfs_blkdriver`
 
 # Analysis of Missing Functions
 
