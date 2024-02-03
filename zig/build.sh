@@ -15,7 +15,9 @@ function build_wasm {
     -DCODE= \
     -DFAR= \
     -DNAME_MAX=255 \
+    -DPATH_MAX=255 \
     -DOK=0 \
+    -Dposix_spawn_file_actions_t=int \
     -Drmutex_t=int \
     -Dspinlock_t=int \
     \
