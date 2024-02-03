@@ -107,8 +107,8 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
 
     // Copy from the Read Buffer
     // TODO: Support more than one file
-    // TODO: Check overflow
     const len = read_buf.len;
+    assert(len < nbyte);
     @memcpy(buf[0..len], read_buf[0..len]);
     buf[len] = 0;
     read_buf.len = 0;
@@ -243,6 +243,7 @@ fn format_string(
     // Format String doesn't match any Format Pattern. We return the Format String.
     debug("TODO: format_string: format={s}", .{format});
     const len3 = format.len;
+    assert(len3 < size);
     @memcpy(str[0..len3], format[0..len3]);
     str[len3] = 0;
     return len3;
@@ -264,9 +265,10 @@ fn format_string0(
         return 0;
     }
 
-    // Format the string. TODO: Check for overflow
+    // Format the string
     debug("format_string0: size={}, format={s}", .{ size, format });
     const len = format.len;
+    assert(len < size);
     @memcpy(str[0..len], format[0..len]);
     str[len] = 0;
     return len;
@@ -304,19 +306,20 @@ fn format_string1(
         debug("format_string1: size={}, format={s}, a={s}", .{ size, format, a });
     }
 
-    // Format the string. TODO: Check for overflow
-    var buf: [100]u8 = undefined; // Limit to 100 chars
+    // Format the string. TODO: Is 512 sufficient?
+    var buf: [512]u8 = undefined;
     const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{a}) catch {
         wasmlog.Console.log("*** format_string1 error: buf too small", .{});
         @panic("*** format_string1 error: buf too small");
     };
 
-    // Replace the Format Specifier
-    var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+    // Replace the Format Specifier. TODO: Is 512 sufficient?
+    var buf2 = std.mem.zeroes([512]u8);
     _ = std.mem.replace(u8, format, c_spec, buf_slice, &buf2);
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+    assert(len < size);
     @memcpy(str[0..len], buf2[0..len]);
     str[len] = 0;
     return len;
@@ -358,19 +361,20 @@ fn format_string2(
         debug("format_string2: size={}, format={s}, a0={s}, a1={s}", .{ size, format, a0, a1 });
     }
 
-    // Format the string. TODO: Check for overflow
-    var buf: [100]u8 = undefined; // Limit to 100 chars
+    // Format the string. TODO: Is 512 sufficient?
+    var buf: [512]u8 = undefined;
     const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
         wasmlog.Console.log("*** format_string error2: buf too small", .{});
         @panic("*** format_string error2: buf too small");
     };
 
-    // Replace the Format Specifier
-    var buf2 = std.mem.zeroes([100]u8); // Limit to 100 chars
+    // Replace the Format Specifier. TODO: Is 512 sufficient?
+    var buf2 = std.mem.zeroes([512]u8);
     _ = std.mem.replace(u8, format, c_spec, buf_slice, &buf2);
 
     // Return the string
     const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
+    assert(len < size);
     @memcpy(str[0..len], buf2[0..len]);
     str[len] = 0;
     return len;
@@ -381,7 +385,7 @@ export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int 
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
-    // Format the string. TODO: Catch overflow
+    // Format the string
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
     debug("vsnprintf: return str={s}", .{str[0..len]});
@@ -393,9 +397,9 @@ export fn sprintf(str: [*]u8, format: [*:0]const u8, ...) c_int {
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
-    // Format the string. TODO: Catch overflow
+    // Format the string. TODO: Is 512 sufficient?
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, str, 0, format_slice);
+    const len = format_string(&ap, str, 512, format_slice);
     debug("sprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
@@ -405,7 +409,7 @@ export fn snprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
-    // Format the string. TODO: Catch overflow
+    // Format the string
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
     debug("snprintf: return str={s}", .{str[0..len]});
@@ -417,10 +421,10 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
 
-    // Format the string. TODO: Catch overflow
-    var buf = std.mem.zeroes([100]u8); // Limit to 100 chars
+    // Format the string. TODO: Is 512 sufficient?
+    var buf = std.mem.zeroes([512]u8);
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, &buf, 0, format_slice);
+    const len = format_string(&ap, &buf, buf.len, format_slice);
 
     // TODO: Print to other File Streams. Right now we assume it's stderr (File Descriptor 2)
     debug("fprintf: stream={*}\n{s}", .{ stream, buf });
@@ -521,7 +525,7 @@ pub fn log(
     _ = _scope;
 
     // Format the message
-    var buf: [100]u8 = undefined; // Limit to 100 chars
+    var buf: [512]u8 = undefined; // Limit to 512 chars
     const slice = std.fmt.bufPrint(&buf, format, args) catch {
         wasmlog.Console.log("*** log error: buf too small", .{});
         return;
