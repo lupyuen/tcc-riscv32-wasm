@@ -10,6 +10,31 @@ set -x  #  Echo commands
 
 ## Compile TCC from C to WebAssembly
 function build_wasm {
+
+  zig cc \
+    -c \
+    -target wasm32-freestanding \
+    -dynamic \
+    -rdynamic \
+    -lc \
+    -DTCC_TARGET_RISCV64 \
+    -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
+    -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
+    -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
+    -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
+    -DTCC_GITHASH="\"main:b3d10a35\"" \
+    -Wall \
+    -O2 \
+    -Wdeclaration-after-statement \
+    -fno-strict-aliasing \
+    -Wno-pointer-sign \
+    -Wno-sign-compare \
+    -Wno-unused-result \
+    -Wno-format-truncation \
+    -Wno-stringop-truncation \
+    -I. \
+    zig/fs_romfs.c
+
   # zig translate-c \
   #   -target wasm32-freestanding \
   #   -rdynamic \
@@ -30,7 +55,6 @@ function build_wasm {
     -dynamic \
     -rdynamic \
     -lc \
-    tcc.c \
     -DTCC_TARGET_RISCV64 \
     -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
     -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
@@ -46,7 +70,8 @@ function build_wasm {
     -Wno-unused-result \
     -Wno-format-truncation \
     -Wno-stringop-truncation \
-    -I.
+    -I. \
+    tcc.c
 
   ## Dump our Compiled WebAssembly
   wasm-objdump -h tcc.o
