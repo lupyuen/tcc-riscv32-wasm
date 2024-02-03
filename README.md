@@ -2080,7 +2080,7 @@ genromfs \
 
 _How to implement the ROM FS in our Zig Wrapper?_
 
-We'll take the ROM FS implementation from Apache NuttX RTOS. And compile it from C to WebAssembly with Zig Compiler...
+We'll borrow the ROM FS Driver from Apache NuttX RTOS. And compile it from C to WebAssembly with Zig Compiler...
 
 - [fs_romfs.c](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.c)
 
@@ -2100,33 +2100,34 @@ This compiles OK with Zig Compiler with a few tweaks, let's test it in Zig...
 
 # Mount the ROM FS Filesystem in Zig
 
+_We borrowed the ROM FS Driver from Apache NuttX RTOS. Zig Compiler compiles it to WebAssembly with a few tweaks..._
+
+_How do we call the ROM FS Driver to Mount the ROM FS Filesystem?_
+
 This is how we mount the ROM FS Filesystem in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L12-L34)
 
 ```zig
 /// Import the ROM FS
 const c = @cImport({
-    @cInclude("zig_romfs.h");
+  @cInclude("zig_romfs.h");
 });
 
 /// Compile a C program to 64-bit RISC-V
-pub export fn compile_program(
-    options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON Array: ["-c", "hello.c"])
-    code_ptr: [*:0]const u8, // C Program to be compiled (Pointer to String)
-) [*]const u8 { // Returns a pointer to the `a.out` Compiled Code (Size in first 4 bytes)
+pub export fn compile_program(...) [*]const u8 {
 
-    // Create the Memory Allocator for malloc
-    memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
+  // Create the Memory Allocator for malloc
+  memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
-    // Mount the ROM FS Filesystem
-    const ret = c.romfs_bind( // Bind the ROM FS Filesystem
-        c.romfs_blkdriver, // ?*struct_inode_6
-        null, // data: ?*const anyopaque
-        &c.romfs_handle // [*c]?*anyopaque
-    );
-    assert(ret >= 0);
+  // Mount the ROM FS Filesystem
+  const ret = c.romfs_bind( // Bind the ROM FS Filesystem
+    c.romfs_blkdriver, // ?*struct_inode_6
+    null, // data: ?*const anyopaque
+    &c.romfs_handle // [*c]?*anyopaque
+  );
+  assert(ret >= 0);
 ```
 
-Zig don't let us create objects for `romfs_blkdriver` and `romfs_handle`, so we create them in C: [fs_romfs.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfs.c#L48-L50)
+Zig won't let us create objects for `romfs_blkdriver` and `romfs_handle`, so we create them in C: [fs_romfs.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfs.c#L48-L50)
 
 ```c
 struct inode romfs_blkdriver_inode;
@@ -2136,11 +2137,10 @@ void *romfs_handle = NULL;
 
 This crashes inside [romfs_fsconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L738-L796)...
 
-```text
-+ node zig/test.js
+```bash
+$ node zig/test.js
 compile_program: start
-format_string0: size=512, format=Entry
-printf: Entry
+Entry
 
 wasm://wasm/0085e9b2:1
 RuntimeError: unreachable
@@ -2159,18 +2159,18 @@ From [fs_romfsutil.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig
 // Implement mid_ioctl() so that BIOC_XIPBASE
 // sets the XIP Address in rm_xipbase
 ret = MTD_IOCTL(inode->u.i_mtd, BIOC_XIPBASE,
-                (unsigned long)&rm->rm_xipbase);
+  (unsigned long)&rm->rm_xipbase);
 ```
 
 We implement `mid_ioctl` for `BIOC_XIPBASE`: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L819-L826)
 
 ```zig
 export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, rm_xipbase: *c_int) c_int {
-    // Handle BIOC_XIPBASE
-    if (cmd == c.BIOC_XIPBASE) {
-        rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
-    }
-    return 0;
+  // Handle BIOC_XIPBASE
+  if (cmd == c.BIOC_XIPBASE) {
+    rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
+  }
+  return 0;
 }
 
 /// Embed the ROM FS Filesystem.
@@ -2186,12 +2186,11 @@ And the mounting succeeds yay!
 $ node zig/test.js
 compile_program: start
 compile_program: Mounting ROM FS...
-format_string0: size=512, format=Entry
-printf: Entry
+Entry
 compile_program: ROM FS mounted OK!
 ```
 
-The ROM FS Driver verifies the Magic Number when mounting. So we know it's correct: (fs_romfsutil.c)[https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L765-L770]
+The ROM FS Driver verifies the Magic Number when mounting. So we know it's correct: [fs_romfsutil.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L765-L770)
 
 ```c
 int romfs_fsconfigure(FAR struct romfs_mountpt_s *rm) {
@@ -2202,7 +2201,9 @@ int romfs_fsconfigure(FAR struct romfs_mountpt_s *rm) {
     { return -EINVAL; }
 ```
 
-If we don't embed a proper ROM FS Filesystem, it will fail...
+_We're sure it's correct?_
+
+If we don't embed a proper ROM FS Filesystem, the Magic Number will fail...
 
 ```bash
 ## Let's embed some junk:
@@ -2211,13 +2212,11 @@ If we don't embed a proper ROM FS Filesystem, it will fail...
 ## The ROM FS Mounting fails...
 $ node zig/test.js
 compile_program: start
-format_string0: size=512, format=Entry
-printf: Entry
-format_string1: size=512, format=ERROR: romfs_fsconfigure failed: %d
-, a=-22
-printf:
+Entry
 ERROR: romfs_fsconfigure failed: -22
 ```
+
+So yeah we're correct.
 
 TODO: Read a file from ROM FS
 
