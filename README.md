@@ -2096,6 +2096,10 @@ We'll take the ROM FS implementation from Apache NuttX RTOS. And compile it from
 
 [(See the __Build Script__)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/build.sh)
 
+This compiles OK with Zig Compiler with a few tweaks, let's test it in Zig...
+
+# Mount the ROM FS Filesystem in Zig
+
 TODO
 
 # Analysis of Missing Functions
