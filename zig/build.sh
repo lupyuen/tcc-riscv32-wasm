@@ -37,6 +37,7 @@ function build_wasm {
     "
 
   ## Zig Compiler options for NuttX ROM FS
+  ## Note: All `static` functions become public
   nuttx_options=" \
     -DBIOC_XIPBASE=2 \
     -DCODE= \
@@ -65,6 +66,7 @@ function build_wasm {
     -Dposix_spawn_file_actions_t=int \
     -Drmutex_t=int \
     -Dspinlock_t=int \
+    -Dstatic= \
     \
     -DEPERM=1 \
     -DENOENT=2 \
