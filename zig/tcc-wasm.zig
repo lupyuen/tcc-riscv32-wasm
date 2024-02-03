@@ -26,12 +26,14 @@ pub export fn compile_program(
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
     // Mount the ROM FS Filesystem
+    debug("compile_program: Mounting ROM FS...", .{});
     const ret = c.romfs_bind( // Bind the ROM FS Filesystem
         c.romfs_blkdriver, // ?*struct_inode_6
         null, // data: ?*const anyopaque
         &c.romfs_handle // [*c]?*anyopaque
     );
     assert(ret >= 0);
+    debug("compile_program: ROM FS mounted OK!", .{});
 
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
