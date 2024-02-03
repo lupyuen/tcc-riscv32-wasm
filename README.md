@@ -2134,33 +2134,35 @@ struct inode *romfs_blkdriver = &romfs_blkdriver_inode;
 void *romfs_handle = NULL;
 ```
 
-This crashes inside [romfs_hwconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L630-L733)...
+This crashes inside [romfs_fsconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L738-L796)...
 
 ```text
-$ node zig/test.js
++ node zig/test.js
 compile_program: start
 format_string0: size=512, format=Entry
 printf: Entry
 
-wasm://wasm/00860a5a:1
-RuntimeError: null function or function signature mismatch
-    at romfs_hwconfigure (wasm://wasm/00860a5a:wasm-function[22]:0xa3e)
-    at romfs_bind (wasm://wasm/00860a5a:wasm-function[21]:0x939)
-    at compile_program (wasm://wasm/00860a5a:wasm-function[252]:0x4e765)
+wasm://wasm/0085e9b2:1
+RuntimeError: unreachable
+    at signature_mismatch:mtd_bread (wasm://wasm/0085e9b2:wasm-function[10]:0x842)
+    at romfs_fsconfigure (wasm://wasm/0085e9b2:wasm-function[22]:0xab3)
+    at romfs_bind (wasm://wasm/0085e9b2:wasm-function[20]:0x954)
+    at compile_program (wasm://wasm/0085e9b2:wasm-function[251]:0x4e683)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
-
 ```
 
-Probably because our `romfs_blkdriver` is an empty `inode`: [romfs_hwconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L630-L733)
+We need to return the XIP Address so that [romfs_fsconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L738-L796) will read the RAM directly. (Instead of reading from the device)
+
+From [fs_romfsutil.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L704-L705):
 
 ```c
-int romfs_hwconfigure(FAR struct romfs_mountpt_s *rm) {
-  ...
-  // Crashes becaise `u.i_bops` is null
-  ret = inode->u.i_bops->geometry(inode, &geo);
+// Implement mid_ioctl() so that BIOC_XIPBASE
+// sets the XIP Address in rm_xipbase
+ret = MTD_IOCTL(inode->u.i_mtd, BIOC_XIPBASE,
+                (unsigned long)&rm->rm_xipbase);
 ```
 
-TODO: Init `romfs_blkdriver`. Why do we need geometry for a RAM Disk?
+TODO: Implement `mid_ioctl` for `BIOC_XIPBASE`
 
 # Analysis of Missing Functions
 
