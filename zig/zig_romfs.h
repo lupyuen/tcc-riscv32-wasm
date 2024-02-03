@@ -1,10 +1,16 @@
+//// Custom Definitions for Zig ROM FS
 #ifndef __ZIG_ROMFS_H
 #define __ZIG_ROMFS_H
 
-//// Custom Definitions for Zig ROM FS
+#define FAR
+#define NAME_MAX 255
+#define PATH_MAX 255
+
 #include <stdio.h>
 #include <stdint.h>
 #include "inode.h"
+
+typedef int rmutex_t;
 
 struct mtd_geometry_s {
   uint32_t blocksize;     /* Size of one read/write block. */

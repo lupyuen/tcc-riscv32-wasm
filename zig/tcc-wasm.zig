@@ -9,12 +9,24 @@ const wasmlog = @import("wasmlog.zig");
 /// Import the Hexdump Logger
 const hexdump = @import("hexdump.zig");
 
+/// Import the ROM FS
+const c = @cImport({
+    @cInclude("zig/zig_romfs.h");
+});
+
 /// Compile a C program to 64-bit RISC-V
 pub export fn compile_program(
     options_ptr: [*:0]const u8, // Options for TCC Compiler (Pointer to JSON Array: ["-c", "hello.c"])
     code_ptr: [*:0]const u8, // C Program to be compiled (Pointer to String)
 ) [*]const u8 { // Returns a pointer to the `a.out` Compiled Code (Size in first 4 bytes)
     debug("compile_program: start", .{});
+    defer debug("compile_program: end", .{});
+
+    // Mount the ROM FS Filesystem
+    const ret = c.romfs_bind(
+        //struct inode *blkdriver, const void *data, void **handle
+    );
+    assert(ret >= 0);
 
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
@@ -116,14 +128,14 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
     return @intCast(len);
 }
 
-export fn fputc(c: c_int, stream: *FILE) c_int {
-    debug("fputc: c=0x{X:0>2}, stream={*}", .{ @as(u8, @intCast(c)), stream });
+export fn fputc(ch: c_int, stream: *FILE) c_int {
+    debug("fputc: ch=0x{X:0>2}, stream={*}", .{ @as(u8, @intCast(ch)), stream });
 
     // Copy to the Write Buffer
     // TODO: Support more than one `stream`
-    @memset(write_buf[write_buflen .. write_buflen + 1], @intCast(c));
+    @memset(write_buf[write_buflen .. write_buflen + 1], @intCast(ch));
     write_buflen += 1;
-    return c;
+    return ch;
 }
 
 export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) usize {

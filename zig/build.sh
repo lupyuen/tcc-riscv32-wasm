@@ -49,12 +49,10 @@ function build_wasm {
     -DERROR=-1 \
     -DFAR= \
     -DFIOC_FILEPATH=1 \
-    -DNAME_MAX=255 \
     -DOK=0 \
     -DMTD_BREAD=mtd_bread \
     -DMTD_IOCTL=mtd_ioctl \
     -DMTDIOC_GEOMETRY=3 \
-    -DPATH_MAX=255 \
     -DROMFS_MAGIC=0x7275 \
     \
     -Dferr=printf \
@@ -64,7 +62,6 @@ function build_wasm {
     -Dkmm_malloc=malloc \
     -Dkmm_zalloc=zalloc \
     -Dposix_spawn_file_actions_t=int \
-    -Drmutex_t=int \
     -Dspinlock_t=int \
     -Dstatic= \
     \
@@ -124,6 +121,7 @@ function build_wasm {
     -freference-trace \
     --verbose-cimport \
     --export=compile_program \
+    -I. \
     zig/tcc-wasm.zig \
     fs_romfs.o \
     fs_romfsutil.o \
