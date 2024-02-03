@@ -21,9 +21,29 @@ function build_wasm {
     -Dferr=printf \
     -Dfinfo=printf \
     -Dfwarn=printf \
+    -Dkmm_free=free \
+    -Dkmm_zalloc=zalloc \
     -Dposix_spawn_file_actions_t=int \
     -Drmutex_t=int \
     -Dspinlock_t=int \
+    -DEPERM=1 \
+    -DENOENT=2 \
+    -DEINTR=4 \
+    -DENXIO=6 \
+    -DEAGAIN=11 \
+    -DENOMEM=12 \
+    -DEACCES=13 \
+    -DEEXIST=17 \
+    -DENODEV=19 \
+    -DENOTDIR=20 \   
+    -DEISDIR=21 \
+    -DEINVAL=22 \
+    -DENOTTY=25 \
+    -DEPIPE=32 \
+    -DEDOM=33 \
+    -DERANGE=34 \
+    -DEWOULDBLOCK=140 \
+    -DECONNREFUSED=111 \
     \
     -c \
     -target wasm32-freestanding \
