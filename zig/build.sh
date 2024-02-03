@@ -11,7 +11,33 @@ set -x  #  Echo commands
 ## Compile TCC from C to WebAssembly
 function build_wasm {
 
-  zig cc \
+  ## Zig Compiler options for TCC
+  tcc_options=" \
+    -c \
+    -target wasm32-freestanding \
+    -dynamic \
+    -rdynamic \
+    -lc \
+    -DTCC_TARGET_RISCV64 \
+    -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
+    -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
+    -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
+    -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
+    -DTCC_GITHASH="\"main:b3d10a35\"" \
+    -Wall \
+    -O2 \
+    -Wdeclaration-after-statement \
+    -fno-strict-aliasing \
+    -Wno-pointer-sign \
+    -Wno-sign-compare \
+    -Wno-unused-result \
+    -Wno-format-truncation \
+    -Wno-stringop-truncation \
+    -I. \
+    "
+
+  ## Zig Compiler options for NuttX ROM FS
+  nuttx_options=" \
     -DCODE= \
     -DDEBUGASSERT=assert \
     -DDTYPE_DIRECTORY=DT_DIR \
@@ -23,6 +49,7 @@ function build_wasm {
     -DOK=0 \
     -DPATH_MAX=255 \
     -DROMFS_MAGIC=0x7275 \
+    \
     -Dferr=printf \
     -Dfinfo=printf \
     -Dfwarn=printf \
@@ -53,71 +80,22 @@ function build_wasm {
     -DENOSYS=38 \
     -DEWOULDBLOCK=140 \
     -DECONNREFUSED=111 \
-    \
-    -c \
-    -target wasm32-freestanding \
-    -dynamic \
-    -rdynamic \
-    -lc \
-    -DTCC_TARGET_RISCV64 \
-    -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
-    -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
-    -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
-    -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
-    -DTCC_GITHASH="\"main:b3d10a35\"" \
-    -Wall \
-    -O2 \
-    -Wdeclaration-after-statement \
-    -fno-strict-aliasing \
-    -Wno-pointer-sign \
-    -Wno-sign-compare \
-    -Wno-unused-result \
-    -Wno-format-truncation \
-    -Wno-stringop-truncation \
-    -I. \
+    "
+
+  ## Compile fs_romfs.c to WebAssembly
+  zig cc \
+    $nuttx_options \
+    $tcc_options \
     zig/fs_romfs.c
 
-  # zig translate-c \
-  #   -target wasm32-freestanding \
-  #   -rdynamic \
-  #   -lc \
-  #   tcc.c \
-  #   -DTCC_TARGET_RISCV64 \
-  #   -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
-  #   -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
-  #   -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
-  #   -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
-  #   -DTCC_GITHASH="\"main:b3d10a35\"" \
-  #   -I. \
-  #   >/tmp/tcc.zig
-
+  ## Compile tcc.c to WebAssembly
   zig cc \
-    -c \
-    -target wasm32-freestanding \
-    -dynamic \
-    -rdynamic \
-    -lc \
-    -DTCC_TARGET_RISCV64 \
-    -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
-    -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
-    -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
-    -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
-    -DTCC_GITHASH="\"main:b3d10a35\"" \
-    -Wall \
-    -O2 \
-    -Wdeclaration-after-statement \
-    -fno-strict-aliasing \
-    -Wno-pointer-sign \
-    -Wno-sign-compare \
-    -Wno-unused-result \
-    -Wno-format-truncation \
-    -Wno-stringop-truncation \
-    -I. \
+    $tcc_options \
     tcc.c
 
   ## Dump our Compiled WebAssembly
-  wasm-objdump -h tcc.o
-  wasm-objdump -x tcc.o >/tmp/tcc.txt
+  # wasm-objdump -h tcc.o
+  # wasm-objdump -x tcc.o >/tmp/tcc.txt
 
   ## Compile our Zig App `tcc-wasm.zig` for WebAssembly
   ## and link with TCC compiled for WebAssembly
@@ -134,8 +112,8 @@ function build_wasm {
     tcc.o
 
   ## Dump our Linked WebAssembly
-  wasm-objdump -h tcc-wasm.wasm
-  wasm-objdump -x tcc-wasm.wasm >/tmp/tcc-wasm.txt
+  # wasm-objdump -h tcc-wasm.wasm
+  # wasm-objdump -x tcc-wasm.wasm >/tmp/tcc-wasm.txt
 
   ## Copy the Linked TCC WebAssembly to the Web Server
   cp tcc-wasm.wasm docs/
@@ -143,6 +121,21 @@ function build_wasm {
   ## Run our Linked WebAssembly
   node zig/test.js
   node zig/test.js | grep "TODO"
+
+  ## Translate tcc.c to Zig
+  # zig translate-c \
+  #   -target wasm32-freestanding \
+  #   -rdynamic \
+  #   -lc \
+  #   tcc.c \
+  #   -DTCC_TARGET_RISCV64 \
+  #   -DCONFIG_TCC_CROSSPREFIX="\"riscv64-\""  \
+  #   -DCONFIG_TCC_CRTPREFIX="\"/usr/riscv64-linux-gnu/lib\"" \
+  #   -DCONFIG_TCC_LIBPATHS="\"{B}:/usr/riscv64-linux-gnu/lib\"" \
+  #   -DCONFIG_TCC_SYSINCLUDEPATHS="\"{B}/include:/usr/riscv64-linux-gnu/include\""   \
+  #   -DTCC_GITHASH="\"main:b3d10a35\"" \
+  #   -I. \
+  #   >/tmp/tcc.zig
 }
 
 ## Test TCC WebAssembly with NuttX QEMU
