@@ -2047,6 +2047,24 @@ That's how we compile a NuttX App in the Web Browser, and run it with NuttX Emul
 
 ![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-emu2.png)
 
+# ROM FS Filesystem for TCC WebAssembly
+
+TODO
+
+_Can we handle Multiple Files?_
+
+We'll have to embed an __Emulated Filesystem__ inside our Zig Wrapper. The Filesystem will be preloaded with the Header and Library Files needed by TCC.
+
+[(Works like the __Emscripten Filesystem__)](https://emscripten.org/docs/porting/files/file_systems_overview.html)
+
+[(Maybe we embed the simple __ROM FS Filesystem__)](https://docs.kernel.org/filesystems/romfs.html)
+
+- [fs_romfs.c](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.c)
+
+- [fs_romfs.h](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.h)
+
+- [fs_romfsutil.c](https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfsutil.c)
+
 # Analysis of Missing Functions
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
