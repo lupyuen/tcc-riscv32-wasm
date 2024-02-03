@@ -25,6 +25,7 @@
  * Included Files
  ****************************************************************************/
 
+#include "zig_romfs.h"////
 ////#include <nuttx/config.h>
 #include <sys/types.h>
 
