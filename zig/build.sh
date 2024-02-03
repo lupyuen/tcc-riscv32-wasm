@@ -35,7 +35,7 @@ function build_wasm {
     -DEACCES=13 \
     -DEEXIST=17 \
     -DENODEV=19 \
-    -DENOTDIR=20 \   
+    -DENOTDIR=20 \
     -DEISDIR=21 \
     -DEINVAL=22 \
     -DENOTTY=25 \
