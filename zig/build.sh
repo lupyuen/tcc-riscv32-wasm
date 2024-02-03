@@ -14,18 +14,25 @@ function build_wasm {
   zig cc \
     -DCODE= \
     -DDEBUGASSERT=assert \
+    -DDTYPE_DIRECTORY=DT_DIR \
+    -DDTYPE_FILE=DT_REG \
+    -DDTYPE_LINK=DT_LNK \
     -DFAR= \
+    -DFIOC_FILEPATH=1 \
     -DNAME_MAX=255 \
-    -DPATH_MAX=255 \
     -DOK=0 \
+    -DPATH_MAX=255 \
+    -DROMFS_MAGIC=0x7275 \
     -Dferr=printf \
     -Dfinfo=printf \
     -Dfwarn=printf \
     -Dkmm_free=free \
+    -Dkmm_malloc=malloc \
     -Dkmm_zalloc=zalloc \
     -Dposix_spawn_file_actions_t=int \
     -Drmutex_t=int \
     -Dspinlock_t=int \
+    \
     -DEPERM=1 \
     -DENOENT=2 \
     -DEINTR=4 \
@@ -123,6 +130,7 @@ function build_wasm {
     --verbose-cimport \
     --export=compile_program \
     zig/tcc-wasm.zig \
+    fs_romfs.o \
     tcc.o
 
   ## Dump our Linked WebAssembly
