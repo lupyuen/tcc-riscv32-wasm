@@ -2257,9 +2257,19 @@ TODO
 [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
 
 ```c
-    var filep = c.struct_file{
-        .f_inode = c.romfs_blkdriver, // ROM FS Driver
-    };
+    // Create the Mount Point
+    var mount_point = std.mem.zeroes(c.romfs_mountpt_s);
+    mount_point.rm_blkdriver = c.romfs_blkdriver;
+    mount_point.rm_mounted = true;
+
+    // Create the Mount Inode
+    const mount_inode = c.create_mount_inode(&mount_point);
+
+    // Create the File Struct
+    var filep = std.mem.zeroes(c.struct_file);
+    filep.f_inode = mount_inode;
+
+    // Open the file
     const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
         &filep, // filep: [*c]struct_file
         "hello", // relpath: [*c]const u8
@@ -2269,7 +2279,7 @@ TODO
     assert(ret2 > 0);
 ```
 
-TODO: Set filep->f_inode->i_private to romfs_blkdriver
+TODO
 
 ```text
 + node zig/test.js
@@ -2287,18 +2297,14 @@ format_string1: size=512, format=Open '%s'
 printf:
 Open 'hello'
 
-format_string1: size=512, format=*** Assert Failed at zig/fs_romfs.c:%d - rm != NULL
-, a=185
-printf:
-*** Assert Failed at zig/fs_romfs.c:185 - rm != NULL
-
-wasm://wasm/035b110a:1
+wasm://wasm/035b39e2:1
 
 
-RuntimeError: unreachable
-    at signature_mismatch:exit (wasm://wasm/035b110a:wasm-function[14]:0x874)
-    at romfs_open (wasm://wasm/035b110a:wasm-function[20]:0xb0c)
-    at compile_program (wasm://wasm/035b110a:wasm-function[261]:0x4f357)
+RuntimeError: divide by zero
+    at romfs_searchdir (wasm://wasm/035b39e2:wasm-function[27]:0x125d)
+    at romfs_finddirentry (wasm://wasm/035b39e2:wasm-function[32]:0x163d)
+    at romfs_open (wasm://wasm/035b39e2:wasm-function[21]:0x95f)
+    at compile_program (wasm://wasm/035b39e2:wasm-function[262]:0x4f499)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
 ```
 
