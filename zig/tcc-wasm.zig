@@ -54,6 +54,24 @@ pub export fn compile_program(
     assert(ret2 >= 0);
     debug("compile_program: ROM FS File `hello` opened OK!", .{});
 
+    // Read the file
+    debug("compile_program: Reading ROM FS File `hello`...", .{});
+    var buf = std.mem.zeroes([4]u8);
+    const ret3 = c.romfs_read( // Read the file
+        &filep, // filep: [*c]struct_file
+        &buf, // buffer: [*c]u8
+        buf.len // buflen: usize
+    );
+    assert(ret3 >= 0);
+    debug("compile_program: ROM FS File `hello` read OK!", .{});
+    hexdump.hexdump(@ptrCast(&buf), @intCast(ret3));
+
+    // Close the file
+    debug("compile_program: Closing ROM FS File `hello`...", .{});
+    const ret4 = c.romfs_close(&filep);
+    assert(ret4 >= 0);
+    debug("compile_program: ROM FS File `hello` closed OK!", .{});
+
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
     debug("compile_program: options={s}", .{options});

@@ -50,8 +50,44 @@ extern void *romfs_mountpt;
 struct inode *create_mount_inode(void *romfs_mountpt0);
 
 // From fs_romfs.c
-int romfs_bind(struct inode *blkdriver, const void *data, void **handle);
-int romfs_open(struct file *filep, const char *relpath, int oflags, mode_t mode);
+int     romfs_open(FAR struct file *filep, FAR const char *relpath,
+                          int oflags, mode_t mode);
+int     romfs_close(FAR struct file *filep);
+ssize_t romfs_read(FAR struct file *filep, FAR char *buffer,
+                          size_t buflen);
+off_t   romfs_seek(FAR struct file *filep, off_t offset, int whence);
+int     romfs_ioctl(FAR struct file *filep, int cmd,
+                           unsigned long arg);
+int     romfs_mmap(FAR struct file *filep,
+                          FAR struct mm_map_entry_s *map);
+
+int     romfs_dup(FAR const struct file *oldp,
+                         FAR struct file *newp);
+int     romfs_fstat(FAR const struct file *filep,
+                           FAR struct stat *buf);
+
+int     romfs_opendir(FAR struct inode *mountpt,
+                             FAR const char *relpath,
+                             FAR struct fs_dirent_s **dir);
+int     romfs_closedir(FAR struct inode *mountpt,
+                              FAR struct fs_dirent_s *dir);
+int     romfs_readdir(FAR struct inode *mountpt,
+                             FAR struct fs_dirent_s *dir,
+                             FAR struct dirent *entry);
+int     romfs_rewinddir(FAR struct inode *mountpt,
+                               FAR struct fs_dirent_s *dir);
+
+int     romfs_bind(FAR struct inode *blkdriver, FAR const void *data,
+                          FAR void **handle);
+int     romfs_unbind(FAR void *handle, FAR struct inode **blkdriver,
+                            unsigned int flags);
+int     romfs_statfs(FAR struct inode *mountpt,
+                            FAR struct statfs *buf);
+
+int     romfs_stat_common(uint8_t type, uint32_t size,
+                                 uint16_t sectorsize, FAR struct stat *buf);
+int     romfs_stat(FAR struct inode *mountpt, FAR const char *relpath,
+                          FAR struct stat *buf);
 
 // From tcc-wasm.zig
 int nxrmutex_init(rmutex_t *rmutex);
