@@ -2317,7 +2317,110 @@ ERROR: Failed to find directory directory entry for '%s': %d
 
 So yep our ROM FS Driver is reading the ROM FS Directory correctly!
 
-TODO: Read the file
+# Read a ROM FS File in Zig
+
+TODO
+
+[tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L57-L73)
+
+```zig
+    // Read the file
+    var buf = std.mem.zeroes([4]u8);
+    const ret3 = c.romfs_read( // Read the file
+        &filep, // filep: [*c]struct_file
+        &buf, // buffer: [*c]u8
+        buf.len // buflen: usize
+    );
+    assert(ret3 >= 0);
+    hexdump.hexdump(@ptrCast(&buf), @intCast(ret3));
+
+    // Close the file
+    const ret4 = c.romfs_close(&filep);
+    assert(ret4 >= 0);
+```
+
+TODO
+
+```text
++ node zig/test.js
+compile_program: start
+compile_program: Mounting ROM FS...
+format_string0: size=512, format=Entry
+
+printf:
+Entry
+
+format_string1: size=512, format=rm=%d
+, a=13050977
+printf:
+rm=13050977
+
+format_string1: size=512, format=rm_hwsectorsize=%d
+, a=64
+printf:
+rm_hwsectorsize=64
+
+compile_program: ROM FS mounted OK!
+compile_program: romfs_mountpt=anyopaque@c72461
+format_string1: size=512, format=romfs_blkdriver=%d
+, a=12970960
+printf:
+romfs_blkdriver=12970960
+
+format_string1: size=512, format=romfs_mounting_inode=%d
+, a=1043672
+printf:
+romfs_mounting_inode=1043672
+
+format_string1: size=512, format=romfs_mountpt0=%d
+, a=13050977
+printf:
+romfs_mountpt0=13050977
+
+compile_program: Opening ROM FS File `hello`...
+format_string1: size=512, format=Open '%s'
+, a=hello
+printf:
+Open 'hello'
+
+compile_program: ROM FS File `hello` opened OK!
+compile_program: Reading ROM FS File `hello`...
+TODO: format_string: format=Read %zu bytes from offset %jd
+
+printf:
+Read %zu bytes from offset %jd
+
+TODO: format_string: format=Read sector %jd
+
+printf:
+Read sector %jd
+
+TODO: format_string: format=sector: %d cached: %d ncached: %d sectorsize: %d XIP base: %p buffer: %p
+
+printf:
+sector: %d cached: %d ncached: %d sectorsize: %d XIP base: %p buffer: %p
+
+TODO: format_string: format=XIP buffer: %p
+
+printf:
+XIP buffer: %p
+
+TODO: format_string: format=Return %d bytes from sector offset %d
+
+printf:
+Return %d bytes from sector offset %d
+
+compile_program: ROM FS File `hello` read OK!
+  0000:  7F 45 4C 46                                       .ELF
+
+compile_program: Closing ROM FS File `hello`...
+format_string0: size=512, format=Closing
+
+printf:
+Closing
+
+compile_program: ROM FS File `hello` closed OK!
+```
 
 # Analysis of Missing Functions
 
