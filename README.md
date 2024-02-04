@@ -1935,6 +1935,10 @@ Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator 
 
     [(Watch the Demo on YouTube)](https://youtu.be/DJMDYq52Iv8)
 
+    [(Source Files for TCC WebAssembly)](https://github.com/lupyuen/tcc-riscv32-wasm/tree/main/docs)
+
+    [(Source Files for NuttX Emulator integrated with TCC)](https://github.com/lupyuen/nuttx-tinyemu/tree/main/docs/tcc)
+
 ![Building and Testing NuttX Apps inside a Web Browser](https://lupyuen.github.io/images/tcc-nuttx.jpg)
 
 _Wow how does it work?_
