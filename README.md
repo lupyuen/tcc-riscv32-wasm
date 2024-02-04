@@ -2255,18 +2255,19 @@ TODO
 [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
 
 ```c
-// Open "hello" for Read-Only. `mode` is used only for creating files.
-var filep = c.struct_file{};
-const ret2 = c.romfs_open(
-    &filep, // filep: [*c]struct_file
-    "hello", // relpath: [*c]const u8
-    c.O_RDONLY, // oflags: c_int
-    0 // mode: mode_t
-);
-assert(ret2 > 0);
+    var filep = c.struct_file{
+        .f_inode = c.romfs_blkdriver, // ROM FS Driver
+    };
+    const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
+        &filep, // filep: [*c]struct_file
+        "hello", // relpath: [*c]const u8
+        c.O_RDONLY, // oflags: c_int
+        0 // mode: mode_t
+    );
+    assert(ret2 > 0);
 ```
 
-TODO
+TODO: Set filep->f_inode->i_private to romfs_blkdriver
 
 ```text
 + node zig/test.js
@@ -2284,20 +2285,19 @@ format_string1: size=512, format=Open '%s'
 printf:
 Open 'hello'
 
-format_string1: size=512, format=ERROR: romfs_checkmount failed: %d
-, a=-19
+format_string1: size=512, format=*** Assert Failed at zig/fs_romfs.c:%d - rm != NULL
+, a=185
 printf:
-ERROR: romfs_checkmount failed: -19
+*** Assert Failed at zig/fs_romfs.c:185 - rm != NULL
 
-wasm://wasm/035aff12:1
+wasm://wasm/035b110a:1
 
 
 RuntimeError: unreachable
-    at builtin.default_panic (wasm://wasm/035aff12:wasm-function[272]:0x50fd1)
-    at debug.assert (wasm://wasm/035aff12:wasm-function[265]:0x506e5)
-    at compile_program (wasm://wasm/035aff12:wasm-function[261]:0x4f265)
+    at signature_mismatch:exit (wasm://wasm/035b110a:wasm-function[14]:0x874)
+    at romfs_open (wasm://wasm/035b110a:wasm-function[20]:0xb0c)
+    at compile_program (wasm://wasm/035b110a:wasm-function[261]:0x4f357)
     at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
-
 ```
 
 # Analysis of Missing Functions
