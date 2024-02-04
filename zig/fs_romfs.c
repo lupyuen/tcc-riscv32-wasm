@@ -45,9 +45,17 @@
 
 #include "fs_romfs.h"
 
-struct inode romfs_blkdriver_inode; ////
-struct inode *romfs_blkdriver = &romfs_blkdriver_inode; ////
-void *romfs_handle = NULL; ////
+//// Begin Testing
+struct inode romfs_mounting_inode;
+struct inode romfs_blkdriver_inode;
+struct inode *romfs_blkdriver = &romfs_blkdriver_inode;
+void *romfs_handle = NULL;
+
+struct inode *create_mount_inode(struct romfs_mountpt_s *priv) {
+  romfs_mounting_inode.i_private = priv;
+  return &romfs_mounting_inode;
+}
+//// End Testing
 
 /****************************************************************************
  * Private Types

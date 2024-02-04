@@ -36,9 +36,14 @@ pub export fn compile_program(
     debug("compile_program: ROM FS mounted OK!", .{});
 
     debug("compile_program: Opening ROM FS File `hello`...", .{});
-    var filep = c.struct_file{
-        .f_inode = c.romfs_blkdriver, // ROM FS Driver
-    };
+    var mount_point = std.mem.zeroes(c.romfs_mountpt_s);
+    mount_point.rm_blkdriver = c.romfs_blkdriver;
+
+    const mount_inode = c.create_mount_inode(&mount_point);
+
+    var filep = std.mem.zeroes(c.struct_file);
+    filep.f_inode = mount_inode;
+
     const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
         &filep, // filep: [*c]struct_file
         "hello", // relpath: [*c]const u8

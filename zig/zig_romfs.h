@@ -42,10 +42,12 @@ struct mm_map_entry_s {
 // Needed by romfs_bind and romfs_open
 #include "fs.h"
 #include "inode.h"
+#include "fs_romfs.h"
 
 // From fs_romfs.c
 extern struct inode *romfs_blkdriver;
 extern void *romfs_handle;
+struct inode *create_mount_inode(struct romfs_mountpt_s *priv);
 
 // From fs_romfs.c
 int romfs_bind(struct inode *blkdriver, const void *data, void **handle);
