@@ -186,9 +186,14 @@ static int16_t romfs_devcacheread(FAR struct romfs_mountpt_s *rm,
    * this then we do nothing.
    */
 
+  puts("m");////
+  printf("rm=%d\n", rm);////
+  printf("rm_hwsectorsize=%d\n", rm->rm_hwsectorsize);////  
   sector = SEC_NSECTORS(rm, offset);
+  puts("n");////
   if (rm->rm_cachesector != sector)
     {
+  puts("w");////
       /* Check the access mode */
 
       if (rm->rm_xipbase)
@@ -197,13 +202,17 @@ static int16_t romfs_devcacheread(FAR struct romfs_mountpt_s *rm,
            * address space.
            */
 
+  puts("o");
           rm->rm_buffer = rm->rm_xipbase + SEC_ALIGN(rm, offset);
+  puts("p");
         }
       else
         {
           /* In non-XIP mode, we will have to read the new sector. */
 
+  puts("s");////
           ret = romfs_hwread(rm, rm->rm_buffer, sector, 1);
+  puts("t");////
           if (ret < 0)
             {
               return (int16_t)ret;
@@ -212,11 +221,14 @@ static int16_t romfs_devcacheread(FAR struct romfs_mountpt_s *rm,
 
       /* Update the cached sector number */
 
+  puts("u");////
       rm->rm_cachesector = sector;
+  puts("v");////
     }
 
   /* Return the offset */
 
+  puts("q");////
   return offset & SEC_NDXMASK(rm);
 }
 
@@ -362,6 +374,7 @@ static inline int romfs_searchdir(FAR struct romfs_mountpt_s *rm,
    */
 
   offset = nodeinfo->rn_offset;
+  puts("a");////
   do
     {
       /* Read the sector into memory (do this before calling
@@ -369,7 +382,9 @@ static inline int romfs_searchdir(FAR struct romfs_mountpt_s *rm,
        * twice in the event that the offset refers to a hardlink).
        */
 
+      puts("b");////
       ndx = romfs_devcacheread(rm, offset);
+      puts("c");////
       if (ndx < 0)
         {
           return ndx;
@@ -379,13 +394,17 @@ static inline int romfs_searchdir(FAR struct romfs_mountpt_s *rm,
        * we know that most the basic node info fits into the sector.
        */
 
+      puts("d");////
       next = romfs_devread32(rm, ndx + ROMFS_FHDR_NEXT) & RFNEXT_OFFSETMASK;
+      puts("e");////
 
       /* Check if the name this entry is a directory with the matching
        * name
        */
 
+      puts("f");////
       ret = romfs_checkentry(rm, offset, entryname, entrylen, nodeinfo);
+      puts("g");////
       if (ret == OK)
         {
           /* Its a match! Return success */
@@ -676,14 +695,13 @@ int romfs_hwconfigure(FAR struct romfs_mountpt_s *rm)
       rm->rm_hwsectorsize = mgeo.blocksize;
       rm->rm_hwnsectors   = mgeo.neraseblocks *
                             (mgeo.erasesize / mgeo.blocksize);
+             printf("rm_hwsectorsize=%d\n", rm->rm_hwsectorsize);////
     }
   else
     {
       struct geometry geo;
 
-      puts("a");
       ret = inode->u.i_bops->geometry(inode, &geo);
-      puts("b");
       if (ret != OK)
         {
           return ret;

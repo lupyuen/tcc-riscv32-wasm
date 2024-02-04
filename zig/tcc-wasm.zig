@@ -857,16 +857,34 @@ const ECONNREFUSED: c_int = 111;
 ///////////////////////////////////////////////////////////////////////////////
 // NuttX Functions
 
-export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, rm_xipbase: *c_int) c_int {
-    _ = dev; // autofix
-    // Handle BIOC_XIPBASE
+export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
+    assert(rm_xipbase != null);
     if (cmd == c.BIOC_XIPBASE) {
-        rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
+        // Return the XIP Base Address
+        rm_xipbase.?.* = @intCast(@intFromPtr(ROMFS_DATA));
+    } else if (cmd == c.MTDIOC_GEOMETRY) {
+        // Return the Storage Device Geometry
+        const geo: *c.mtd_geometry_s = @ptrCast(rm_xipbase.?);
+        geo.*.blocksize = 64;
+        geo.*.erasesize = 64;
+        geo.*.neraseblocks = 1024; // TODO: Is this needed?
+        const name = "ZIG_ROMFS";
+        @memcpy(geo.*.model[0..name.len], name);
+        geo.*.model[name.len] = 0;
+    } else {
+        debug("mtd_ioctl: Unknown command {}", .{cmd});
     }
     return 0;
 }
 
+export fn __assert_fail(assertion: [*:0]const u8, file: [*:0]const u8, line: c_uint, function: [*:0]const u8) void {
+    debug("__assert_fail", .{});
+    debug("*** Assert Failed at {s} {s}:{} - {s}", .{ function, file, line, assertion });
+    _ = exit(-1);
+}
+
 export fn nxrmutex_init(_: *rmutex_t) c_int {
+    debug("nxrmutex_init", .{});
     return 0;
 }
 export fn nxrmutex_destroy(_: *rmutex_t) c_int {
