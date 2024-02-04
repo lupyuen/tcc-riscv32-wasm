@@ -38,6 +38,7 @@ pub export fn compile_program(
     debug("compile_program: Opening ROM FS File `hello`...", .{});
     var mount_point = std.mem.zeroes(c.romfs_mountpt_s);
     mount_point.rm_blkdriver = c.romfs_blkdriver;
+    mount_point.rm_mounted = true;
 
     const mount_inode = c.create_mount_inode(&mount_point);
 
