@@ -35,6 +35,16 @@ pub export fn compile_program(
     assert(ret >= 0);
     debug("compile_program: ROM FS mounted OK!", .{});
 
+    // debug("compile_program: Opening ROM FS File...", .{});
+    // const ret2 = c.romfs_open(
+    //     // filep: [*c]struct_file
+    //     // relpath: [*c]const u8
+    //     // oflags: c_int
+    //     // mode: mode_t) c_int;
+    // );
+    // assert(ret2 > 0);
+    // debug("compile_program: ROM FS File opened OK!", .{});
+
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
     debug("compile_program: options={s}", .{options});
