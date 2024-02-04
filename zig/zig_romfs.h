@@ -7,6 +7,10 @@
 #define NAME_MAX 255
 #define PATH_MAX 255
 
+// Open flag settings for open()
+#define O_RDONLY    (1 << 0)        /* Open for read access (only) */
+#define O_WRONLY    (1 << 1)        /* Open for write access (only) */
+
 // For mtd_ioctl()
 #define MTDIOC_GEOMETRY 1
 #define BIOC_XIPBASE 2

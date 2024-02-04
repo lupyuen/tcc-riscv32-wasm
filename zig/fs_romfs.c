@@ -33,7 +33,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <fcntl.h>
+////#include <fcntl.h>
 #include <limits.h>
 #include <assert.h>
 #include <errno.h>

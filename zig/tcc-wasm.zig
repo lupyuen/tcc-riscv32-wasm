@@ -28,22 +28,23 @@ pub export fn compile_program(
     // Mount the ROM FS Filesystem
     debug("compile_program: Mounting ROM FS...", .{});
     const ret = c.romfs_bind( // Bind the ROM FS Filesystem
-        c.romfs_blkdriver, // ?*struct_inode_6
+        c.romfs_blkdriver, // blkdriver: ?*struct_inode_6
         null, // data: ?*const anyopaque
-        &c.romfs_handle // [*c]?*anyopaque
+        &c.romfs_handle // handle: [*c]?*anyopaque
     );
     assert(ret >= 0);
     debug("compile_program: ROM FS mounted OK!", .{});
 
-    // debug("compile_program: Opening ROM FS File...", .{});
-    // const ret2 = c.romfs_open(
-    //     // filep: [*c]struct_file
-    //     // relpath: [*c]const u8
-    //     // oflags: c_int
-    //     // mode: mode_t) c_int;
-    // );
-    // assert(ret2 > 0);
-    // debug("compile_program: ROM FS File opened OK!", .{});
+    debug("compile_program: Opening ROM FS File `hello`...", .{});
+    var filep = c.struct_file{};
+    const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
+        &filep, // filep: [*c]struct_file
+        "hello", // relpath: [*c]const u8
+        c.O_RDONLY, // oflags: c_int
+        0 // mode: mode_t
+    );
+    assert(ret2 > 0);
+    debug("compile_program: ROM FS File `hello` opened OK!", .{});
 
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);
@@ -707,6 +708,22 @@ export fn strlen(s: [*:0]const u8) callconv(.C) usize {
     const result = std.mem.len(s);
     // trace.log("strlen return {}", .{result});
     return result;
+}
+
+export fn strlcpy(dst: [*]u8, src: [*:0]const u8, size: usize) callconv(.C) usize {
+    // trace.log("strncpy {*} {*} n={}", .{ dst, src, size });
+    var i: usize = 0;
+    while (true) : (i += 1) {
+        if (i == size) {
+            if (size > 0)
+                dst[size - 1] = 0;
+            return i + strlen(src + i);
+        }
+        dst[i] = src[i];
+        if (src[i] == 0) {
+            return i;
+        }
+    }
 }
 
 export fn strtoull(nptr: [*:0]const u8, endptr: ?*[*:0]u8, base: c_int) callconv(.C) c_ulonglong {

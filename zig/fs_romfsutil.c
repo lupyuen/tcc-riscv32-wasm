@@ -44,6 +44,11 @@
 #include "fs.h"////
 #include "fs_romfs.h"
 
+// All `inline` functions become non-inline
+// So that Zig can call the functions (romfs_searchdir)
+#define inline ////
+
+// Always call mtd_ioctl() to configure ROM FS Device
 #define INODE_IS_MTD(inode) 1 ////
 
 /****************************************************************************

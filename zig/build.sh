@@ -37,7 +37,8 @@ function build_wasm {
     "
 
   ## Zig Compiler options for NuttX ROM FS
-  ## Note: All `static` functions become public
+  ## Note: All `static` functions become public.
+  ## So that Zig can call the functions.
   nuttx_options=" \
     -DCONFIG_FS_ROMFS_CACHE_FILE_NSECTORS=1 \
     -DDEBUGASSERT=assert \
