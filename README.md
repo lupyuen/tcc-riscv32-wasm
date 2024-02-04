@@ -2264,8 +2264,6 @@ So yeah we're correct.
 
 Let's open a file from ROM FS...
 
-TODO: [Create a mounting inode](https://github.com/apache/nuttx/blob/master/fs/mount/fs_mount.c#L379-L409) with [inode_reserve](https://github.com/apache/nuttx/blob/master/fs/inode/fs_inodereserve.c#L146-L260)
-
 # Open a ROM FS File in Zig
 
 This is how we open a file from ROM FS in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
@@ -2317,9 +2315,15 @@ ERROR: Failed to find directory directory entry for '%s': %d
 
 So yep our ROM FS Driver is reading the ROM FS Directory correctly!
 
+_How did we figure out the Mount Inode?_
+
+See the NuttX Code: [Create a Mount Inode](https://github.com/apache/nuttx/blob/master/fs/mount/fs_mount.c#L379-L409) with [inode_reserve](https://github.com/apache/nuttx/blob/master/fs/inode/fs_inodereserve.c#L146-L260)
+
+Finally we read a ROM FS file...
+
 # Read a ROM FS File in Zig
 
-This is how we read a ROM FS File in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L57-L73)
+This is how we read a ROM FS File in Zig (and close it): [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L57-L73)
 
 ```zig
 // Read the file
@@ -2364,7 +2368,7 @@ Closing
 compile_program: ROM FS File `hello` closed OK!
 ```
 
-TODO: Test in Web Browser
+This works OK in the Web Browser too!
 
 TODO: Integrate ROM FS with TCC WebAssembly
 
