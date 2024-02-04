@@ -46,8 +46,8 @@ struct mm_map_entry_s {
 
 // From fs_romfs.c
 extern struct inode *romfs_blkdriver;
-extern void *romfs_handle;
-struct inode *create_mount_inode(struct romfs_mountpt_s *priv);
+extern void *romfs_mountpt;
+struct inode *create_mount_inode(void *romfs_mountpt0);
 
 // From fs_romfs.c
 int romfs_bind(struct inode *blkdriver, const void *data, void **handle);

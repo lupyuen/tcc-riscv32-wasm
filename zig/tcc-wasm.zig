@@ -30,32 +30,28 @@ pub export fn compile_program(
     const ret = c.romfs_bind( // Bind the ROM FS Filesystem
         c.romfs_blkdriver, // blkdriver: ?*struct_inode_6
         null, // data: ?*const anyopaque
-        &c.romfs_handle // handle: [*c]?*anyopaque
+        &c.romfs_mountpt // handle: [*c]?*anyopaque
     );
     assert(ret >= 0);
     debug("compile_program: ROM FS mounted OK!", .{});
-
-    debug("compile_program: Opening ROM FS File `hello`...", .{});
-    // Create the Mount Point
-    var mount_point = std.mem.zeroes(c.romfs_mountpt_s);
-    mount_point.rm_blkdriver = c.romfs_blkdriver;
-    mount_point.rm_mounted = true;
+    debug("compile_program: romfs_mountpt={}", .{c.romfs_mountpt.?});
 
     // Create the Mount Inode
-    const mount_inode = c.create_mount_inode(&mount_point);
+    const mount_inode = c.create_mount_inode(c.romfs_mountpt);
 
     // Create the File Struct
     var filep = std.mem.zeroes(c.struct_file);
     filep.f_inode = mount_inode;
 
     // Open the file
+    debug("compile_program: Opening ROM FS File `hello`...", .{});
     const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
         &filep, // filep: [*c]struct_file
         "hello", // relpath: [*c]const u8
         c.O_RDONLY, // oflags: c_int
         0 // mode: mode_t
     );
-    assert(ret2 > 0);
+    assert(ret2 >= 0);
     debug("compile_program: ROM FS File `hello` opened OK!", .{});
 
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
@@ -884,7 +880,6 @@ export fn __assert_fail(assertion: [*:0]const u8, file: [*:0]const u8, line: c_u
 }
 
 export fn nxrmutex_init(_: *rmutex_t) c_int {
-    debug("nxrmutex_init", .{});
     return 0;
 }
 export fn nxrmutex_destroy(_: *rmutex_t) c_int {
