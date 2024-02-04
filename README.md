@@ -2246,7 +2246,59 @@ ERROR: romfs_fsconfigure failed: -22
 
 So yeah we're correct.
 
-TODO: Read a file from ROM FS
+Let's open a file from ROM FS...
+
+# Open a ROM FS File in Zig
+
+TODO
+
+[tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
+
+```c
+// Open "hello" for Read-Only. `mode` is used only for creating files.
+var filep = c.struct_file{};
+const ret2 = c.romfs_open(
+    &filep, // filep: [*c]struct_file
+    "hello", // relpath: [*c]const u8
+    c.O_RDONLY, // oflags: c_int
+    0 // mode: mode_t
+);
+assert(ret2 > 0);
+```
+
+TODO
+
+```text
++ node zig/test.js
+compile_program: start
+compile_program: Mounting ROM FS...
+format_string0: size=512, format=Entry
+
+printf:
+Entry
+
+compile_program: ROM FS mounted OK!
+compile_program: Opening ROM FS File `hello`...
+format_string1: size=512, format=Open '%s'
+, a=hello
+printf:
+Open 'hello'
+
+format_string1: size=512, format=ERROR: romfs_checkmount failed: %d
+, a=-19
+printf:
+ERROR: romfs_checkmount failed: -19
+
+wasm://wasm/035aff12:1
+
+
+RuntimeError: unreachable
+    at builtin.default_panic (wasm://wasm/035aff12:wasm-function[272]:0x50fd1)
+    at debug.assert (wasm://wasm/035aff12:wasm-function[265]:0x506e5)
+    at compile_program (wasm://wasm/035aff12:wasm-function[261]:0x4f265)
+    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
+
+```
 
 # Analysis of Missing Functions
 
