@@ -2248,6 +2248,8 @@ So yeah we're correct.
 
 Let's open a file from ROM FS...
 
+TODO: [Create a mounting inode](https://github.com/apache/nuttx/blob/master/fs/mount/fs_mount.c#L379-L409) with [inode_reserve](https://github.com/apache/nuttx/blob/master/fs/inode/fs_inodereserve.c#L146-L260)
+
 # Open a ROM FS File in Zig
 
 TODO
