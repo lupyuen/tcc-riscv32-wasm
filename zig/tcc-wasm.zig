@@ -251,6 +251,9 @@ const format_patterns = [_]FormatPattern{
     // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
     FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
 
+    // Format a Single `%p`
+    FormatPattern{ .c_spec = "%p", .zig_spec = "{*}", .type0 = *anyopaque, .type1 = null },
+
     // Format Two `%s`, like `#define %s%s\n`
     FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
 
