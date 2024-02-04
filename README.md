@@ -2372,6 +2372,10 @@ This works OK in the Web Browser too!
 
 TODO: Integrate ROM FS with TCC WebAssembly
 
+TODO: Define the printf formats %jd, %p
+
+TODO: Iterative handle printf formats
+
 # Analysis of Missing Functions
 
 - ["TCC RISC-V Compiler runs in the Web Browser (thanks to Zig Compiler)"](https://lupyuen.github.io/articles/tcc)
