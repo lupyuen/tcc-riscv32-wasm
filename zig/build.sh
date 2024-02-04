@@ -41,7 +41,6 @@ function build_wasm {
   ## So that Zig can call the functions.
   nuttx_options=" \
     -DCONFIG_FS_ROMFS_CACHE_FILE_NSECTORS=1 \
-    -DDEBUGASSERT=assert \
     -DDTYPE_DIRECTORY=DT_DIR \
     -DDTYPE_FILE=DT_REG \
     -DDTYPE_LINK=DT_LNK \

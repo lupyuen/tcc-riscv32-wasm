@@ -3,6 +3,7 @@
 #define __ZIG_ROMFS_H
 
 #define CODE
+#define DEBUGASSERT(cond) { if (!(cond)) { printf( "*** Assert Failed at " __FILE__ " line %d: " #cond "\n", __LINE__); exit(-1); } }
 #define FAR
 #define NAME_MAX 255
 #define PATH_MAX 255
