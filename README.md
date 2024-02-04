@@ -2302,6 +2302,21 @@ Open 'hello'
 compile_program: ROM FS File `hello` opened OK!
 ```
 
+_What if the file doesn't exist?_
+
+ROM FS Driver says that the file doesn't exist...
+
+```text
+## Let's try a file that doesn't exist:
+## romfs_open(..., "hello2", ...)
+
+compile_program: Opening ROM FS File
+Open 'hello2'
+ERROR: Failed to find directory directory entry for '%s': %d
+```
+
+So yep our ROM FS Driver is reading the ROM FS Directory correctly!
+
 TODO: Read the file
 
 # Analysis of Missing Functions
