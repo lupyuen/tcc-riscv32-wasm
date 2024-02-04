@@ -2152,19 +2152,19 @@ pub export fn compile_program(...) [*]const u8 {
 
   // Mount the ROM FS Filesystem
   const ret = c.romfs_bind( // Bind the ROM FS Filesystem
-    c.romfs_blkdriver, // ?*struct_inode_6
+    c.romfs_blkdriver, // blkdriver: ?*struct_inode_6
     null, // data: ?*const anyopaque
-    &c.romfs_handle // [*c]?*anyopaque
+    &c.romfs_mountpt // handle: [*c]?*anyopaque
   );
   assert(ret >= 0);
 ```
 
-Zig won't let us create objects for `romfs_blkdriver` and `romfs_handle`, so we create them in C: [fs_romfs.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfs.c#L48-L50)
+Zig won't let us create objects for `romfs_blkdriver` and `romfs_mountpt`, so we create them in C: [fs_romfs.c](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfs.c#L48-L50)
 
 ```c
 struct inode romfs_blkdriver_inode;
 struct inode *romfs_blkdriver = &romfs_blkdriver_inode;
-void *romfs_handle = NULL;
+void *romfs_mountpt = NULL;
 ```
 
 This crashes inside [romfs_fsconfigure](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/fs_romfsutil.c#L738-L796)...
@@ -2197,10 +2197,22 @@ ret = MTD_IOCTL(inode->u.i_mtd, BIOC_XIPBASE,
 We implement `mid_ioctl` for `BIOC_XIPBASE`: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L819-L826)
 
 ```zig
-export fn mtd_ioctl(dev: *mtd_dev_s, cmd: c_int, rm_xipbase: *c_int) c_int {
-  // Handle BIOC_XIPBASE
+export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
+  assert(rm_xipbase != null);
   if (cmd == c.BIOC_XIPBASE) {
-    rm_xipbase.* = @intCast(@intFromPtr(ROMFS_DATA));
+    // Return the XIP Base Address
+    rm_xipbase.?.* = @intCast(@intFromPtr(ROMFS_DATA));
+  } else if (cmd == c.MTDIOC_GEOMETRY) {
+    // Return the Storage Device Geometry
+    const geo: *c.mtd_geometry_s = @ptrCast(rm_xipbase.?);
+    geo.*.blocksize = 64;
+    geo.*.erasesize = 64;
+    geo.*.neraseblocks = 1024; // TODO: Is this needed?
+    const name = "ZIG_ROMFS";
+    @memcpy(geo.*.model[0..name.len], name);
+    geo.*.model[name.len] = 0;
+  } else {
+    debug("mtd_ioctl: Unknown command {}", .{cmd});
   }
   return 0;
 }
@@ -2256,61 +2268,41 @@ TODO: [Create a mounting inode](https://github.com/apache/nuttx/blob/master/fs/m
 
 # Open a ROM FS File in Zig
 
-TODO
-
-[tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
+This is how we open a file from ROM FS in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
 
 ```c
-    // Create the Mount Point
-    var mount_point = std.mem.zeroes(c.romfs_mountpt_s);
-    mount_point.rm_blkdriver = c.romfs_blkdriver;
-    mount_point.rm_mounted = true;
+// Create the Mount Inode
+const mount_inode = c.create_mount_inode(c.romfs_mountpt);
 
-    // Create the Mount Inode
-    const mount_inode = c.create_mount_inode(&mount_point);
+// Create the File Struct
+var filep = std.mem.zeroes(c.struct_file);
+filep.f_inode = mount_inode;
 
-    // Create the File Struct
-    var filep = std.mem.zeroes(c.struct_file);
-    filep.f_inode = mount_inode;
-
-    // Open the file
-    const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
-        &filep, // filep: [*c]struct_file
-        "hello", // relpath: [*c]const u8
-        c.O_RDONLY, // oflags: c_int
-        0 // mode: mode_t
-    );
-    assert(ret2 > 0);
+// Open the file
+const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
+  &filep, // filep: [*c]struct_file
+  "hello", // relpath: [*c]const u8
+  c.O_RDONLY, // oflags: c_int
+  0 // mode: mode_t
+);
+assert(ret2 >= 0);
 ```
 
-TODO
+Our file has been opened successfully yay!
 
 ```text
-+ node zig/test.js
+$ node zig/test-nuttx.js
 compile_program: start
 compile_program: Mounting ROM FS...
-format_string0: size=512, format=Entry
-
-printf:
 Entry
-
 compile_program: ROM FS mounted OK!
+
 compile_program: Opening ROM FS File `hello`...
-format_string1: size=512, format=Open '%s'
-, a=hello
-printf:
 Open 'hello'
-
-wasm://wasm/035b39e2:1
-
-
-RuntimeError: divide by zero
-    at romfs_searchdir (wasm://wasm/035b39e2:wasm-function[27]:0x125d)
-    at romfs_finddirentry (wasm://wasm/035b39e2:wasm-function[32]:0x163d)
-    at romfs_open (wasm://wasm/035b39e2:wasm-function[21]:0x95f)
-    at compile_program (wasm://wasm/035b39e2:wasm-function[262]:0x4f499)
-    at /workspaces/bookworm/tcc-riscv32-wasm/zig/test.js:63:6
+compile_program: ROM FS File `hello` opened OK!
 ```
+
+TODO: Read the file
 
 # Analysis of Missing Functions
 
