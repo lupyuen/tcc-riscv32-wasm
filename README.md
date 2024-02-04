@@ -2300,6 +2300,13 @@ Open 'hello'
 compile_program: ROM FS File `hello` opened OK!
 ```
 
+"/hello" works OK too...
+
+```zig
+// Open "/hello"
+romfs_open(..., "/hello", ...);
+```
+
 _What if the file doesn't exist?_
 
 ROM FS Driver says that the file doesn't exist...
@@ -2372,9 +2379,9 @@ This works OK in the Web Browser too!
 
 TODO: Integrate ROM FS with TCC WebAssembly
 
-TODO: Define the printf formats %jd, %p
+TODO: Define the printf formats %jd
 
-TODO: Iterative handle printf formats
+TODO: Iteratively handle printf formats
 
 # Analysis of Missing Functions
 
