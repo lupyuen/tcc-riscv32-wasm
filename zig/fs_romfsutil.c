@@ -676,8 +676,6 @@ int romfs_hwconfigure(FAR struct romfs_mountpt_s *rm)
       rm->rm_hwsectorsize = mgeo.blocksize;
       rm->rm_hwnsectors   = mgeo.neraseblocks *
                             (mgeo.erasesize / mgeo.blocksize);
-printf("rm=%d\n", rm);////
-printf("rm_hwsectorsize=%d\n", rm->rm_hwsectorsize);////
     }
   else
     {

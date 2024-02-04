@@ -52,9 +52,6 @@ struct inode *romfs_blkdriver = &romfs_blkdriver_inode;
 void *romfs_mountpt = NULL;
 
 struct inode *create_mount_inode(void *romfs_mountpt0) {
-  printf("romfs_blkdriver=%d\n", romfs_blkdriver);
-  printf("romfs_mounting_inode=%d\n", romfs_mounting_inode);
-  printf("romfs_mountpt0=%d\n", romfs_mountpt0);
   romfs_mounting_inode.i_private = romfs_mountpt0;
   return &romfs_mounting_inode;
 }
