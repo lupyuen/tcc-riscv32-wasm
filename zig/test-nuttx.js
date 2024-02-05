@@ -60,7 +60,7 @@ WebAssembly.instantiate(typedArray, {
     // Make NuttX System Call to write(fd, buf, buflen)
     const void *parm1 = 1;  // File Descriptor (stdout)
     const void *parm2 = "Hello, World!!\\n";  // Buffer
-    const void *parm3 = 15; // Buffer Length
+    const void *parm3 = strlen("Hello, World!!\\n"); // Buffer Length
     write(parm1, parm2, parm3);
 
     // Loop Forever

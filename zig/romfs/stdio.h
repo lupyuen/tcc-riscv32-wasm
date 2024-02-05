@@ -8,7 +8,17 @@ typedef int uintptr_t;
 
 int puts(const char *s);
 
-// Make a System Call with 3 parameters...
+inline size_t strlen(const char *s) {
+  size_t len = 0;
+  while (*s != 0) {
+    s++;
+    len++;
+  }
+  return len;
+}
+
+// Make a System Call with 3 parameters
+// https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel
 inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
   return (ssize_t) sys_call3(
     (unsigned int) SYS_write,  // System Call Number
@@ -19,6 +29,7 @@ inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
 }
 
 // Make a System Call with 3 parameters
+// https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L240-L268
 inline uintptr_t sys_call3(
   unsigned int nbr,  // System Call Number
   uintptr_t parm1,   // First Parameter
