@@ -18,7 +18,9 @@ inline size_t strlen(const char *s) {
 
 // Print the string to Standard Output
 inline int puts(const char *s) {
-  return write(1, s, strlen(s));
+  return
+    write(1, s, strlen(s)) +
+    write(1, "\n", 1);
 }
 
 // Write to the File Descriptor
