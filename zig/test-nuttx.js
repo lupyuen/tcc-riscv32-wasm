@@ -55,6 +55,9 @@ WebAssembly.instantiate(typedArray, {
   #include <stdio.h>
   #include <stdlib.h>
 
+  // Caution: This may change
+  #define SYS_write 61
+
   void main(int argc, char *argv[])
   {
     // Make NuttX System Call to write(fd, buf, buflen)
@@ -63,28 +66,84 @@ WebAssembly.instantiate(typedArray, {
     const void *parm2 = "Hello, World!!\\n"; // Buffer
     const void *parm3 = 15; // Buffer Length
 
-    // Execute ECALL for System Call to NuttX Kernel
+    write(parm1, parm2, parm3);
+    for(;;) {}
+
+    // // Execute ECALL for System Call to NuttX Kernel
+    // register long r0 asm("a0") = (long)(nbr);
+    // register long r1 asm("a1") = (long)(parm1);
+    // register long r2 asm("a2") = (long)(parm2);
+    // register long r3 asm("a3") = (long)(parm3);
+  
+    // asm volatile
+    // (
+    //   // Load 61 to Register A0 (SYS_write)
+    //   "addi a0, zero, 61 \\n"
+      
+    //   // Load 1 to Register A1 (File Descriptor)
+    //   "addi a1, zero, 1 \\n"
+      
+    //   // Load 0xc0101000 to Register A2 (Buffer)
+    //   "lui   a2, 0xc0 \\n"
+    //   "addiw a2, a2, 257 \\n"
+    //   "slli  a2, a2, 0xc \\n"
+      
+    //   // Load 15 to Register A3 (Buffer Length)
+    //   "addi a3, zero, 15 \\n"
+      
+    //   // ECALL for System Call to NuttX Kernel
+    //   "ecall \\n"
+      
+    //   // NuttX needs NOP after ECALL
+    //   ".word 0x0001 \\n"
+
+    //   // Input+Output Registers: None
+    //   // Input-Only Registers: A0 to A3
+    //   // Clobbers the Memory
+    //   :
+    //   : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+    //   : "memory"
+    // );
+
+    // // Exit via System Call
+    // exit(0);
+  }
+
+  typedef int size_t;
+  typedef int ssize_t;
+  typedef int uintptr_t;
+
+  // Make a System Call with 3 parameters...
+  ssize_t write(int parm1, const void * parm2, size_t parm3) {
+    return (ssize_t) sys_call3(
+      (unsigned int) SYS_write,  // System Call Number
+      (uintptr_t) parm1,         // File Descriptor (1 = Standard Output)
+      (uintptr_t) parm2,         // Buffer to be written
+      (uintptr_t) parm3          // Number of bytes to write
+    );
+  }
+
+  // Make a System Call with 3 parameters
+  uintptr_t sys_call3(
+    unsigned int nbr,  // System Call Number
+    uintptr_t parm1,   // First Parameter
+    uintptr_t parm2,   // Second Parameter
+    uintptr_t parm3    // Third Parameter
+  ) {
+    // Pass the Function Number and Parameters in
+    // Registers A0 to A3
     register long r0 asm("a0") = (long)(nbr);
     register long r1 asm("a1") = (long)(parm1);
     register long r2 asm("a2") = (long)(parm2);
     register long r3 asm("a3") = (long)(parm3);
-  
+
+    // ecall will jump from RISC-V User Mode
+    // to RISC-V Supervisor Mode
+    // to execute the System Call.
+    // Input + Output Registers: A0 to A3
+    // Clobbers the Memory
     asm volatile
     (
-      // Load 61 to Register A0 (SYS_write)
-      "addi a0, zero, 61 \\n"
-      
-      // Load 1 to Register A1 (File Descriptor)
-      "addi a1, zero, 1 \\n"
-      
-      // Load 0xc0101000 to Register A2 (Buffer)
-      "lui   a2, 0xc0 \\n"
-      "addiw a2, a2, 257 \\n"
-      "slli  a2, a2, 0xc \\n"
-      
-      // Load 15 to Register A3 (Buffer Length)
-      "addi a3, zero, 15 \\n"
-      
       // ECALL for System Call to NuttX Kernel
       "ecall \\n"
       
@@ -99,8 +158,8 @@ WebAssembly.instantiate(typedArray, {
       : "memory"
     );
 
-    // Exit via System Call
-    exit(0);
+    // Return the result from Register A0
+    return r0;
   }
   `);
 
