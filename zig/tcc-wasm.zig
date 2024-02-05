@@ -48,18 +48,18 @@ pub export fn compile_program(
     file.f_inode = romfs_inode;
 
     // Open the file
-    debug("compile_program: Opening ROM FS File `hello`...", .{});
+    debug("compile_program: Opening ROM FS File `stdio.h`...", .{});
     const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
         &file, // filep: [*c]struct_file
-        "hello", // relpath: [*c]const u8
+        "stdio.h", // relpath: [*c]const u8
         c.O_RDONLY, // oflags: c_int
         0 // mode: mode_t
     );
     assert(ret2 >= 0);
-    debug("compile_program: ROM FS File `hello` opened OK!", .{});
+    debug("compile_program: ROM FS File `stdio.h` opened OK!", .{});
 
     // Read the file
-    debug("compile_program: Reading ROM FS File `hello`...", .{});
+    debug("compile_program: Reading ROM FS File `stdio.h`...", .{});
     var buf = std.mem.zeroes([4]u8);
     const ret3 = c.romfs_read( // Read the file
         &file, // filep: [*c]struct_file
@@ -67,14 +67,14 @@ pub export fn compile_program(
         buf.len // buflen: usize
     );
     assert(ret3 >= 0);
-    debug("compile_program: ROM FS File `hello` read OK!", .{});
+    debug("compile_program: ROM FS File `stdio.h` read OK!", .{});
     hexdump.hexdump(@ptrCast(&buf), @intCast(ret3));
 
     // Close the file
-    debug("compile_program: Closing ROM FS File `hello`...", .{});
+    debug("compile_program: Closing ROM FS File `stdio.h`...", .{});
     const ret4 = c.romfs_close(&file);
     assert(ret4 >= 0);
-    debug("compile_program: ROM FS File `hello` closed OK!", .{});
+    debug("compile_program: ROM FS File `stdio.h` closed OK!", .{});
 
     // Receive the TCC Compiler Options from JavaScript (JSON containing String Array: ["-c", "hello.c"])
     const options: []const u8 = std.mem.span(options_ptr);

@@ -53,9 +53,10 @@ WebAssembly.instantiate(typedArray, {
   // Allocate a String for passing Program Code to Zig
   const code_ptr = allocateString(`
     #include <stdio.h>
-    int main(int argc, char *argv[]) {
-      printf("Hello, World!!\\n");
-      return 0;
+    #include <stdlib.h>
+    void main(int argc, char *argv[]) {
+      puts("Hello, World!!\\n");
+      exit(0);
     }
   `);
 

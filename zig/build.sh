@@ -180,6 +180,13 @@ function test_wasm {
 ## Go to TCC Folder
 pushd ..
 
+## Bundle the romfs folder into ROM FS Filesystem romfs.bin
+## and label with this Volume Name
+genromfs \
+  -f zig/romfs.bin \
+  -d zig/romfs \
+  -V "ROMFS"
+
 ## Compile TCC from C to WebAssembly
 build_wasm
 
