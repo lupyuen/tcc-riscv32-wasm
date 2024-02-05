@@ -6,8 +6,7 @@ typedef int size_t;
 typedef int ssize_t;
 typedef int uintptr_t;
 
-int puts(const char *s);
-
+// Return the string length
 inline size_t strlen(const char *s) {
   size_t len = 0;
   while (*s != 0) {
@@ -15,6 +14,11 @@ inline size_t strlen(const char *s) {
     len++;
   }
   return len;
+}
+
+// Print the string to Standard Output
+inline int puts(const char *s) {
+  return write(1, s, strlen(s));
 }
 
 // Make a System Call with 3 parameters

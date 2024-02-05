@@ -55,13 +55,9 @@ WebAssembly.instantiate(typedArray, {
   #include <stdio.h>
   #include <stdlib.h>
 
-  void main(int argc, char *argv[])
-  {
-    // Make NuttX System Call to write(fd, buf, buflen)
-    const void *parm1 = 1;  // File Descriptor (stdout)
-    const void *parm2 = "Hello, World!!\\n";  // Buffer
-    const void *parm3 = strlen("Hello, World!!\\n"); // Buffer Length
-    write(parm1, parm2, parm3);
+  void main(int argc, char *argv[]) {
+    // Print something
+    puts("Hello, World!!\\n");
 
     // Loop Forever
     for(;;) {}
