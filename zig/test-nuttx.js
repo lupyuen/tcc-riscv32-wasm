@@ -61,7 +61,7 @@ WebAssembly.instantiate(typedArray, {
   void main(int argc, char *argv[])
   {
     // Make NuttX System Call to write(fd, buf, buflen)
-    const unsigned int nbr = 61; // SYS_write
+    // const unsigned int nbr = 61; // SYS_write
     const void *parm1 = 1;       // File Descriptor (stdout)
     const void *parm2 = "Hello, World!!\\n"; // Buffer
     const void *parm3 = 15; // Buffer Length
