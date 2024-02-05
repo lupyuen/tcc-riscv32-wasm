@@ -2899,6 +2899,8 @@ TODO: Iteratively handle printf formats
 
 # Analysis of Missing Functions
 
+Read the article...
+
 - ["TCC RISC-V Compiler runs in the Web Browser (thanks to Zig Compiler)"](https://lupyuen.github.io/articles/tcc)
 
 TCC calls surprisingly few External Functions! We might get it running on WebAssembly. Here's our analysis of the Missing Functions: [zig/tcc-wasm.zig](zig/tcc-wasm.zig)
