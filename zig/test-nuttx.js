@@ -69,43 +69,7 @@ WebAssembly.instantiate(typedArray, {
     write(parm1, parm2, parm3);
     for(;;) {}
 
-    // // Execute ECALL for System Call to NuttX Kernel
-    // register long r0 asm("a0") = (long)(nbr);
-    // register long r1 asm("a1") = (long)(parm1);
-    // register long r2 asm("a2") = (long)(parm2);
-    // register long r3 asm("a3") = (long)(parm3);
-  
-    // asm volatile
-    // (
-    //   // Load 61 to Register A0 (SYS_write)
-    //   "addi a0, zero, 61 \\n"
-      
-    //   // Load 1 to Register A1 (File Descriptor)
-    //   "addi a1, zero, 1 \\n"
-      
-    //   // Load 0xc0101000 to Register A2 (Buffer)
-    //   "lui   a2, 0xc0 \\n"
-    //   "addiw a2, a2, 257 \\n"
-    //   "slli  a2, a2, 0xc \\n"
-      
-    //   // Load 15 to Register A3 (Buffer Length)
-    //   "addi a3, zero, 15 \\n"
-      
-    //   // ECALL for System Call to NuttX Kernel
-    //   "ecall \\n"
-      
-    //   // NuttX needs NOP after ECALL
-    //   ".word 0x0001 \\n"
-
-    //   // Input+Output Registers: None
-    //   // Input-Only Registers: A0 to A3
-    //   // Clobbers the Memory
-    //   :
-    //   : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-    //   : "memory"
-    // );
-
-    // // Exit via System Call
+    // Exit via System Call
     // exit(0);
   }
 
@@ -133,13 +97,16 @@ WebAssembly.instantiate(typedArray, {
     // Pass the Function Number and Parameters in
     // Registers A0 to A3
     register long r3 asm("a3") = (long)(parm3);
-    asm volatile ("addi a3, a0, 0");
+    asm volatile ("slli a3, a0, 32");
+    asm volatile ("srli a3, a3, 32");
 
     register long r2 asm("a2") = (long)(parm2);
-    asm volatile ("addi a2, a0, 0");
+    asm volatile ("slli a2, a0, 32");
+    asm volatile ("srli a2, a2, 32");
 
     register long r1 asm("a1") = (long)(parm1);
-    asm volatile ("addi a1, a0, 0");
+    asm volatile ("slli a1, a0, 32");
+    asm volatile ("srli a1, a1, 32");
 
     register long r0 asm("a0") = (long)(nbr);
 
