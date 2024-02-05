@@ -171,10 +171,14 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
         file.* = std.mem.zeroes(c.struct_file);
         file.*.f_inode = romfs_inode;
 
+        // Strip the path from System Include
+        const sys = "/usr/local/lib/tcc/include/";
+        const strip_path = if (std.mem.startsWith(u8, std.mem.span(path), sys)) (path + sys.len) else path;
+
         // Open the ROM FS File
         const ret = c.romfs_open( // Open for Read-Only. `mode` is used only for creating files.
             file, // filep: [*c]struct_file
-            path, // relpath: [*c]const u8
+            strip_path, // relpath: [*c]const u8
             c.O_RDONLY, // oflags: c_int
             0 // mode: mode_t
         );
