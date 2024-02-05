@@ -128,6 +128,7 @@ function build_wasm {
 
   ## Copy the Linked TCC WebAssembly to the Web Server
   cp tcc-wasm.wasm docs/
+  cp tcc-wasm.wasm docs/romfs
 
   ## Run our Linked WebAssembly
   node zig/test.js
@@ -181,6 +182,7 @@ genromfs \
   -f zig/romfs.bin \
   -d zig/romfs \
   -V "ROMFS"
+cp zig/romfs.bin docs/romfs
 
 ## Compile TCC from C to WebAssembly
 build_wasm
