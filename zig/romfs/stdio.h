@@ -26,19 +26,19 @@ inline uintptr_t sys_call3(
 ) {
   // Pass the Function Number and Parameters in
   // Registers A0 to A3
-  register long r3 asm("a3") = (long)(parm3);  // Will move to A3
-  asm volatile ("slli a3, a0, 32");  // Shift 32-bit Left then Right
+  register long r3 asm("a0") = (long)(parm3);  // Will move to A3
+  asm volatile ("slli a3, a0, 32");  // Shift 32 bits Left then Right
   asm volatile ("srli a3, a3, 32");  // To clear the top 32 bits
 
-  register long r2 asm("a2") = (long)(parm2);  // Will move to A2
-  asm volatile ("slli a2, a0, 32");  // Shift 32-bit Left then Right
+  register long r2 asm("a0") = (long)(parm2);  // Will move to A2
+  asm volatile ("slli a2, a0, 32");  // Shift 32 bits Left then Right
   asm volatile ("srli a2, a2, 32");  // To clear the top 32 bits
 
-  register long r1 asm("a1") = (long)(parm1);  // Will move to A1
-  asm volatile ("slli a1, a0, 32");  // Shift 32-bit Left then Right
+  register long r1 asm("a0") = (long)(parm1);  // Will move to A1
+  asm volatile ("slli a1, a0, 32");  // Shift 32 bits Left then Right
   asm volatile ("srli a1, a1, 32");  // To clear the top 32 bits
 
-  register long r0 asm("a0") = (long)(nbr);  // Will remain in A0
+  register long r0 asm("a0") = (long)(nbr);  // Will stay in A0
 
   // `ecall` will jump from RISC-V User Mode
   // to RISC-V Supervisor Mode
