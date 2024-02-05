@@ -25,8 +25,8 @@ pub export fn compile_program(
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
-    // Map a File Descriptor to ROM FS File
-    romfs_files = std.ArrayList(c.struct_file).init(std.heap.page_allocator);
+    // Map from File Descriptor to ROM FS File
+    romfs_files = std.ArrayList(*c.struct_file).init(std.heap.page_allocator);
     defer romfs_files.deinit();
 
     // Mount the ROM FS Filesystem
@@ -123,8 +123,10 @@ pub export fn compile_program(
 
     // Return pointer of `a.out` to JavaScript.
     // First 4 bytes: Size of `a.out`. Followed by `a.out` data.
-    const slice = std.heap.page_allocator.alloc(u8, write_buflen + 4) catch
-        @panic("Failed to allocate memory");
+    const slice = std.heap.page_allocator.alloc(u8, write_buflen + 4) catch {
+        debug("compile_program: Failed to allocate a.out", .{});
+        @panic("compile_program: Failed to allocate a.out");
+    };
     const size_ptr: *u32 = @alignCast(@ptrCast(slice.ptr));
     size_ptr.* = write_buflen;
     @memcpy(slice[4 .. write_buflen + 4], write_buf[0..write_buflen]);
@@ -134,8 +136,10 @@ pub export fn compile_program(
 /// Allocate some WebAssembly Memory, so JavaScript can pass Strings to Zig
 /// https://blog.battlefy.com/zig-made-it-easy-to-pass-strings-back-and-forth-with-webassembly
 pub export fn allocUint8(length: u32) [*]const u8 {
-    const slice = std.heap.page_allocator.alloc(u8, length) catch
-        @panic("Failed to allocate memory");
+    const slice = std.heap.page_allocator.alloc(u8, length) catch {
+        debug("allocUint8: Failed to allocate memory", .{});
+        @panic("allocUint8: Failed to allocate memory");
+    };
     return slice.ptr;
 }
 
@@ -155,8 +159,31 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
 
     // If opening an Include File or Library File...
     if (fd > FIRST_FD) {
+        // Create the File Struct
+        const files = std.heap.page_allocator.alloc(c.struct_file, 1) catch {
+            debug("open: Failed to allocate file", .{});
+            @panic("open: Failed to allocate file");
+        };
+        const file = &files[0];
+        file.* = std.mem.zeroes(c.struct_file);
+        file.*.f_inode = romfs_inode;
+
         // Open the ROM FS File
-        @panic("TODO");
+        const ret = c.romfs_open( // Open for Read-Only. `mode` is used only for creating files.
+            file, // filep: [*c]struct_file
+            path, // relpath: [*c]const u8
+            c.O_RDONLY, // oflags: c_int
+            0 // mode: mode_t
+        );
+        assert(ret >= 0);
+
+        // Remember the ROM FS File
+        const f = fd - FIRST_FD - 1;
+        assert(romfs_files.items.len == f);
+        romfs_files.append(file) catch {
+            debug("Unable to allocate file", .{});
+            @panic("Unable to allocate file");
+        };
     }
     return fd;
 }
@@ -182,8 +209,19 @@ export fn read(fd: c_int, buf: [*:0]u8, nbyte: size_t) isize {
         debug("read: return buf={s}", .{buf});
         return @intCast(len);
     } else {
+        // Fetch the ROM FS File
+        const f = fd - FIRST_FD - 1;
+        const file = romfs_files.items[@intCast(f)];
+
         // Read from the ROM FS File
-        @panic("TODO");
+        const ret = c.romfs_read( // Read the file
+            file, // filep: [*c]struct_file
+            buf, // buffer: [*c]u8
+            nbyte // buflen: usize
+        );
+        assert(ret >= 0);
+        debug("read: return buf={s}", .{buf[0..@intCast(ret)]});
+        return @intCast(ret);
     }
 }
 
@@ -214,8 +252,13 @@ export fn close(fd: c_int) c_int {
 
     // If closing an Include File or Library File...
     if (fd > FIRST_FD) {
-        // Close the ROM FS File
-        @panic("TODO");
+        // Fetch the ROM FS File
+        const f = fd - FIRST_FD - 1;
+        const file = romfs_files.items[@intCast(f)];
+
+        // Close the ROM FS File. TODO: Deallocate the file
+        const ret = c.romfs_close(file);
+        assert(ret >= 0);
     }
     return 0;
 }
@@ -242,7 +285,7 @@ var next_fd: c_int = FIRST_FD;
 const FIRST_FD = 3;
 
 /// Map File Descriptor to ROM FS File
-var romfs_files: std.ArrayList(c.struct_file) = undefined;
+var romfs_files: std.ArrayList(*c.struct_file) = undefined;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Semaphore Functions
@@ -395,8 +438,8 @@ fn format_string1(
     // Format the string. TODO: Is 512 sufficient?
     var buf: [512]u8 = undefined;
     const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{a}) catch {
-        wasmlog.Console.log("*** format_string1 error: buf too small", .{});
-        @panic("*** format_string1 error: buf too small");
+        wasmlog.Console.log("format_string1: buf too small", .{});
+        @panic("format_string1: buf too small");
     };
 
     // Replace the Format Specifier. TODO: Is 512 sufficient?
@@ -450,8 +493,8 @@ fn format_string2(
     // Format the string. TODO: Is 512 sufficient?
     var buf: [512]u8 = undefined;
     const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
-        wasmlog.Console.log("*** format_string error2: buf too small", .{});
-        @panic("*** format_string error2: buf too small");
+        wasmlog.Console.log("format_string2: buf too small", .{});
+        @panic("format_string2: buf too small");
     };
 
     // Replace the Format Specifier. TODO: Is 512 sufficient?
@@ -551,36 +594,37 @@ const FILE = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
 
-/// Zig replacement for malloc
+/// Zig replacement for malloc. TODO: Borrow from zlibc
 export fn malloc(size: usize) ?*anyopaque {
     // TODO: Save the slice length
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
-        debug("*** malloc error: out of memory, size={}", .{size});
-        @panic("*** malloc error: out of memory");
+        debug("malloc: out of memory, size={}", .{size});
+        @panic("malloc: out of memory");
     };
     return mem.ptr;
 }
 
-/// Zig replacement for zalloc
+/// Zig replacement for zalloc. TODO: Borrow from zlibc
 export fn zalloc(size: usize) ?*anyopaque {
     // TODO: Save the slice length
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
-        debug("*** zalloc error: out of memory, size={}", .{size});
-        @panic("*** zalloc error: out of memory");
+        debug("zalloc: out of memory, size={}", .{size});
+        @panic("zalloc: out of memory");
     };
     @memset(mem, 0);
     return mem.ptr;
 }
 
-/// Zig replacement for realloc
+/// Zig replacement for realloc. TODO: Borrow from zlibc
 export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     // TODO: Call realloc instead
     // const mem = memory_allocator.allocator().realloc(old_mem[0..???], size) catch {
-    //     @panic("*** realloc error: out of memory");
+    //     debug("realloc: out of memory, size={}", .{size});
+    //     @panic("realloc: out of memory");
     // };
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
-        debug("*** realloc error: out of memory, size={}", .{size});
-        @panic("*** realloc error: out of memory");
+        debug("realloc: out of memory, size={}", .{size});
+        @panic("realloc: out of memory");
     };
     _ = memcpy(mem.ptr, old_mem, size);
     if (old_mem != null) {
@@ -590,12 +634,12 @@ export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     return mem.ptr;
 }
 
-/// Zig replacement for free
+/// Zig replacement for free. TODO: Borrow from zlibc
 export fn free(mem: [*c]u8) void {
     _ = mem; // autofix
     // TODO: Why is TCC passing NULL?
     // if (mem == null) {
-    //     @panic("*** free error: pointer is null");
+    //     @panic("free: pointer is null");
     // }
     // TODO: How to free without the slice length?
     // memory_allocator.allocator().free(mem[0..???]);
@@ -639,7 +683,7 @@ pub fn log(
     // Format the message
     var buf: [512]u8 = undefined; // Limit to 512 chars
     const slice = std.fmt.bufPrint(&buf, format, args) catch {
-        wasmlog.Console.log("*** log error: buf too small", .{});
+        wasmlog.Console.log("log error: buf too small", .{});
         return;
     };
 
@@ -927,7 +971,7 @@ export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
 
 export fn __assert_fail(assertion: [*:0]const u8, file: [*:0]const u8, line: c_uint, function: [*:0]const u8) void {
     debug("__assert_fail", .{});
-    debug("*** Assert Failed at {s} {s}:{} - {s}", .{ function, file, line, assertion });
+    debug("Assert Failed at {s} {s}:{} - {s}", .{ function, file, line, assertion });
     _ = exit(-1);
 }
 
