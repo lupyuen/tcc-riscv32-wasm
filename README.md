@@ -2610,9 +2610,19 @@ _What if need a Temporary Writeable Filesystem?_
 
 Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tree/master/fs/tmpfs)
 
-TODO: Works OK yay!
+TODO: `puts` and `exit` work OK yay!
 
 https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+
+void main(int argc, char *argv[]) {
+  puts("Hello, World!!\\n");
+  exit(0);
+}
+```
 
 https://lupyuen.github.io/nuttx-tinyemu/tcc/
 
@@ -2628,6 +2638,47 @@ Hello, World!!
 nsh> a.out
 Hello, World!!
 nsh> 
+```
+
+TODO: Why not copy A0 to A2...
+
+```c
+register long r2 asm("a0") = (long)(parm2);  // Will move to A2
+asm volatile ("addi a2, a0, 0");
+```
+
+Register A2 becomes negative...
+
+```text
+riscv_swint: Entry: regs: 0x8020be10
+cmd: 61
+EPC: 00000000c0000160
+A0: 000000000000003d 
+A1: 0000000000000001 
+A2: ffffffffc0101000 
+A3: 000000000000000f
+[...Page Fault because A2 is Invalid Address...]
+```
+
+So we shift away the negative sign...
+
+```c
+register long r2 asm("a0") = (long)(parm2);  // Will move to A2
+asm volatile ("slli a2, a0, 32");  // Shift 32 bits Left then Right
+asm volatile ("srli a2, a2, 32");  // To clear the top 32 bits
+```
+
+Register A2 becomes positively OK...
+
+```text
+riscv_swint: Entry: regs: 0x8020be10
+cmd: 61
+EPC: 00000000c0000164
+A0: 000000000000003d 
+A1: 0000000000000001
+A2: 00000000c0101000
+A3: 000000000000000f
+Hello, World!!
 ```
 
 TODO: Define the printf formats %jd, %zu
