@@ -325,7 +325,7 @@ fn format_string0(
     }
 
     // Format the string
-    debug("format_string0: size={}, format={s}", .{ size, format });
+    // debug("format_string0: size={}, format={s}", .{ size, format });
     const len = format.len;
     assert(len < size);
     @memcpy(str[0..len], format[0..len]);
@@ -360,9 +360,9 @@ fn format_string1(
     // Fetch the args
     const a = @cVaArg(ap, T0);
     if (T0 == c_int) {
-        debug("format_string1: size={}, format={s}, a={}", .{ size, format, a });
+        // debug("format_string1: size={}, format={s}, a={}", .{ size, format, a });
     } else {
-        debug("format_string1: size={}, format={s}, a={s}", .{ size, format, a });
+        // debug("format_string1: size={}, format={s}, a={s}", .{ size, format, a });
     }
 
     // Format the string. TODO: Is 512 sufficient?
@@ -415,9 +415,9 @@ fn format_string2(
 
     // Fetch the args. TODO: Handle T0=c_int
     if (T0 != c_int and T1 == c_int) {
-        debug("format_string2: size={}, format={s}, a0={s}, a1={}", .{ size, format, a0, a1 });
+        // debug("format_string2: size={}, format={s}, a0={s}, a1={}", .{ size, format, a0, a1 });
     } else {
-        debug("format_string2: size={}, format={s}, a0={s}, a1={s}", .{ size, format, a0, a1 });
+        // debug("format_string2: size={}, format={s}, a0={s}, a1={s}", .{ size, format, a0, a1 });
     }
 
     // Format the string. TODO: Is 512 sufficient?
@@ -447,7 +447,7 @@ export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int 
     // Format the string
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
-    debug("vsnprintf: return str={s}", .{str[0..len]});
+    // debug("vsnprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
@@ -459,7 +459,7 @@ export fn sprintf(str: [*]u8, format: [*:0]const u8, ...) c_int {
     // Format the string. TODO: Is 512 sufficient?
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, 512, format_slice);
-    debug("sprintf: return str={s}", .{str[0..len]});
+    // debug("sprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
@@ -471,11 +471,12 @@ export fn snprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Format the string
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, str, size, format_slice);
-    debug("snprintf: return str={s}", .{str[0..len]});
+    // debug("snprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
 
 export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
+    _ = stream; // autofix
     // Prepare the varargs
     var ap = @cVaStart();
     defer @cVaEnd(&ap);
@@ -486,7 +487,7 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     const len = format_string(&ap, &buf, buf.len, format_slice);
 
     // TODO: Print to other File Streams. Right now we assume it's stderr (File Descriptor 2)
-    debug("fprintf: stream={*}\n{s}", .{ stream, buf });
+    // debug("fprintf: stream={*}\n{s}", .{ stream, buf });
     return @intCast(len);
 }
 
@@ -500,7 +501,7 @@ export fn printf(format: [*:0]const u8, ...) c_int {
     const format_slice = std.mem.span(format);
     const len = format_string(&ap, &buf, buf.len, format_slice);
 
-    debug("printf:\n{s}", .{buf});
+    debug("{s}", .{buf});
     return @intCast(len);
 }
 
