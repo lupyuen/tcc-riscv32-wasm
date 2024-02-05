@@ -2614,6 +2614,8 @@ TODO: Define the printf formats %jd, %zu
 
 TODO: Iteratively handle printf formats
 
+TODO: https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
+
 # Analysis of Missing Functions
 
 - ["TCC RISC-V Compiler runs in the Web Browser (thanks to Zig Compiler)"](https://lupyuen.github.io/articles/tcc)
