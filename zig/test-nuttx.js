@@ -132,10 +132,16 @@ WebAssembly.instantiate(typedArray, {
   ) {
     // Pass the Function Number and Parameters in
     // Registers A0 to A3
-    register long r0 asm("a0") = (long)(nbr);
-    register long r1 asm("a1") = (long)(parm1);
-    register long r2 asm("a2") = (long)(parm2);
     register long r3 asm("a3") = (long)(parm3);
+    asm volatile ("addi a3, a0, 0");
+
+    register long r2 asm("a2") = (long)(parm2);
+    asm volatile ("addi a2, a0, 0");
+
+    register long r1 asm("a1") = (long)(parm1);
+    asm volatile ("addi a1, a0, 0");
+
+    register long r0 asm("a0") = (long)(nbr);
 
     // ecall will jump from RISC-V User Mode
     // to RISC-V Supervisor Mode

@@ -160,19 +160,14 @@ function test_wasm {
     --debugging \
     ../apps/bin/a.out
 
-  # read -p "Press Enter..."
-  # qemu-system-riscv64 \
-  #   -semihosting \
-  #   -M virt,aclint=on \
-  #   -cpu rv64 \
-  #   -smp 8 \
-  #   -bios none \
-  #   -kernel nuttx \
-  #   -nographic
-  # riscv-none-elf-objdump \
-  #   --syms --source --reloc --demangle --line-numbers --wide \
-  #   --debugging \
-  #   ../apps/bin/a.out
+  qemu-system-riscv64 \
+    -semihosting \
+    -M virt,aclint=on \
+    -cpu rv64 \
+    -smp 8 \
+    -bios none \
+    -kernel nuttx \
+    -nographic
 
   popd
 }
