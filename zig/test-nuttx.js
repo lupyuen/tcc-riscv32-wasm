@@ -56,13 +56,8 @@ WebAssembly.instantiate(typedArray, {
   #include <stdlib.h>
 
   void main(int argc, char *argv[]) {
-    // Print something
     puts("Hello, World!!\\n");
-
-    // Loop Forever
     for(;;) {}
-
-    // Exit via System Call
     // exit(0);
   }
   `);
