@@ -37,8 +37,7 @@ pub export fn compile_program(
         &c.romfs_mountpt // handle: [*c]?*anyopaque
     );
     assert(ret >= 0);
-    debug("compile_program: ROM FS mounted OK!", .{});
-    debug("compile_program: romfs_mountpt={}", .{c.romfs_mountpt.?});
+    debug("compile_program: ROM FS mounted OK", .{});
 
     // Create the Mount Inode and test the ROM FS
     romfs_inode = c.create_mount_inode(c.romfs_mountpt);
