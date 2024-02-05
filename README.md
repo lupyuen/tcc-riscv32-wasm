@@ -2663,9 +2663,9 @@ Impressive, no? 3 things we fixed...
 
 ## ROM FS Filesystem for Include Files
 
-_How did we get <stdio.h> and <stdlib.h>_
+_How did we get <stdio.h> and <stdlib.h> in TCC WebAssembly?_
 
-We created a Staging Folder [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs) that contains...
+We create a Staging Folder [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs) that contains our C Header Files for TCC Compiler...
 
 - [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h)
 
