@@ -2648,11 +2648,99 @@ nsh>
 
 TODO
 
+[zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs) Staging Folder that contains...
+
+- [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h)
+
+- [stdlib.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h)
+
+Which becomes ROM FS Data File [zig/romfs.bin](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)
+
 ## Implement `puts` with NuttX System Call
 
 TODO
 
-## Implement `exit` with NuttX System Call
+https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L18-L25
+
+```c
+// Print the string to Standard Output
+inline int puts(const char *s) {
+  return
+    write(1, s, strlen(s)) +
+    write(1, "\n", 1);
+}
+```
+
+https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L25-L36
+
+```c
+// Caution: This may change
+#define SYS_write 61
+
+// Write to the File Descriptor
+// https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel
+inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
+  return (ssize_t) sys_call3(
+    (unsigned int) SYS_write,  // System Call Number
+    (uintptr_t) parm1,         // File Descriptor (1 = Standard Output)
+    (uintptr_t) parm2,         // Buffer to be written
+    (uintptr_t) parm3          // Number of bytes to write
+  );
+}
+```
+
+https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L36-L84
+
+```c
+// Make a System Call with 3 parameters
+// https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L240-L268
+inline uintptr_t sys_call3(
+  unsigned int nbr,  // System Call Number
+  uintptr_t parm1,   // First Parameter
+  uintptr_t parm2,   // Second Parameter
+  uintptr_t parm3    // Third Parameter
+) {
+  // Pass the Function Number and Parameters in
+  // Registers A0 to A3
+  register long r3 asm("a0") = (long)(parm3);  // Will move to A3
+  asm volatile ("slli a3, a0, 32");  // Shift 32 bits Left then Right
+  asm volatile ("srli a3, a3, 32");  // To clear the top 32 bits
+
+  register long r2 asm("a0") = (long)(parm2);  // Will move to A2
+  asm volatile ("slli a2, a0, 32");  // Shift 32 bits Left then Right
+  asm volatile ("srli a2, a2, 32");  // To clear the top 32 bits
+
+  register long r1 asm("a0") = (long)(parm1);  // Will move to A1
+  asm volatile ("slli a1, a0, 32");  // Shift 32 bits Left then Right
+  asm volatile ("srli a1, a1, 32");  // To clear the top 32 bits
+
+  register long r0 asm("a0") = (long)(nbr);  // Will stay in A0
+
+  // `ecall` will jump from RISC-V User Mode
+  // to RISC-V Supervisor Mode
+  // to execute the System Call.
+  // Input + Output Registers: A0 to A3
+  // Clobbers the Memory
+  asm volatile
+  (
+    // ECALL for System Call to NuttX Kernel
+    "ecall \n"
+    
+    // NuttX needs NOP after ECALL
+    ".word 0x0001 \n"
+
+    // Input+Output Registers: None
+    // Input-Only Registers: A0 to A3
+    // Clobbers the Memory
+    :
+    : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
+    : "memory"
+  );
+
+  // Return the result from Register A0
+  return r0;
+} 
+```
 
 TODO: Why not copy A0 to A2...
 
@@ -2693,6 +2781,76 @@ A1: 0000000000000001
 A2: 00000000c0101000
 A3: 000000000000000f
 Hello, World!!
+```
+
+`andi` doesn't work...
+
+```c
+register long r2 asm("a0") = (long)(parm2);  // Will move to A2
+asm volatile ("andi a2, a0, 0xffffffff");
+```
+
+Because 0xffffffff gets assembled to -1. (Bug?)
+
+## Implement `exit` with NuttX System Call
+
+TODO
+
+https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L1-L10
+
+```c
+// Caution: This may change
+#define SYS__exit 8
+
+// Terminate the NuttX Process
+// From nuttx/syscall/proxies/PROXY__exit.c
+inline void exit(int parm1) {
+  sys_call1((unsigned int)SYS__exit, (uintptr_t)parm1);
+  while(1);
+}
+```
+
+https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L10-L48
+
+```c
+// Make a System Call with 1 parameters
+// https://github.com/apache/nuttx/blob/master/arch/risc-v/include/syscall.h#L188-L213
+inline uintptr_t sys_call1(
+  unsigned int nbr,  // System Call Number
+  uintptr_t parm1    // First Parameter
+) {
+  // Pass the Function Number and Parameters
+  // Registers A0 to A1
+  register long r1 asm("a0") = (long)(parm1);  // Will move to A1
+  asm volatile ("slli a1, a0, 32");  // Shift 32 bits Left then Right
+  asm volatile ("srli a1, a1, 32");  // To clear the top 32 bits
+
+  register long r0 asm("a0") = (long)(nbr);  // Will stay in A0
+
+  // `ecall` will jump from RISC-V User Mode
+  // to RISC-V Supervisor Mode
+  // to execute the System Call.
+  // Input + Output Registers: A0 to A1
+  // Clobbers the Memory
+  asm volatile
+  (
+    // ECALL for System Call to NuttX Kernel
+    "ecall \n"
+    
+    // NuttX needs NOP after ECALL
+    ".word 0x0001 \n"
+
+    // Input+Output Registers: None
+    // Input-Only Registers: A0 to A1
+    // Clobbers the Memory
+    :
+    : "r"(r0), "r"(r1)
+    : "memory"
+  );
+
+  // Return the result from Register A0
+  return r0;
+} 
 ```
 
 TODO: Define the printf formats %jd, %zu
