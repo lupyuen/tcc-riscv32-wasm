@@ -2102,13 +2102,17 @@ _How to bundle our C Header Files and C Library Files into the ROM FS Filesystem
 Like this...
 
 ```bash
-## Bundle the apps/bin folder into ROM FS Filesystem romfs.bin
+## Bundle the romfs folder into ROM FS Filesystem romfs.bin
 ## and label with this Volume Name
 genromfs \
-  -f romfs.bin \
-  -d apps/bin \
-  -V "VolumeName"
+  -f zig/romfs.bin \
+  -d zig/romfs \
+  -V "ROMFS"
 ```
+
+[(See the ROM FS Binary `zig/romfs.bin`)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)
+
+[(See the ROM FS Files `zig/romfs`)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs)
 
 _How to implement the ROM FS in our Zig Wrapper?_
 
