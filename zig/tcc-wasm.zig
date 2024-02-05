@@ -154,12 +154,15 @@ var romfs_inode: *c.struct_inode = undefined;
 
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, next_fd });
-    const fd = next_fd;
-    next_fd += 1;
 
-    // If opening an Include File or Library File...
-    if (fd > FIRST_FD) {
-        // Create the File Struct
+    // If opening the C Program File `hello.c`...
+    if (next_fd == FIRST_FD) {
+        const fd = next_fd;
+        next_fd += 1;
+        return fd;
+    } else {
+        // If opening an Include File or Library File...
+        // Allocate the File Struct
         const files = std.heap.page_allocator.alloc(c.struct_file, 1) catch {
             debug("open: Failed to allocate file", .{});
             @panic("open: Failed to allocate file");
@@ -175,17 +178,21 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
             c.O_RDONLY, // oflags: c_int
             0 // mode: mode_t
         );
-        assert(ret >= 0);
+        if (ret < 0) {
+            return ret;
+        }
 
         // Remember the ROM FS File
+        const fd = next_fd;
+        next_fd += 1;
         const f = fd - FIRST_FD - 1;
         assert(romfs_files.items.len == f);
         romfs_files.append(file) catch {
             debug("Unable to allocate file", .{});
             @panic("Unable to allocate file");
         };
+        return fd;
     }
-    return fd;
 }
 
 export fn fdopen(fd: c_int, mode: [*:0]const u8) *FILE {
