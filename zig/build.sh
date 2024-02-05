@@ -131,7 +131,7 @@ function build_wasm {
 
   ## Run our Linked WebAssembly
   node zig/test.js
-  node zig/test.js | grep "TODO"
+  node zig/test.js | grep --text "TODO"
 
   ## Translate tcc.c to Zig
   # zig translate-c \

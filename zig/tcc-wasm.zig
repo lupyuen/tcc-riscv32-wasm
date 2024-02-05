@@ -342,7 +342,10 @@ const format_patterns = [_]FormatPattern{
     FormatPattern{ .c_spec = "%u", .zig_spec = "{}", .type0 = c_int, .type1 = null },
 
     // Format a Single `%jd`
-    // FormatPattern{ .c_spec = "%jd", .zig_spec = "{}", .type0 = c_long, .type1 = null },
+    FormatPattern{ .c_spec = "%jd", .zig_spec = "{}", .type0 = c_int, .type1 = null },
+
+    // Format a Single `%zu`
+    FormatPattern{ .c_spec = "%zu", .zig_spec = "{}", .type0 = c_int, .type1 = null },
 
     // Format a Single `%s`, like `#define __BASE_FILE__ "%s"` or `.rela%s`
     FormatPattern{ .c_spec = "%s", .zig_spec = "{s}", .type0 = [*:0]const u8, .type1 = null },
