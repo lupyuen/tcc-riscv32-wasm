@@ -160,6 +160,7 @@ export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
 
     // Copy from the Read Buffer
     // TODO: Support more than one file
+    assert(fd0 == FIRST_FD);
     const len = read_buf.len;
     assert(len < nbyte);
     @memcpy(buf[0..len], read_buf[0..len]);
