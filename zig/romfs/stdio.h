@@ -1,11 +1,12 @@
-int puts(const char *s);
-
 // Caution: This may change
 #define SYS_write 61
 
+// TODO: Move this to a common file
 typedef int size_t;
 typedef int ssize_t;
 typedef int uintptr_t;
+
+int puts(const char *s);
 
 // Make a System Call with 3 parameters...
 inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
