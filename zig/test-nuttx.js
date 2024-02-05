@@ -57,8 +57,7 @@ WebAssembly.instantiate(typedArray, {
 
   void main(int argc, char *argv[]) {
     puts("Hello, World!!\\n");
-    for(;;) {}
-    // exit(0);
+    exit(0);
   }
   `);
 

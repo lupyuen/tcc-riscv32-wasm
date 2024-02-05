@@ -21,7 +21,7 @@ inline int puts(const char *s) {
   return write(1, s, strlen(s));
 }
 
-// Make a System Call with 3 parameters
+// Write to the File Descriptor
 // https://lupyuen.github.io/articles/app#nuttx-app-calls-nuttx-kernel
 inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
   return (ssize_t) sys_call3(
