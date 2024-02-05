@@ -2621,12 +2621,12 @@ Try the new ROM FS Demo here: https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
 #include <stdlib.h>
 
 void main(int argc, char *argv[]) {
-  puts("Hello, World!!\\n");
+  puts("Hello, World!!\n");
   exit(0);
 }
 ```
 
-Run the `a.out` here: https://lupyuen.github.io/nuttx-tinyemu/tcc/
+Then run the `a.out` here: https://lupyuen.github.io/nuttx-tinyemu/tcc/
 
 ```text
 Loading...
@@ -2635,11 +2635,14 @@ ABC
 NuttShell (NSH) NuttX-12.4.0-RC0
 nsh> a.out
 Hello, World!!
+ 
 nsh> a.out
 Hello, World!!
+ 
 nsh> a.out
 Hello, World!!
-nsh> 
+ 
+nsh>
 ```
 
 3 things we fixed...
