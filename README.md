@@ -2610,11 +2610,29 @@ _What if need a Temporary Writeable Filesystem?_
 
 Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tree/master/fs/tmpfs)
 
+TODO: Works OK yay!
+
+https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
+
+https://lupyuen.github.io/nuttx-tinyemu/tcc/
+
+```text
+Loading...
+TinyEMU Emulator for Ox64 BL808 RISC-V SBC
+ABC
+NuttShell (NSH) NuttX-12.4.0-RC0
+nsh> a.out
+Hello, World!!
+nsh> a.out
+Hello, World!!
+nsh> a.out
+Hello, World!!
+nsh> 
+```
+
 TODO: Define the printf formats %jd, %zu
 
 TODO: Iteratively handle printf formats
-
-TODO: https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
 
 # Analysis of Missing Functions
 
