@@ -142,16 +142,16 @@ extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 //  File Functions
 
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
-    debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, fd });
-    const ret = fd;
-    fd += 1;
+    debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, next_fd });
+    const ret = next_fd;
+    next_fd += 1;
     return ret;
 }
 
 export fn fdopen(fd0: c_int, mode: [*:0]const u8) *FILE {
-    debug("fdopen: fd={}, mode={s}, return FILE={}", .{ fd0, mode, fd });
-    const ret = fd;
-    fd += 1;
+    debug("fdopen: fd={}, mode={s}, return FILE={}", .{ fd0, mode, next_fd });
+    const ret = next_fd;
+    next_fd += 1;
     return @ptrFromInt(@as(usize, @intCast(ret)));
 }
 
@@ -214,8 +214,8 @@ var write_buflen: usize = 0;
 var read_buf: []const u8 = undefined;
 
 /// Next File Descriptor
-var fd: c_int = 3;
-var first_read: bool = true;
+var next_fd: c_int = FIRST_FD;
+const FIRST_FD = 3;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Semaphore Functions
