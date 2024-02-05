@@ -2389,9 +2389,7 @@ _TCC WebAssembly needs a ROM FS Filesystem that will have C Header Files and C L
 
 _How will we integrate the NuttX ROM FS Driver in Zig?_
 
-TODO
-
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L24-L45
+At Startup: We call the NuttX ROM FS Driver to mount the ROM FS Filesystem: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L24-L45)
 
 ```zig
 /// Next File Descriptor Number.
@@ -2426,123 +2424,187 @@ pub export fn compile_program(...) [*]const u8 {
   test_romfs();
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L157-L207
+NuttX ROM FS Driver will call `mtd_ioctl` to map the ROM FS Data in memory: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L974-L994)
+
+```zig
+/// Embed the ROM FS Filesystem.
+/// Later our JavaScript shall fetch this over HTTP.
+const ROMFS_DATA = @embedFile("romfs.bin");
+
+export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
+  assert(rm_xipbase != null);
+  if (cmd == c.BIOC_XIPBASE) {
+    // Return the XIP Base Address
+    rm_xipbase.?.* = @intCast(@intFromPtr(ROMFS_DATA));
+  } else if (cmd == c.MTDIOC_GEOMETRY) {
+    // Return the Storage Device Geometry
+    const geo: *c.mtd_geometry_s = @ptrCast(rm_xipbase.?);
+    geo.*.blocksize = 64;
+    geo.*.erasesize = 64;
+    geo.*.neraseblocks = 1024; // TODO: Is this needed?
+    const name = "ZIG_ROMFS";
+    @memcpy(geo.*.model[0..name.len], name);
+    geo.*.model[name.len] = 0;
+  } else {
+    debug("mtd_ioctl: Unknown command {}", .{cmd});
+  }
+  return 0;
+}
+```
+
+When TCC WebAssembly calls `open` to open an Include File, we call the NuttX ROM FS Driver to open the file in ROM FS: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L157-L207)
 
 ```zig
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
-    debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, next_fd });
 
-    // If opening the C Program File `hello.c`
-    // Or creating `hello.o`...
-    // Just return the File Descriptor
-    // TODO: This might create a hole in romfs_files if we open a file for reading after writing another file
-    if (next_fd == FIRST_FD or oflag == 577) {
-        const fd = next_fd;
-        next_fd += 1;
-        return fd;
-    } else {
-        // If opening an Include File or Library File...
-        // Allocate the File Struct
-        const files = std.heap.page_allocator.alloc(c.struct_file, 1) catch {
-            debug("open: Failed to allocate file", .{});
-            @panic("open: Failed to allocate file");
-        };
-        const file = &files[0];
-        file.* = std.mem.zeroes(c.struct_file);
-        file.*.f_inode = romfs_inode;
+  // If opening the C Program File `hello.c`
+  // Or creating `hello.o`...
+  // Just return the File Descriptor
+  // TODO: This might create a hole in romfs_files if we open a file for reading after writing another file
+  if (next_fd == FIRST_FD or oflag == 577) {
+    const fd = next_fd;
+    next_fd += 1;
+    return fd;
+  } else {
+    // If opening an Include File or Library File...
+    // Allocate the File Struct
+    const files = std.heap.page_allocator.alloc(c.struct_file, 1) catch {
+      debug("open: Failed to allocate file", .{});
+      @panic("open: Failed to allocate file");
+    };
+    const file = &files[0];
+    file.* = std.mem.zeroes(c.struct_file);
+    file.*.f_inode = romfs_inode;
 
-        // Strip the path from System Include
-        const sys = "/usr/local/lib/tcc/include/";
-        const strip_path = if (std.mem.startsWith(u8, std.mem.span(path), sys)) (path + sys.len) else path;
+    // Strip the path from System Include
+    const sys = "/usr/local/lib/tcc/include/";
+    const strip_path = if (std.mem.startsWith(u8, std.mem.span(path), sys)) (path + sys.len) else path;
 
-        // Open the ROM FS File
-        const ret = c.romfs_open( // Open for Read-Only. `mode` is used only for creating files.
-            file, // filep: [*c]struct_file
-            strip_path, // relpath: [*c]const u8
-            c.O_RDONLY, // oflags: c_int
-            0 // mode: mode_t
-        );
-        if (ret < 0) {
-            return ret;
-        }
+    // Open the ROM FS File
+    const ret = c.romfs_open( // Open for Read-Only. `mode` is used only for creating files.
+      file, // filep: [*c]struct_file
+      strip_path, // relpath: [*c]const u8
+      c.O_RDONLY, // oflags: c_int
+      0 // mode: mode_t
+    );
+    if (ret < 0) { return ret; }
 
-        // Remember the ROM FS File
-        const fd = next_fd;
-        next_fd += 1;
-        const f = fd - FIRST_FD - 1;
-        assert(romfs_files.items.len == f);
-        romfs_files.append(file) catch {
-            debug("Unable to allocate file", .{});
-            @panic("Unable to allocate file");
-        };
-        return fd;
-    }
+    // Remember the ROM FS File
+    const fd = next_fd;
+    next_fd += 1;
+    const f = fd - FIRST_FD - 1;
+    assert(romfs_files.items.len == f);
+    romfs_files.append(file) catch {
+      debug("Unable to allocate file", .{});
+      @panic("Unable to allocate file");
+    };
+    return fd;
+  }
 }
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L214-L244
+When TCC WebAssembly calls `read` to read the Include File, we call ROM FS: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L214-L244)
 
 ```zig
-
 export fn read(fd: c_int, buf: [*:0]u8, nbyte: size_t) isize {
-    debug("read: fd={}, nbyte={}", .{ fd, nbyte });
 
-    // If reading the C Program...
-    if (fd == FIRST_FD) {
-        // Copy from the Read Buffer
-        const len = read_buf.len;
-        assert(len < nbyte);
-        @memcpy(buf[0..len], read_buf[0..len]);
-        buf[len] = 0;
-        read_buf.len = 0;
-        debug("read: return buf={s}", .{buf});
-        return @intCast(len);
-    } else {
-        // Fetch the ROM FS File
-        const f = fd - FIRST_FD - 1;
-        const file = romfs_files.items[@intCast(f)];
+  // If reading the C Program...
+  if (fd == FIRST_FD) {
+    // Copy from the Read Buffer
+    const len = read_buf.len;
+    assert(len < nbyte);
+    @memcpy(buf[0..len], read_buf[0..len]);
+    buf[len] = 0;
+    read_buf.len = 0;
+    return @intCast(len);
+  } else {
+    // Fetch the ROM FS File
+    const f = fd - FIRST_FD - 1;
+    const file = romfs_files.items[@intCast(f)];
 
-        // Read from the ROM FS File
-        const ret = c.romfs_read( // Read the file
-            file, // filep: [*c]struct_file
-            buf, // buffer: [*c]u8
-            nbyte // buflen: usize
-        );
-        assert(ret >= 0);
-        debug("read: return buf={s}", .{buf[0..@intCast(ret)]});
-        return @intCast(ret);
-    }
+    // Read from the ROM FS File
+    const ret = c.romfs_read( // Read the file
+      file, // filep: [*c]struct_file
+      buf, // buffer: [*c]u8
+      nbyte // buflen: usize
+    );
+    assert(ret >= 0);
+    return @intCast(ret);
+  }
 }
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L266-L286
+And finally we call ROM FS Driver to close the Include File: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L266-L286)
 
 ```zig
-
 export fn close(fd: c_int) c_int {
-    debug("close: fd={}", .{fd});
 
-    // If closing an Include File or Library File...
-    if (fd > FIRST_FD) {
-        // Fetch the ROM FS File
-        const f = fd - FIRST_FD - 1;
-        if (f >= romfs_files.items.len) {
-            // Skip the closing of `hello.o`
-            return 0;
-        }
-        const file = romfs_files.items[@intCast(f)];
-
-        // Close the ROM FS File. TODO: Deallocate the file
-        const ret = c.romfs_close(file);
-        assert(ret >= 0);
+  // If closing an Include File or Library File...
+  if (fd > FIRST_FD) {
+    // Fetch the ROM FS File
+    const f = fd - FIRST_FD - 1;
+    if (f >= romfs_files.items.len) {
+      // Skip the closing of `hello.o`
+      return 0;
     }
-    return 0;
+    const file = romfs_files.items[@intCast(f)];
+
+    // Close the ROM FS File. TODO: Deallocate the file
+    const ret = c.romfs_close(file);
+    assert(ret >= 0);
+  }
+  return 0;
 }
-
-
 ```
 
-TODO: Define the printf formats %jd
+We stage the Include Files `stdio.h` and `stdlib.h` here: [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs)
+
+And we bundle them into `romfs.bin`...
+
+```bash
+## Bundle the romfs folder into ROM FS Filesystem romfs.bin
+## and label with this Volume Name
+genromfs \
+  -f zig/romfs.bin \
+  -d zig/romfs \
+  -V "ROMFS"
+```
+
+[(See the ROM FS Binary `zig/romfs.bin`)](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)
+
+At last we have a proper POSIX (Read-Only) Filesystem for TCC WebAssembly yay!
+
+```text
+open: path=/usr/local/lib/tcc/include/stdio.h, oflag=0, return fd=4
+Open 'stdio.h'
+read: fd=4, nbyte=8192
+XIP buffer: anyopaque@10b672
+read: return buf=
+  int puts(const char *s);
+
+read: fd=4, nbyte=8192
+read: return buf=
+close: fd=4
+Closing
+
+open: path=/usr/local/lib/tcc/include/stdlib.h, oflag=0, return fd=5
+Open 'stdlib.h'
+read: fd=5, nbyte=8192
+XIP buffer: anyopaque@10b6b2
+read: return buf=
+  void exit(int status);
+
+read: fd=5, nbyte=8192
+read: return buf=
+close: fd=5
+Closing
+```
+
+_What if need a Temporary Writeable Filesystem?_
+
+Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tree/master/fs/tmpfs)
+
+TODO: Define the printf formats %jd, %zu
 
 TODO: Iteratively handle printf formats
 
