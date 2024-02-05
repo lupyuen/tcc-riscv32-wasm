@@ -2665,6 +2665,8 @@ Impressive, no? 3 things we fixed...
 
 [(Watch the __Demo on YouTube__)](https://youtu.be/sU69bUyrgN8)
 
+![TCC RISC-V Compiler runs in the Web Browser (thanks to Zig Compiler)](https://lupyuen.github.io/images/romfs-title.png)
+
 ## ROM FS Filesystem for Include Files
 
 _How did we get <stdio.h> and <stdlib.h> in TCC WebAssembly?_
