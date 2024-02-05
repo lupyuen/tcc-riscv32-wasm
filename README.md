@@ -2651,21 +2651,34 @@ nsh>
 
 ## ROM FS Filesystem for Include Files
 
-TODO
+_How did we get <stdio.h> and <stdlib.h>_
 
-[zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs) Staging Folder that contains...
+We created a Staging Folder [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs) that contains...
 
 - [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h)
 
 - [stdlib.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h)
 
-Which becomes ROM FS Data File [zig/romfs.bin](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)
+Then we bundle the Staging Folder into a ROM FS Filesystem...
+
+```bash
+## Bundle the romfs folder into ROM FS Filesystem romfs.bin
+## and label with this Volume Name
+genromfs \
+  -f zig/romfs.bin \
+  -d zig/romfs \
+  -V "ROMFS"
+```
+
+Which becomes the ROM FS Data File [zig/romfs.bin](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)
+
+Then we mounted the ROM FS Filesystem by calling the NuttX ROM FS Driver. (Which has been integrated into our Zig WebAssembly)
+
+See the earlier sections to find out how we modded the POSIX Filesystem Calls (from TCC WebAssembly) to access the NuttX ROM FS Driver.
 
 ## Implement `puts` with NuttX System Call
 
-TODO
-
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L18-L25
+In our Demo NuttX App, we implement `puts` by calling `write`: [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L18-L25)
 
 ```c
 // Print the string to Standard Output
@@ -2676,7 +2689,7 @@ inline int puts(const char *s) {
 }
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L25-L36
+Then we implement `write` the exact same way as NuttX, making a System Call: [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L25-L36)
 
 ```c
 // Caution: This may change
@@ -2694,7 +2707,7 @@ inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
 }
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L36-L84
+`sys_call3` is our hacked implementation of NuttX System Call: [stdio.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdio.h#L36-L84)
 
 ```c
 // Make a System Call with 3 parameters
@@ -2747,14 +2760,18 @@ inline uintptr_t sys_call3(
 } 
 ```
 
-TODO: Why not copy A0 to A2...
+_Why so complicated?_
+
+That's because TCC [won't load the RISC-V Registers correctly](https://lupyuen.github.io/articles/tcc#appendix-nuttx-system-call). Thus we load the registers ourselves.
+
+_Why not simply copy A0 to A2?_
 
 ```c
 register long r2 asm("a0") = (long)(parm2);  // Will move to A2
-asm volatile ("addi a2, a0, 0");
+asm volatile ("addi a2, a0, 0");  // Copy A0 to A2
 ```
 
-Register A2 becomes negative...
+Because then Register A2 becomes negative...
 
 ```text
 riscv_swint: Entry: regs: 0x8020be10
@@ -2767,7 +2784,7 @@ A3: 000000000000000f
 [...Page Fault because A2 is Invalid Address...]
 ```
 
-So we shift away the negative sign...
+So we Shift away the Negative Sign...
 
 ```c
 register long r2 asm("a0") = (long)(parm2);  // Will move to A2
@@ -2775,7 +2792,7 @@ asm volatile ("slli a2, a0, 32");  // Shift 32 bits Left then Right
 asm volatile ("srli a2, a2, 32");  // To clear the top 32 bits
 ```
 
-Register A2 becomes positively OK...
+Then Register A2 becomes Positively OK...
 
 ```text
 riscv_swint: Entry: regs: 0x8020be10
@@ -2788,7 +2805,7 @@ A3: 000000000000000f
 Hello, World!!
 ```
 
-`andi` doesn't work...
+BTW `andi` doesn't work...
 
 ```c
 register long r2 asm("a0") = (long)(parm2);  // Will move to A2
@@ -2799,9 +2816,7 @@ Because 0xffffffff gets assembled to -1. (Bug?)
 
 ## Implement `exit` with NuttX System Call
 
-TODO
-
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L1-L10
+In our Demo NuttX App, we implement `exit` the same way as NuttX, by making a System Call: [stdlib.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L1-L10)
 
 ```c
 // Caution: This may change
@@ -2815,7 +2830,7 @@ inline void exit(int parm1) {
 }
 ```
 
-https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L10-L48
+`sys_call1` makes a NuttX System Call, with our hand-crafted RISC-V Assembly (as a workaround): [stdlib.h](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs/stdlib.h#L10-L48)
 
 ```c
 // Make a System Call with 1 parameters
@@ -2857,6 +2872,14 @@ inline uintptr_t sys_call1(
   return r0;
 } 
 ```
+
+And everything works OK now!
+
+_Wow this looks horribly painful... Are we doing any more of this?_
+
+Nope we won't do any more of this! Hand-crafting the NuttX System Calls in RISC-V Assembly was extremely painful.
+
+(Maybe we'll revisit this when the RISC-V Registers are working OK in TCC)
 
 TODO: Define the printf formats %jd, %zu
 
