@@ -2657,9 +2657,9 @@ Hello, World!!
 nsh>
 ```
 
-Try changing "Hello World" to something else. It works!
+Try changing "Hello World" to something else. Reload the [NuttX Emulator](https://lupyuen.github.io/nuttx-tinyemu/tcc/). It works!
 
-3 things we fixed...
+Impressive, no? 3 things we fixed...
 
 ## ROM FS Filesystem for Include Files
 
