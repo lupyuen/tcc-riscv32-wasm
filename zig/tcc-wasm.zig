@@ -301,11 +301,13 @@ var write_buflen: usize = 0;
 /// Read Buffer for C Program
 var read_buf: []const u8 = undefined;
 
-/// Next File Descriptor
+/// Next File Descriptor Number.
+/// First File Descriptor is reserved for C Program `hello.c`
 var next_fd: c_int = FIRST_FD;
 const FIRST_FD = 3;
 
-/// Map File Descriptor to ROM FS File
+/// Map a File Descriptor to the ROM FS File
+/// Index of romfs_files = File Descriptor Number - FIRST_FD - 1
 var romfs_files: std.ArrayList(*c.struct_file) = undefined;
 
 ///////////////////////////////////////////////////////////////////////////////
