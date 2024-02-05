@@ -2614,7 +2614,17 @@ Time to wrap up and run everything in a Web Browser...
 
 # `puts` and `exit` work OK in TCC WebAssembly and NuttX Emulator yay!
 
-`puts` and `exit` finally work OK yay!
+Remember we're doing a Decent Demo of Building and Testing a #NuttX App in the Web Browser... `puts` and `exit` finally work OK yay! 🎉
+
+1.  TCC Compiler in WebAssembly compiles `puts` and `exit` to proper NuttX System Calls
+
+1.  By loading `<stdio.h>` and `<stdlib.h>` from the ROM FS Filesystem (thanks to the NuttX Driver)
+
+1.  TCC Compiler generates the 64-bit RISC-V ELF `a.out`
+
+1.  Which gets automagically copied to NuttX Emulator in WebAssembly
+
+1.  And NuttX Emulator executes `puts` and `exit` correctly as NuttX System Calls!
 
 Try the new ROM FS Demo here: https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
 
