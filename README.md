@@ -2606,9 +2606,11 @@ close: fd=5
 Closing
 ```
 
-_What if need a Temporary Writeable Filesystem?_
+_What if we need a Temporary Writeable Filesystem?_
 
 Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tree/master/fs/tmpfs)
+
+Time to wrap up and run everything in a Web Browser...
 
 # `puts` and `exit` work OK in TCC WebAssembly and NuttX Emulator yay!
 
