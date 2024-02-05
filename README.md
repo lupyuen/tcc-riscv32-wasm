@@ -2559,6 +2559,12 @@ export fn close(fd: c_int) c_int {
 
 We stage the Include Files `stdio.h` and `stdlib.h` here: [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs)
 
+```bash
+$ ls -l zig/romfs
+-rw-r--r-- 1 25 stdio.h
+-rw-r--r-- 1 23 stdlib.h
+```
+
 And we bundle them into `romfs.bin`...
 
 ```bash
