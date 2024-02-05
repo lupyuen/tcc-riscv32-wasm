@@ -2610,9 +2610,11 @@ _What if need a Temporary Writeable Filesystem?_
 
 Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tree/master/fs/tmpfs)
 
-TODO: `puts` and `exit` work OK yay!
+# `puts` and `exit` work OK in TCC WebAssembly and NuttX Emulator yay!
 
-https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
+`puts` and `exit` finally work OK yay!
+
+Try the new ROM FS Demo here: https://lupyuen.github.io/tcc-riscv32-wasm/romfs/
 
 ```c
 #include <stdio.h>
@@ -2624,7 +2626,7 @@ void main(int argc, char *argv[]) {
 }
 ```
 
-https://lupyuen.github.io/nuttx-tinyemu/tcc/
+Run the `a.out` here: https://lupyuen.github.io/nuttx-tinyemu/tcc/
 
 ```text
 Loading...
@@ -2639,6 +2641,18 @@ nsh> a.out
 Hello, World!!
 nsh> 
 ```
+
+3 things we fixed...
+
+## ROM FS Filesystem for Include Files
+
+TODO
+
+## Implement `puts` with NuttX System Call
+
+TODO
+
+## Implement `exit` with NuttX System Call
 
 TODO: Why not copy A0 to A2...
 
