@@ -2614,6 +2614,8 @@ Time to wrap up and run everything in a Web Browser...
 
 # `puts` and `exit` work OK in TCC WebAssembly and NuttX Emulator yay!
 
+[(Watch the __Demo on YouTube__)](https://youtu.be/sU69bUyrgN8)
+
 Remember we're doing a Decent Demo of Building and Testing a #NuttX App in the Web Browser... `puts` and `exit` finally work OK yay! 🎉
 
 1.  TCC Compiler in WebAssembly compiles `puts` and `exit` to proper NuttX System Calls
@@ -2660,6 +2662,8 @@ nsh>
 Try changing "Hello World" to something else. Recompile and Reload the [NuttX Emulator](https://lupyuen.github.io/nuttx-tinyemu/tcc/). It works!
 
 Impressive, no? 3 things we fixed...
+
+[(Watch the __Demo on YouTube__)](https://youtu.be/sU69bUyrgN8)
 
 ## ROM FS Filesystem for Include Files
 
