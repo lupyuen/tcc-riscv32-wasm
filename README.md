@@ -2628,7 +2628,7 @@ void main(int argc, char *argv[]) {
 }
 ```
 
-Then run the `a.out` here: https://lupyuen.github.io/nuttx-tinyemu/tcc/
+Click "Compile". Then run the `a.out` here: https://lupyuen.github.io/nuttx-tinyemu/tcc/
 
 ```text
 Loading...
@@ -2646,6 +2646,8 @@ Hello, World!!
  
 nsh>
 ```
+
+Try changing "Hello World" to something else. It works!
 
 3 things we fixed...
 
