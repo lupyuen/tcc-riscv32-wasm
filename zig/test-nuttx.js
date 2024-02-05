@@ -58,27 +58,12 @@ WebAssembly.instantiate(typedArray, {
   // Caution: This may change
   #define SYS_write 61
 
-  void main(int argc, char *argv[])
-  {
-    // Make NuttX System Call to write(fd, buf, buflen)
-    // const unsigned int nbr = 61; // SYS_write
-    const void *parm1 = 1;       // File Descriptor (stdout)
-    const void *parm2 = "Hello, World!!\\n"; // Buffer
-    const void *parm3 = 15; // Buffer Length
-
-    write(parm1, parm2, parm3);
-    for(;;) {}
-
-    // Exit via System Call
-    // exit(0);
-  }
-
   typedef int size_t;
   typedef int ssize_t;
   typedef int uintptr_t;
 
   // Make a System Call with 3 parameters...
-  ssize_t write(int parm1, const void * parm2, size_t parm3) {
+  inline ssize_t write(int parm1, const void * parm2, size_t parm3) {
     return (ssize_t) sys_call3(
       (unsigned int) SYS_write,  // System Call Number
       (uintptr_t) parm1,         // File Descriptor (1 = Standard Output)
@@ -88,7 +73,7 @@ WebAssembly.instantiate(typedArray, {
   }
 
   // Make a System Call with 3 parameters
-  uintptr_t sys_call3(
+  inline uintptr_t sys_call3(
     unsigned int nbr,  // System Call Number
     uintptr_t parm1,   // First Parameter
     uintptr_t parm2,   // Second Parameter
@@ -133,6 +118,21 @@ WebAssembly.instantiate(typedArray, {
 
     // Return the result from Register A0
     return r0;
+  } 
+
+  void main(int argc, char *argv[])
+  {
+    // Make NuttX System Call to write(fd, buf, buflen)
+    const void *parm1 = 1;  // File Descriptor (stdout)
+    const void *parm2 = "Hello, World!!\\n";  // Buffer
+    const void *parm3 = 15; // Buffer Length
+    write(parm1, parm2, parm3);
+
+    // Loop Forever
+    for(;;) {}
+
+    // Exit via System Call
+    // exit(0);
   }
   `);
 
