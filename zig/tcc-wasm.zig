@@ -155,8 +155,11 @@ var romfs_inode: *c.struct_inode = undefined;
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, next_fd });
 
-    // If opening the C Program File `hello.c`...
-    if (next_fd == FIRST_FD) {
+    // If opening the C Program File `hello.c`
+    // Or creating `hello.o`...
+    // Just return the File Descriptor
+    // TODO: This might create a hole in romfs_files if we open a file for reading after writing another file
+    if (next_fd == FIRST_FD or oflag == 577) {
         const fd = next_fd;
         next_fd += 1;
         return fd;
@@ -265,6 +268,10 @@ export fn close(fd: c_int) c_int {
     if (fd > FIRST_FD) {
         // Fetch the ROM FS File
         const f = fd - FIRST_FD - 1;
+        if (f >= romfs_files.items.len) {
+            // Skip the closing of `hello.o`
+            return 0;
+        }
         const file = romfs_files.items[@intCast(f)];
 
         // Close the ROM FS File. TODO: Deallocate the file

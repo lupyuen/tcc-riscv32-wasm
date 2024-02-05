@@ -53,8 +53,9 @@ WebAssembly.instantiate(typedArray, {
   // Allocate a String for passing Program Code to Zig
   const code_ptr = allocateString(`
   #include <stdio.h>
+  #include <stdlib.h>
 
-  int main(int argc, char *argv[])
+  void main(int argc, char *argv[])
   {
     // Make NuttX System Call to write(fd, buf, buflen)
     const unsigned int nbr = 61; // SYS_write
@@ -97,13 +98,9 @@ WebAssembly.instantiate(typedArray, {
       : "r"(r0), "r"(r1), "r"(r2), "r"(r3)
       : "memory"
     );
-  
-    // TODO: TCC says this is invalid
-    // asm volatile("nop" : "=r"(r0));
 
-    // Loop Forever
-    for(;;) {}
-    return 0;
+    // Exit via System Call
+    exit(0);
   }
   `);
 
