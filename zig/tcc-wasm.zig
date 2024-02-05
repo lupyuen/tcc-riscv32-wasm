@@ -25,6 +25,10 @@ pub export fn compile_program(
     // Create the Memory Allocator for malloc
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
+    // Map a File Descriptor to ROM FS File
+    romfs_files = std.ArrayList(c.struct_file).init(std.heap.page_allocator);
+    defer romfs_files.deinit();
+
     // Mount the ROM FS Filesystem
     debug("compile_program: Mounting ROM FS...", .{});
     const ret = c.romfs_bind( // Bind the ROM FS Filesystem
@@ -37,16 +41,16 @@ pub export fn compile_program(
     debug("compile_program: romfs_mountpt={}", .{c.romfs_mountpt.?});
 
     // Create the Mount Inode
-    const mount_inode = c.create_mount_inode(c.romfs_mountpt);
+    romfs_inode = c.create_mount_inode(c.romfs_mountpt);
 
     // Create the File Struct
-    var filep = std.mem.zeroes(c.struct_file);
-    filep.f_inode = mount_inode;
+    var file = std.mem.zeroes(c.struct_file);
+    file.f_inode = romfs_inode;
 
     // Open the file
     debug("compile_program: Opening ROM FS File `hello`...", .{});
     const ret2 = c.romfs_open( // Open "hello" for Read-Only. `mode` is used only for creating files.
-        &filep, // filep: [*c]struct_file
+        &file, // filep: [*c]struct_file
         "hello", // relpath: [*c]const u8
         c.O_RDONLY, // oflags: c_int
         0 // mode: mode_t
@@ -58,7 +62,7 @@ pub export fn compile_program(
     debug("compile_program: Reading ROM FS File `hello`...", .{});
     var buf = std.mem.zeroes([4]u8);
     const ret3 = c.romfs_read( // Read the file
-        &filep, // filep: [*c]struct_file
+        &file, // filep: [*c]struct_file
         &buf, // buffer: [*c]u8
         buf.len // buflen: usize
     );
@@ -68,7 +72,7 @@ pub export fn compile_program(
 
     // Close the file
     debug("compile_program: Closing ROM FS File `hello`...", .{});
-    const ret4 = c.romfs_close(&filep);
+    const ret4 = c.romfs_close(&file);
     assert(ret4 >= 0);
     debug("compile_program: ROM FS File `hello` closed OK!", .{});
 
@@ -138,36 +142,49 @@ pub export fn allocUint8(length: u32) [*]const u8 {
 /// Main Function from tcc.c
 extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 
+/// Mount Inode for ROM FS
+var romfs_inode: *c.struct_inode = undefined;
+
 ///////////////////////////////////////////////////////////////////////////////
 //  File Functions
 
 export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     debug("open: path={s}, oflag={}, return fd={}", .{ path, oflag, next_fd });
-    const ret = next_fd;
+    const fd = next_fd;
     next_fd += 1;
-    return ret;
+
+    // If opening an Include File or Library File...
+    if (fd > FIRST_FD) {
+        // Open the ROM FS File
+        @panic("TODO");
+    }
+    return fd;
 }
 
-export fn fdopen(fd0: c_int, mode: [*:0]const u8) *FILE {
-    debug("fdopen: fd={}, mode={s}, return FILE={}", .{ fd0, mode, next_fd });
+export fn fdopen(fd: c_int, mode: [*:0]const u8) *FILE {
+    debug("fdopen: fd={}, mode={s}, return FILE={}", .{ fd, mode, next_fd });
     const ret = next_fd;
     next_fd += 1;
     return @ptrFromInt(@as(usize, @intCast(ret)));
 }
 
-export fn read(fd0: c_int, buf: [*:0]u8, nbyte: size_t) isize {
-    debug("read: fd={}, nbyte={}", .{ fd0, nbyte });
+export fn read(fd: c_int, buf: [*:0]u8, nbyte: size_t) isize {
+    debug("read: fd={}, nbyte={}", .{ fd, nbyte });
 
-    // Copy from the Read Buffer
-    // TODO: Support more than one file
-    assert(fd0 == FIRST_FD);
-    const len = read_buf.len;
-    assert(len < nbyte);
-    @memcpy(buf[0..len], read_buf[0..len]);
-    buf[len] = 0;
-    read_buf.len = 0;
-    debug("read: return buf={s}", .{buf});
-    return @intCast(len);
+    // If reading the C Program...
+    if (fd == FIRST_FD) {
+        // Copy from the Read Buffer
+        const len = read_buf.len;
+        assert(len < nbyte);
+        @memcpy(buf[0..len], read_buf[0..len]);
+        buf[len] = 0;
+        read_buf.len = 0;
+        debug("read: return buf={s}", .{buf});
+        return @intCast(len);
+    } else {
+        // Read from the ROM FS File
+        @panic("TODO");
+    }
 }
 
 export fn fputc(ch: c_int, stream: *FILE) c_int {
@@ -192,13 +209,19 @@ export fn fwrite(ptr: [*:0]const u8, size: usize, nmemb: usize, stream: *FILE) u
     return nmemb;
 }
 
-export fn close(fd0: c_int) c_int {
-    debug("close: fd={}", .{fd0});
+export fn close(fd: c_int) c_int {
+    debug("close: fd={}", .{fd});
+
+    // If closing an Include File or Library File...
+    if (fd > FIRST_FD) {
+        // Close the ROM FS File
+        @panic("TODO");
+    }
     return 0;
 }
 
 export fn fclose(stream: *FILE) c_int {
-    debug("close: stream={*}", .{stream});
+    debug("fclose: stream={*}", .{stream});
     return 0;
 }
 
@@ -207,16 +230,19 @@ export fn unlink(path: [*:0]const u8) c_int {
     return 0;
 }
 
-/// Write Buffer for fputc and fwrite
+/// Write Buffer for `a.out`
 var write_buf = std.mem.zeroes([8192]u8);
 var write_buflen: usize = 0;
 
-/// Read Buffer for read
+/// Read Buffer for C Program
 var read_buf: []const u8 = undefined;
 
 /// Next File Descriptor
 var next_fd: c_int = FIRST_FD;
 const FIRST_FD = 3;
+
+/// Map File Descriptor to ROM FS File
+var romfs_files: std.ArrayList(c.struct_file) = undefined;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Semaphore Functions

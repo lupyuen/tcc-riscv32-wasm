@@ -52,6 +52,8 @@ WebAssembly.instantiate(typedArray, {
 
   // Allocate a String for passing Program Code to Zig
   const code_ptr = allocateString(`
+  #include <stdio.h>
+
   int main(int argc, char *argv[])
   {
     // Make NuttX System Call to write(fd, buf, buflen)
