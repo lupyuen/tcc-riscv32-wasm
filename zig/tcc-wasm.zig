@@ -361,6 +361,55 @@ const format_patterns = [_]FormatPattern{
 };
 
 /// Runtime Function to format a string by Pattern Matching.
+/// Supports Multiple Format Patterns.
+/// Return the number of bytes written to `str`, excluding terminating null.
+fn format_string_multi(
+    ap: *std.builtin.VaList,
+    str: [*]u8,
+    size: size_t,
+    format: []const u8, // Like `#define %s%s\n`
+) usize {
+    // Assume `format` contains "first %s second %s third %s fourth"
+    // We format "first %s second "
+    // Then "%s third"
+    // Then "%s fourth"
+    // debug("format_string_multi: format={s}", .{format});
+    var pos: usize = 0;
+    var len: usize = 0;
+    while (true) {
+        // Find the next 2 specifiers
+        assert(pos < format.len);
+        if (std.mem.indexOf(u8, format[pos..], "%")) |spec_pos1| {
+            assert(spec_pos1 + 1 < format.len);
+            if (std.mem.indexOf(u8, format[pos + spec_pos1 + 1 ..], "%")) |spec_pos2| {
+                // Found 2 specifiers. Extract the part before second specifier.
+                const next_pos = pos + spec_pos1 + spec_pos2 + 1;
+                // debug("pos={}, spec_pos1={}, spec_pos2={}", .{ pos, spec_pos1, spec_pos2 });
+                const fmt = format[pos..next_pos];
+
+                // Continue after the second specifier
+                pos = next_pos;
+                // debug("fmt=`{s}`, pos={}", .{ fmt, pos });
+                len += format_string(ap, str + len, size - len, fmt);
+            } else {
+                // Found only 1 specifier
+                const fmt = format[pos..];
+                // debug("1 spec=`{s}`", .{fmt});
+                len += format_string(ap, str + len, size - len, fmt);
+                break;
+            }
+        } else {
+            // No more specifiers
+            const fmt = format[pos..];
+            // debug("No spec=`{s}`", .{fmt});
+            len += format_string(ap, str + len, size - len, fmt);
+            break;
+        }
+    }
+    return len;
+}
+
+/// Runtime Function to format a string by Pattern Matching.
 /// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string(
     ap: *std.builtin.VaList,
@@ -580,7 +629,7 @@ export fn fprintf(stream: *FILE, format: [*:0]const u8, ...) c_int {
     // Format the string. TODO: Is 512 sufficient?
     var buf = std.mem.zeroes([512]u8);
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, &buf, buf.len, format_slice);
+    const len = format_string_multi(&ap, &buf, buf.len, format_slice);
 
     // TODO: Print to other File Streams. Right now we assume it's stderr (File Descriptor 2)
     // debug("fprintf: stream={*}\n{s}", .{ stream, buf });
@@ -595,7 +644,7 @@ export fn printf(format: [*:0]const u8, ...) c_int {
     // Format the string. TODO: Is 512 sufficient?
     var buf = std.mem.zeroes([512]u8);
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, &buf, buf.len, format_slice);
+    const len = format_string_multi(&ap, &buf, buf.len, format_slice);
 
     debug("{s}", .{buf});
     return @intCast(len);
