@@ -992,7 +992,7 @@ export fn nxrmutex_unlock(_: *rmutex_t) c_int {
 }
 
 /// Embed the ROM FS Filesystem
-/// TODO: Our JavaScript shall fetch this over HTTP
+/// TODO: Load the ROM FS Filesystem in JavaScript
 const ROMFS_DATA = @embedFile("romfs.bin");
 
 const mtd_dev_s = opaque {};
