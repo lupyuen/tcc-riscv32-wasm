@@ -2102,6 +2102,12 @@ _How to bundle our C Header Files and C Library Files into the ROM FS Filesystem
 Like this...
 
 ```bash
+##  For Ubuntu: Install genromfs
+sudo apt install genromfs
+
+##  For macOS: Install genromfs
+brew install genromfs
+
 ## Bundle the romfs folder into ROM FS Filesystem romfs.bin
 ## and label with this Volume Name
 genromfs \
@@ -2568,6 +2574,12 @@ $ ls -l zig/romfs
 And we bundle them into `romfs.bin`...
 
 ```bash
+##  For Ubuntu: Install genromfs
+sudo apt install genromfs
+
+##  For macOS: Install genromfs
+brew install genromfs
+
 ## Bundle the romfs folder into ROM FS Filesystem romfs.bin
 ## and label with this Volume Name
 genromfs \
@@ -2680,6 +2692,12 @@ We create a Staging Folder [zig/romfs](https://github.com/lupyuen/tcc-riscv32-wa
 Then we bundle the Staging Folder into a ROM FS Filesystem...
 
 ```bash
+##  For Ubuntu: Install genromfs
+sudo apt install genromfs
+
+##  For macOS: Install genromfs
+brew install genromfs
+
 ## Bundle the romfs folder into ROM FS Filesystem romfs.bin
 ## and label with this Volume Name
 genromfs \
