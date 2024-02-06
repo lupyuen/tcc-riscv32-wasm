@@ -1,8 +1,8 @@
-![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/tcc-ecall.png)
+![TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler](https://lupyuen.github.io/images/romfs-title.png)
 
-[(Try the __Online Demo__)](https://lupyuen.github.io/tcc-riscv32-wasm/)
+[(Try the __Online Demo__)](https://lupyuen.github.io/tcc-riscv32-wasm/romfs)
 
-[(Watch the __Demo on YouTube__)](https://youtu.be/DJMDYq52Iv8)
+[(Watch the __Demo on YouTube__)](https://youtu.be/sU69bUyrgN8)
 
 # TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
