@@ -97,6 +97,12 @@ function build_wasm {
     $tcc_options \
     zig/fs_romfsutil.c
 
+  ## Compile zig_romfs.c to WebAssembly
+  zig cc \
+    $nuttx_options \
+    $tcc_options \
+    zig/zig_romfs.c
+
   ## Compile tcc.c to WebAssembly
   zig cc \
     $tcc_options \
@@ -120,6 +126,7 @@ function build_wasm {
     zig/tcc-wasm.zig \
     fs_romfs.o \
     fs_romfsutil.o \
+    zig_romfs.o \
     tcc.o
 
   ## Dump our Linked WebAssembly
