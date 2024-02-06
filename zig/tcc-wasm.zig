@@ -509,61 +509,6 @@ fn format_string1(
     return len;
 }
 
-/// CompTime Function to format a string by Pattern Matching.
-/// Format Two Specifiers, like `#define %s%s\n` or `%s:%d`
-/// If the Spec matches the Format: Return the number of bytes written to `str`, excluding terminating null.
-/// Else return 0.
-fn format_string2(
-    ap: *std.builtin.VaList,
-    str: [*]u8,
-    size: size_t,
-    format: []const u8, // Like `#define %s%s\n`
-    comptime c_spec: []const u8, // Like `%s%s`
-    comptime zig_spec: []const u8, // Like `{s}{s}`
-    comptime T0: type, // Like `[*:0]const u8`
-    comptime T1: type, // Like `[*:0]const u8`
-) usize {
-    // Count the Format Specifiers: `%`
-    const spec_cnt = std.mem.count(u8, c_spec, "%");
-    const format_cnt = std.mem.count(u8, format, "%");
-
-    // Check the Format Specifiers: `%`
-    if (format_cnt != spec_cnt or // Quit if the number of specifiers are different
-        !std.mem.containsAtLeast(u8, format, 1, c_spec)) // Or if the specifiers are not found
-    {
-        return 0;
-    }
-
-    // Fetch the args
-    const a0 = @cVaArg(ap, T0);
-    const a1 = @cVaArg(ap, T1);
-
-    // Fetch the args. TODO: Handle T0=c_int
-    if (T0 != c_int and T1 == c_int) {
-        // debug("format_string2: size={}, format={s}, a0={s}, a1={}", .{ size, format, a0, a1 });
-    } else {
-        // debug("format_string2: size={}, format={s}, a0={s}, a1={s}", .{ size, format, a0, a1 });
-    }
-
-    // Format the string. TODO: Is 512 sufficient?
-    var buf: [512]u8 = undefined;
-    const buf_slice = std.fmt.bufPrint(&buf, zig_spec, .{ a0, a1 }) catch {
-        wasmlog.Console.log("format_string2: buf too small", .{});
-        @panic("format_string2: buf too small");
-    };
-
-    // Replace the Format Specifier. TODO: Is 512 sufficient?
-    var buf2 = std.mem.zeroes([512]u8);
-    _ = std.mem.replace(u8, format, c_spec, buf_slice, &buf2);
-
-    // Return the string
-    const len = std.mem.indexOfScalar(u8, &buf2, 0).?;
-    assert(len < size);
-    @memcpy(str[0..len], buf2[0..len]);
-    str[len] = 0;
-    return len;
-}
-
 export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
     // Prepare the varargs
     var ap = @cVaStart();
