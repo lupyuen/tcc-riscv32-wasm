@@ -47,7 +47,7 @@ WebAssembly.instantiate(typedArray, {
   wasm.init(result);
 
   // Allocate a String for passing the Compiler Options to Zig
-  const options = ["-c", "-r", "hello.c"];
+  const options = ["-c", "hello.c"];
   const options_ptr = allocateString(JSON.stringify(options));
 
   // Allocate a String for passing Program Code to Zig
