@@ -398,6 +398,7 @@ fn format_string_multi(
 }
 
 /// Runtime Function to format a string by Pattern Matching.
+/// Supports only One Format Pattern.
 /// Return the number of bytes written to `str`, excluding terminating null.
 fn format_string(
     ap: *std.builtin.VaList,
@@ -414,19 +415,10 @@ fn format_string(
     // For every Format Pattern...
     inline for (format_patterns) |pattern| {
         // Try formatting the string with the pattern...
-        const len2 =
-            if (pattern.type1) |t1|
-            // Pattern has 2 parameters
-            format_string2(ap, str, size, format, // Output String and Format String
-                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
-                pattern.type0, t1 // Types of the Parameters
-            )
-        else
-            // Pattern has 1 parameter
-            format_string1(ap, str, size, format, // Output String and Format String
-                pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
-                pattern.type0 // Type of the Parameter
-            );
+        const len2 = format_string1(ap, str, size, format, // Output String and Format String
+            pattern.c_spec, pattern.zig_spec, // Format Specifiers for C and Zig
+            pattern.type0 // Type of the Parameter
+        );
         if (len2 > 0) {
             return len2;
         }
