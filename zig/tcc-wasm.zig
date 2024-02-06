@@ -591,7 +591,7 @@ export fn vsnprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int 
 
     // Format the string
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, str, size, format_slice);
+    const len = format_string_multi(&ap, str, size, format_slice);
     // debug("vsnprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
@@ -603,7 +603,7 @@ export fn sprintf(str: [*]u8, format: [*:0]const u8, ...) c_int {
 
     // Format the string. TODO: Is 512 sufficient?
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, str, 512, format_slice);
+    const len = format_string_multi(&ap, str, 512, format_slice);
     // debug("sprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
@@ -615,7 +615,7 @@ export fn snprintf(str: [*]u8, size: size_t, format: [*:0]const u8, ...) c_int {
 
     // Format the string
     const format_slice = std.mem.span(format);
-    const len = format_string(&ap, str, size, format_slice);
+    const len = format_string_multi(&ap, str, size, format_slice);
     // debug("snprintf: return str={s}", .{str[0..len]});
     return @intCast(len);
 }
