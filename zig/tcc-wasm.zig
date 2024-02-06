@@ -352,12 +352,6 @@ const format_patterns = [_]FormatPattern{
 
     // Format a Single `%p`
     FormatPattern{ .c_spec = "%p", .zig_spec = "{*}", .type0 = *anyopaque, .type1 = null },
-
-    // Format Two `%s`, like `#define %s%s\n`
-    FormatPattern{ .c_spec = "%s%s", .zig_spec = "{s}{s}", .type0 = [*:0]const u8, .type1 = [*:0]const u8 },
-
-    // Format `%s:%d`, like `%s:%d: `
-    FormatPattern{ .c_spec = "%s:%d", .zig_spec = "{s}:{}", .type0 = [*:0]const u8, .type1 = c_int },
 };
 
 /// Runtime Function to format a string by Pattern Matching.
@@ -386,25 +380,23 @@ fn format_string_multi(
                 const next_pos = pos + spec_pos1 + spec_pos2 + 1;
                 // debug("pos={}, spec_pos1={}, spec_pos2={}", .{ pos, spec_pos1, spec_pos2 });
                 const fmt = format[pos..next_pos];
+                // debug("fmt=`{s}`, pos={}", .{ fmt, pos });
+
+                // Format the part before second specifier
+                len += format_string(ap, str + len, size - len, fmt);
 
                 // Continue after the second specifier
                 pos = next_pos;
-                // debug("fmt=`{s}`, pos={}", .{ fmt, pos });
-                len += format_string(ap, str + len, size - len, fmt);
-            } else {
-                // Found only 1 specifier
-                const fmt = format[pos..];
-                // debug("1 spec=`{s}`", .{fmt});
-                len += format_string(ap, str + len, size - len, fmt);
-                break;
+                continue;
             }
-        } else {
-            // No more specifiers
-            const fmt = format[pos..];
-            // debug("No spec=`{s}`", .{fmt});
-            len += format_string(ap, str + len, size - len, fmt);
-            break;
         }
+        // Found 0 or 1 specifiers
+        const fmt = format[pos..];
+        // debug("No spec=`{s}`", .{fmt});
+
+        // Format the rest
+        len += format_string(ap, str + len, size - len, fmt);
+        break;
     }
     return len;
 }
