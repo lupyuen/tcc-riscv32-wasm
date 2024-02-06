@@ -110,6 +110,15 @@ pub export fn allocUint8(length: u32) [*]const u8 {
     return slice.ptr;
 }
 
+/// Return the pointer to ROM FS. `size` is the expected filesystem size.
+pub export fn get_romfs(size: u32) [*]const u8 {
+    if (size > ROMFS_DATA.len) {
+        debug("get_romfs_ptr: Increase ROMFS_DATA size from {} to {}", .{ ROMFS_DATA.len, size });
+        @panic("get_romfs_ptr: Increase ROMFS_DATA size");
+    }
+    return &ROMFS_DATA;
+}
+
 /// Test the ROM FS Filesystem
 fn test_romfs() void {
     // Create the File Struct
@@ -151,6 +160,9 @@ extern fn main(_argc: c_int, argv: [*:null]const ?[*:0]const u8) c_int;
 
 /// Mount Inode for ROM FS
 var romfs_inode: *c.struct_inode = undefined;
+
+/// Storage for ROM FS Filesystem
+var ROMFS_DATA = std.mem.zeroes([8192]u8);
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File Functions
@@ -956,7 +968,7 @@ export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
     assert(rm_xipbase != null);
     if (cmd == c.BIOC_XIPBASE) {
         // Return the XIP Base Address
-        rm_xipbase.?.* = @intCast(@intFromPtr(ROMFS_DATA));
+        rm_xipbase.?.* = @intCast(@intFromPtr(&ROMFS_DATA));
     } else if (cmd == c.MTDIOC_GEOMETRY) {
         // Return the Storage Device Geometry
         const geo: *c.mtd_geometry_s = @ptrCast(rm_xipbase.?);
@@ -990,10 +1002,6 @@ export fn nxrmutex_lock(_: *rmutex_t) c_int {
 export fn nxrmutex_unlock(_: *rmutex_t) c_int {
     return 0;
 }
-
-/// Embed the ROM FS Filesystem
-/// TODO: Load the ROM FS Filesystem in JavaScript
-const ROMFS_DATA = @embedFile("romfs.bin");
 
 const mtd_dev_s = opaque {};
 const rmutex_t = opaque {};

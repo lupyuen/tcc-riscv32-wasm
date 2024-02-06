@@ -60,13 +60,25 @@ WebAssembly.instantiate(typedArray, {
     }
   `);
 
+  // Copy `romfs.bin` into ROM FS Filesystem
+  const romfs_data = fs.readFileSync("zig/romfs.bin");
+  const romfs_size = romfs_data.length;
+  const memory = wasm.instance.exports.memory;
+  const romfs_ptr = wasm.instance.exports
+    .get_romfs(romfs_size);
+  const romfs_slice = new Uint8Array(
+    memory.buffer,
+    romfs_ptr,
+    romfs_size
+  );
+  romfs_slice.set(romfs_data);
+  
   // Call TCC to compile a program
   const ptr = wasm.instance.exports
     .compile_program(options_ptr, code_ptr);
   console.log(`ptr=${ptr}`);
 
   // Get the `a.out` size from first 4 bytes returned
-  const memory = wasm.instance.exports.memory;
   const data_len = new Uint8Array(memory.buffer, ptr, 4);
   const len = data_len[0] | data_len[1] << 8 | data_len[2] << 16 | data_len[3] << 24;
   console.log(`main: len=${len}`);
