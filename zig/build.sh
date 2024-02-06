@@ -52,9 +52,6 @@ function build_wasm {
     -DMTD_IOCTL=mtd_ioctl \
     -DROMFS_MAGIC=0x7275 \
     \
-    -Dferr=printf \
-    -Dfinfo=printf \
-    -Dfwarn=printf \
     -Dkmm_free=free \
     -Dkmm_malloc=malloc \
     -Dkmm_zalloc=zalloc \

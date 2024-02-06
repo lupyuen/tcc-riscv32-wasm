@@ -223,7 +223,7 @@ export fn read(fd: c_int, buf: [*:0]u8, nbyte: size_t) isize {
         @memcpy(buf[0..len], read_buf[0..len]);
         buf[len] = 0;
         read_buf.len = 0;
-        debug("read: return buf={s}", .{buf});
+        debug("read: return buf=\n{s}", .{buf});
         return @intCast(len);
     } else {
         // Fetch the ROM FS File
@@ -237,7 +237,7 @@ export fn read(fd: c_int, buf: [*:0]u8, nbyte: size_t) isize {
             nbyte // buflen: usize
         );
         assert(ret >= 0);
-        debug("read: return buf={s}", .{buf[0..@intCast(ret)]});
+        debug("read: return buf=\n{s}", .{buf[0..@intCast(ret)]});
         return @intCast(ret);
     }
 }
@@ -570,8 +570,11 @@ export fn printf(format: [*:0]const u8, ...) c_int {
     var buf = std.mem.zeroes([512]u8);
     const format_slice = std.mem.span(format);
     const len = format_string_multi(&ap, &buf, buf.len, format_slice);
+    if (buf[len - 1] == '\n') {
+        buf[len - 1] = ' ';
+    }
 
-    debug("{s}", .{buf});
+    debug("{s}", .{buf[0..len]});
     return @intCast(len);
 }
 
