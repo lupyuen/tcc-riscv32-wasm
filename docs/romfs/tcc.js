@@ -9,6 +9,9 @@ const wasm = {
   // WebAssembly Instance
   instance: undefined,
 
+  // ROM FS Filesystem Data
+  romfs: undefined,
+
   // Init the WebAssembly Instance
   init: function (obj) {
     this.instance = obj.instance;
@@ -58,13 +61,25 @@ function main() {
   const code = document.getElementById("code").value;
   const code_ptr = allocateString(code);
 
+  // Copy `romfs.bin` into ROM FS Filesystem
+  const romfs_data = new Uint8Array(wasm.romfs);
+  const romfs_size = romfs_data.length;
+  const memory = wasm.instance.exports.memory;
+  const romfs_ptr = wasm.instance.exports
+    .get_romfs(romfs_size);
+  const romfs_slice = new Uint8Array(
+    memory.buffer,
+    romfs_ptr,
+    romfs_size
+  );
+  romfs_slice.set(romfs_data);
+    
   // Call TCC to compile a program
   const ptr = wasm.instance.exports
     .compile_program(options_ptr, code_ptr);
   console.log(`main: ptr=${ptr}`);
 
   // Get the `a.out` size from first 4 bytes returned
-  const memory = wasm.instance.exports.memory;
   const data_len = new Uint8Array(memory.buffer, ptr, 4);
   const len = data_len[0] | data_len[1] << 8 | data_len[2] << 16 | data_len[3] << 24;
   console.log(`main: len=${len}`);
@@ -184,6 +199,12 @@ async function bootstrap() {
 
   // Store references to WebAssembly Functions and Memory exported by Zig
   wasm.init(result);
+
+  // Download the ROM FS Filesystem
+  console.log("Fetching romfs.bin...");
+  const response = await fetch("romfs.bin");
+  wasm.romfs = await response.arrayBuffer();
+  console.log("ROM FS Size: " + wasm.romfs.byteLength);
 
   // Start the Main Function
   window.requestAnimationFrame(main);
