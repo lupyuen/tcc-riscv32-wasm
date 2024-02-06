@@ -367,7 +367,6 @@ fn format_string_multi(
     // We format "first %s second "
     // Then "%s third"
     // Then "%s fourth"
-    // debug("format_string_multi: format={s}", .{format});
     var pos: usize = 0;
     var len: usize = 0;
     while (true) {
@@ -378,9 +377,7 @@ fn format_string_multi(
             if (std.mem.indexOf(u8, format[pos + spec_pos1 + 1 ..], "%")) |spec_pos2| {
                 // Found 2 specifiers. Extract the part before second specifier.
                 const next_pos = pos + spec_pos1 + spec_pos2 + 1;
-                // debug("pos={}, spec_pos1={}, spec_pos2={}", .{ pos, spec_pos1, spec_pos2 });
                 const fmt = format[pos..next_pos];
-                // debug("fmt=`{s}`, pos={}", .{ fmt, pos });
 
                 // Format the part before second specifier
                 len += format_string(ap, str + len, size - len, fmt);
@@ -392,7 +389,6 @@ fn format_string_multi(
         }
         // Found 0 or 1 specifiers
         const fmt = format[pos..];
-        // debug("No spec=`{s}`", .{fmt});
 
         // Format the rest
         len += format_string(ap, str + len, size - len, fmt);
