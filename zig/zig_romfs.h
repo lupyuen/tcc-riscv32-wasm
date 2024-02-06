@@ -1,7 +1,8 @@
-//// Custom Definitions for Zig ROM FS
+// Custom Definitions for Zig ROM FS
 #ifndef __ZIG_ROMFS_H
 #define __ZIG_ROMFS_H
 
+// NuttX Macros
 #define CODE
 #define DEBUGASSERT(cond) { if (!(cond)) { printf( "*** Assert Failed at " __FILE__ ":%d - " #cond "\n", __LINE__); exit(-1); } }
 #define FAR
@@ -49,9 +50,13 @@ struct mm_map_entry_s {
 #include "inode.h"
 #include "fs_romfs.h"
 
-// From fs_romfs.c
+// Block Driver for ROM FS (zig_romfs.c)
 extern struct inode *romfs_blkdriver;
+
+// Mount Point for ROM FS (zig_romfs.c)
 extern void *romfs_mountpt;
+
+// Return a Mount Inode for ROM FS, initialised with the Mount Point (zig_romfs.c)
 struct inode *create_mount_inode(void *romfs_mountpt0);
 
 // From fs_romfs.c
@@ -94,13 +99,13 @@ int     romfs_stat_common(uint8_t type, uint32_t size,
 int     romfs_stat(FAR struct inode *mountpt, FAR const char *relpath,
                           FAR struct stat *buf);
 
-// From tcc-wasm.zig
+// Emulated NuttX Mutex (tcc-wasm.zig)
 int nxrmutex_init(rmutex_t *rmutex);
 int nxrmutex_destroy(rmutex_t *rmutex);
 int nxrmutex_lock(rmutex_t *rmutex);
 int nxrmutex_unlock(rmutex_t *rmutex);
 
-// From tcc-wasm.zig
+// Emulated NuttX Zalloc and MTD (tcc-wasm.zig)
 void *kmm_zalloc(size_t size);
 int mtd_ioctl(struct mtd_dev_s *dev, int cmd, unsigned long arg);
 ssize_t mtd_bread(struct mtd_dev_s *dev, off_t block, size_t nsectors, uint8_t *buf);
