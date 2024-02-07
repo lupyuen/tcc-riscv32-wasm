@@ -2996,6 +2996,8 @@ Followed by File Header and Data for `stdlib.h`...
 0f90  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
 ```
 
+![Inside a ROM FS Filesystem](https://lupyuen.github.io/images/romfs-format.jpg)
+
 # Analysis of Missing Functions
 
 Read the article...
