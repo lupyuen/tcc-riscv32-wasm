@@ -2921,7 +2921,7 @@ TODO: Define the printf formats %jd, %zu
 
 TODO: Iteratively handle printf formats
 
-# Appendix: Inside a ROM FS Filesystem
+# Inside a ROM FS Filesystem
 
 Based on [__ROM FS Spec__](https://docs.kernel.org/filesystems/romfs.html)
 
