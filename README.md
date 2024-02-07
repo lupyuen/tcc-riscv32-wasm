@@ -2921,6 +2921,81 @@ TODO: Define the printf formats %jd, %zu
 
 TODO: Iteratively handle printf formats
 
+# Appendix: Inside a ROM FS Filesystem
+
+Based on [__ROM FS Spec__](https://docs.kernel.org/filesystems/romfs.html)
+
+And our [__ROM FS Filesystem `romfs.bin`__](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/romfs.bin)...
+
+```bash
+hexdump -C tcc-riscv32-wasm/zig/romfs.bin 
+```
+
+We see the ROM FS Filesystem Header...
+
+```text
+      [ Magic Number        ]  [ FS Size ] [ Checksm ]
+0000  2d 72 6f 6d 31 66 73 2d  00 00 0f 90 58 57 01 f8  |-rom1fs-....XW..|
+      [ Volume Name: ROMFS                           ]
+0010  52 4f 4d 46 53 00 00 00  00 00 00 00 00 00 00 00  |ROMFS...........|
+```
+
+Followed by File Header for `.`...
+
+```text
+----  File Header for `.`
+      [ NextHdr ] [ Info    ]  [ Size    ] [ Checksm ]
+0020  00 00 00 49 00 00 00 20  00 00 00 00 d1 ff ff 97  |...I... ........|
+      [ File Name: `.`                               ]
+0030  2e 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+      (NextHdr & 0xF = 9 means Executable Directory)
+```
+
+Followed by File Header for `..`...
+
+```text
+----  File Header for `..`
+      [ NextHdr ] [ Info    ]  [ Size    ] [ Checksm ]
+0040  00 00 00 60 00 00 00 20  00 00 00 00 d1 d1 ff 80  |...`... ........|
+      [ File Name: `..`                              ]
+0050  2e 2e 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+      (NextHdr & 0xF = 0 means Hard Link)
+```
+
+Followed by File Header and Data for `stdio.h`...
+
+```text
+----  File Header for `stdio.h`
+      [ NextHdr ] [ Info    ]  [ Size    ] [ Checksm ]
+0060  00 00 0a 42 00 00 00 00  00 00 09 b7 1d 5d 1f 9e  |...B.........]..|
+      [ File Name: `stdio.h`                         ]
+0070  73 74 64 69 6f 2e 68 00  00 00 00 00 00 00 00 00  |stdio.h.........|
+      (NextHdr & 0xF = 2 means Regular File)
+
+----  File Data for `stdio.h`
+0080  2f 2f 20 43 61 75 74 69  6f 6e 3a 20 54 68 69 73  |// Caution: This|
+....
+0a20  74 65 72 20 41 30 0a 20  20 72 65 74 75 72 6e 20  |ter A0.  return |
+0a30  72 30 3b 0a 7d 20 0a 00  00 00 00 00 00 00 00 00  |r0;.} ..........|
+```
+
+Followed by File Header and Data for `stdlib.h`...
+
+```text
+----  File Header for `stdlib.h`
+      [ NextHdr ] [ Info    ]  [ Size    ] [ Checksm ]
+0a40  00 00 00 02 00 00 00 00  00 00 05 2e 23 29 67 fc  |............#)g.|
+      [ File Name: `stdlib.h`                        ]
+0a50  73 74 64 6c 69 62 2e 68  00 00 00 00 00 00 00 00  |stdlib.h........|
+      (NextHdr & 0xF = 2 means Regular File)
+
+----  File Data for `stdio.h`
+0a60  2f 2f 20 43 61 75 74 69  6f 6e 3a 20 54 68 69 73  |// Caution: This|
+....
+0f80  72 65 74 75 72 6e 20 72  30 3b 0a 7d 20 0a 00 00  |return r0;.} ...|
+0f90  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+```
+
 # Analysis of Missing Functions
 
 Read the article...
