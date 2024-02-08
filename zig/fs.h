@@ -1,4 +1,3 @@
-// https://github.com/apache/nuttx/blob/master/include/nuttx/fs/fs.h
 /****************************************************************************
  * include/nuttx/fs/fs.h
  *
@@ -26,8 +25,8 @@
  * Included Files
  ****************************************************************************/
 
-////#include <nuttx/config.h>
-////#include <nuttx/compiler.h>
+#include <nuttx/config.h>
+#include <nuttx/compiler.h>
 
 #include <sys/types.h>
 #include <stdarg.h>
@@ -36,11 +35,11 @@
 #include <time.h>
 #include <dirent.h>
 
-////#include <nuttx/mutex.h>
-////#include <nuttx/semaphore.h>
-////#include <nuttx/spinlock.h>
-////#include <nuttx/mm/map.h>
-////#include <nuttx/spawn.h>
+#include <nuttx/mutex.h>
+#include <nuttx/semaphore.h>
+#include <nuttx/spinlock.h>
+#include <nuttx/mm/map.h>
+#include <nuttx/spawn.h>
 
 /****************************************************************************
  * Pre-processor Definitions

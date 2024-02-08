@@ -1,4 +1,3 @@
-// https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfs.h
 /****************************************************************************
  * fs/romfs/fs_romfs.h
  *
@@ -26,12 +25,12 @@
  * Included Files
  ****************************************************************************/
 
-////#include <nuttx/config.h>
+#include <nuttx/config.h>
 
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "inode.h"////
+#include "inode/inode.h"
 
 /****************************************************************************
  * Pre-processor Definitions

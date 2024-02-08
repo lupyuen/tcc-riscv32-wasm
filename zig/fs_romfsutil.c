@@ -1,4 +1,3 @@
-// https://github.com/apache/nuttx/blob/master/fs/romfs/fs_romfsutil.c
 /****************************************************************************
  * fs/romfs/fs_romfsutil.c
  *
@@ -25,8 +24,7 @@
  * Included Files
  ****************************************************************************/
 
-#include "zig_romfs.h"////
-////#include <nuttx/config.h>
+#include <nuttx/config.h>
 #include <sys/types.h>
 
 #include <inttypes.h>
@@ -35,21 +33,13 @@
 #include <assert.h>
 #include <errno.h>
 #include <assert.h>
-////#include <debug.h>
+#include <debug.h>
 
-////#include <nuttx/kmalloc.h>
-////#include <nuttx/fs/ioctl.h>
-////#include <nuttx/mtd/mtd.h>
+#include <nuttx/kmalloc.h>
+#include <nuttx/fs/ioctl.h>
+#include <nuttx/mtd/mtd.h>
 
-#include "fs.h"////
 #include "fs_romfs.h"
-
-// All `inline` functions become non-inline
-// So that Zig can call the functions (romfs_searchdir)
-#define inline ////
-
-// Always call mtd_ioctl() to configure ROM FS Device
-#define INODE_IS_MTD(inode) 1 ////
 
 /****************************************************************************
  * Pre-processor Definitions
