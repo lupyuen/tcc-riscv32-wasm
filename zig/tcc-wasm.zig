@@ -26,7 +26,7 @@ pub export fn compile_program(
     memory_allocator = std.heap.FixedBufferAllocator.init(&memory_buffer);
 
     // Map from File Descriptor to ROM FS File
-    romfs_files = std.ArrayList(*c.struct_file).init(std.heap.page_allocator);
+    romfs_files = std.ArrayList(?*c.struct_file).init(std.heap.page_allocator);
     defer romfs_files.deinit();
 
     // Mount the ROM FS Filesystem
@@ -181,11 +181,10 @@ export fn open(path: [*:0]const u8, oflag: c_uint, ...) c_int {
     } else {
         // If opening an Include File or Library File...
         // Allocate the File Struct
-        const files = std.heap.page_allocator.alloc(c.struct_file, 1) catch {
+        const file = std.heap.page_allocator.create(c.struct_file) catch {
             debug("open: Failed to allocate file", .{});
             @panic("open: Failed to allocate file");
         };
-        const file = &files[0];
         file.* = std.mem.zeroes(c.struct_file);
         file.*.f_inode = romfs_inode;
 
@@ -282,16 +281,21 @@ export fn close(fd: c_int) c_int {
     // If closing an Include File or Library File...
     if (fd > FIRST_FD) {
         // Fetch the ROM FS File
-        const f = fd - FIRST_FD - 1;
+        const f: usize = @intCast(fd - FIRST_FD - 1);
         if (f >= romfs_files.items.len) {
             // Skip the closing of `hello.o`
             return 0;
         }
-        const file = romfs_files.items[@intCast(f)];
 
-        // Close the ROM FS File. TODO: Deallocate the file
-        const ret = c.romfs_close(file);
-        assert(ret >= 0);
+        // Close the ROM FS File if non-null
+        if (romfs_files.items[f]) |file| {
+            const ret = c.romfs_close(file);
+            assert(ret >= 0);
+
+            // Deallocate the File Struct
+            std.heap.page_allocator.destroy(file);
+            romfs_files.items[f] = null;
+        }
     }
     return 0;
 }
@@ -320,7 +324,7 @@ const FIRST_FD = 3;
 
 /// Map a File Descriptor to the ROM FS File
 /// Index of romfs_files = File Descriptor Number - FIRST_FD - 1
-var romfs_files: std.ArrayList(*c.struct_file) = undefined;
+var romfs_files: std.ArrayList(?*c.struct_file) = undefined;
 
 ///////////////////////////////////////////////////////////////////////////////
 //  Semaphore Functions
