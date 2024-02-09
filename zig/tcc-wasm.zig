@@ -613,7 +613,7 @@ const FILE = opaque {};
 ///////////////////////////////////////////////////////////////////////////////
 //  Memory Allocator for malloc
 
-/// Zig replacement for malloc. TODO: Borrow from zlibc
+/// Zig replacement for malloc. TODO: Borrow from ziglibc
 export fn malloc(size: usize) ?*anyopaque {
     // TODO: Save the slice length
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
@@ -623,7 +623,7 @@ export fn malloc(size: usize) ?*anyopaque {
     return mem.ptr;
 }
 
-/// Zig replacement for zalloc. TODO: Borrow from zlibc
+/// Zig replacement for zalloc. TODO: Borrow from ziglibc
 export fn zalloc(size: usize) ?*anyopaque {
     // TODO: Save the slice length
     const mem = memory_allocator.allocator().alloc(u8, size) catch {
@@ -634,7 +634,7 @@ export fn zalloc(size: usize) ?*anyopaque {
     return mem.ptr;
 }
 
-/// Zig replacement for realloc. TODO: Borrow from zlibc
+/// Zig replacement for realloc. TODO: Borrow from ziglibc
 export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     // TODO: Call realloc instead
     // const mem = memory_allocator.allocator().realloc(old_mem[0..???], size) catch {
@@ -653,7 +653,7 @@ export fn realloc(old_mem: [*c]u8, size: usize) ?*anyopaque {
     return mem.ptr;
 }
 
-/// Zig replacement for free. TODO: Borrow from zlibc
+/// Zig replacement for free. TODO: Borrow from ziglibc
 export fn free(mem: [*c]u8) void {
     _ = mem; // autofix
     // TODO: Why is TCC passing NULL?
