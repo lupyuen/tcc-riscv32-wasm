@@ -971,10 +971,11 @@ export fn mtd_ioctl(_: *mtd_dev_s, cmd: c_int, rm_xipbase: ?*c_int) c_int {
         rm_xipbase.?.* = @intCast(@intFromPtr(&ROMFS_DATA));
     } else if (cmd == c.MTDIOC_GEOMETRY) {
         // Return the Storage Device Geometry
+        const blocksize = 64;
         const geo: *c.mtd_geometry_s = @ptrCast(rm_xipbase.?);
-        geo.*.blocksize = 64;
-        geo.*.erasesize = 64;
-        geo.*.neraseblocks = 1024; // TODO: Is this needed?
+        geo.*.blocksize = blocksize;
+        geo.*.erasesize = blocksize;
+        geo.*.neraseblocks = ROMFS_DATA.len / blocksize;
         const name = "ZIG_ROMFS";
         @memcpy(geo.*.model[0..name.len], name);
         geo.*.model[name.len] = 0;
