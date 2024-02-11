@@ -6,7 +6,9 @@
 
 # TCC RISC-V Compiler: Compiled to WebAssembly with Zig Compiler
 
-Read the article...
+Read the articles...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
 
 - ["TCC RISC-V Compiler runs in the Web Browser (thanks to Zig Compiler)"](https://lupyuen.github.io/articles/tcc)
 
@@ -1829,6 +1831,10 @@ TODO: Call the NuttX System Call `__exit` to terminate peacefully
 
 # NuttX App runs in a Web Browser!
 
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
+
 _OK so we can compile NuttX Apps in a Web Browser... But can we run them in a Web Browser?_
 
 Yep! A NuttX App compiled in the Web Browser... Now runs OK with NuttX Emulator in Web Browser! 🎉
@@ -2081,6 +2087,10 @@ That's how we compile a NuttX App in the Web Browser, and run it with NuttX Emul
 
 # ROM FS Filesystem for TCC WebAssembly
 
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
+
 _TCC WebAssembly needs an Embedded Filesystem that will have C Header Files and C Library Files for building apps..._
 
 _How will we implement this Embedded Filesystem in Zig?_
@@ -2141,6 +2151,10 @@ We'll borrow the ROM FS Driver from Apache NuttX RTOS. And compile it from C to 
 This compiles OK with Zig Compiler with a few tweaks, let's test it in Zig...
 
 # Mount the ROM FS Filesystem in Zig
+
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
 
 _We borrowed the ROM FS Driver from Apache NuttX RTOS. Zig Compiler compiles it to WebAssembly with a few tweaks..._
 
@@ -2276,6 +2290,10 @@ Let's open a file from ROM FS...
 
 # Open a ROM FS File in Zig
 
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
+
 This is how we open a file from ROM FS in Zig: [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L39-L46)
 
 ```c
@@ -2340,6 +2358,10 @@ Finally we read a ROM FS file...
 
 # Read a ROM FS File in Zig
 
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
+
 This is how we read a ROM FS File in Zig (and close it): [tcc-wasm.zig](https://github.com/lupyuen/tcc-riscv32-wasm/blob/romfs/zig/tcc-wasm.zig#L57-L73)
 
 ```zig
@@ -2390,6 +2412,10 @@ This works OK in the Web Browser too!
 Let's integrate the ROM FS Driver with TCC...
 
 # Integrate NuttX ROM FS Driver with TCC WebAssembly in Zig
+
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
 
 _TCC WebAssembly needs a ROM FS Filesystem that will have C Header Files and C Library Files for building apps..._
 
@@ -2625,6 +2651,10 @@ Try the NuttX Tmp FS Driver: [nuttx/fs/tmpfs](https://github.com/apache/nuttx/tr
 Time to wrap up and run everything in a Web Browser...
 
 # `puts` and `exit` work OK in TCC WebAssembly and NuttX Emulator yay!
+
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
 
 [(Watch the __Demo on YouTube__)](https://youtu.be/sU69bUyrgN8)
 
@@ -2922,6 +2952,10 @@ TODO: Define the printf formats %jd, %zu
 TODO: Iteratively handle printf formats
 
 # Inside a ROM FS Filesystem
+
+Read the article...
+
+- ["Zig runs ROM FS Filesystem in the Web Browser (thanks to Apache NuttX RTOS)"](https://lupyuen.github.io/articles/romfs)
 
 Based on [__ROM FS Spec__](https://docs.kernel.org/filesystems/romfs.html)
 
